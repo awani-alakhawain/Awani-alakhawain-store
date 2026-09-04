@@ -1,51 +1,58 @@
 const starter = [
   {
-    id: "1",
+    id: "starter1",
     name: "إبريق أنوكس",
     price: 100,
     cat: "أباريق",
     emoji: "🫖",
-    desc: "إبريق أنوكس بجودة جيدة."
+    desc: "إبريق أنوكس بجودة جيدة.",
+    image: ""
   },
   {
-    id: "2",
+    id: "starter2",
     name: "طقم أواني الطبخ",
     price: 249,
     cat: "أواني الطبخ",
     emoji: "🍳",
-    desc: "طقم عملي للمطبخ."
+    desc: "طقم عملي للمطبخ.",
+    image: ""
   },
   {
-    id: "3",
+    id: "starter3",
     name: "كاسرولة أنوكس",
     price: 120,
     cat: "أواني الطبخ",
     emoji: "🥘",
-    desc: "كاسرولة أنوكس للاستعمال اليومي."
+    desc: "كاسرولة أنوكس للاستعمال اليومي.",
+    image: ""
   },
   {
-    id: "4",
+    id: "starter4",
     name: "صينية تقديم",
     price: 80,
     cat: "أواني منزلية",
     emoji: "🍽️",
-    desc: "صينية أنيقة للتقديم."
+    desc: "صينية أنيقة للتقديم.",
+    image: ""
   }
 ];
 
 let products = [];
 let cart = JSON.parse(localStorage.getItem("cart") || "{}");
 
-const $ = s => document.querySelector(s);
+const $ = (s) => document.querySelector(s);
 
-/* جلب المنتجات من Firebase */
+/* =========================
+   FIREBASE - تحميل المنتجات
+========================= */
+
 async function loadProducts() {
   try {
     const snapshot = await db.collection("products").get();
 
     products = [];
 
-    snapshot.forEach(doc => {
+    snapshot.forEach((doc) => {
       const data = doc.data();
 
       products.push({
@@ -59,6 +66,10 @@ async function loadProducts() {
       });
     });
 
+    /*
+      إذا كانت Collection خاوية،
+      نستعمل المنتجات التجريبية فقط للعرض.
+    */
     if (products.length === 0) {
       products = starter;
     }
@@ -68,162 +79,207 @@ async function loadProducts() {
 
   } catch (error) {
     console.error(error);
+
     products = starter;
+
     render();
     renderAdmin();
+
     alert("وقع مشكل في الاتصال بـ Firebase.");
   }
 }
 
-/* عرض المنتجات */
+/* =========================
+   عرض المنتجات
+========================= */
+
 function render() {
 
-  let q = ($("#search").value || "").toLowerCase();
-  let c = $("#cat").value;
+  const searchInput = $("#search");
+  const catSelect = $("#cat");
 
-  let cats = [...new Set(products.map(p => p.cat))];
+  if (!searchInput || !catSelect) return;
 
-  $("#cat").innerHTML =
+  const q = searchInput.value.toLowerCase();
+  const c = catSelect.value;
+
+  const cats = [...new Set(products.map((p) => p.cat))];
+
+  catSelect.innerHTML =
     '<option value="">كل الفئات</option>' +
-    cats.map(x =>
-      `<option ${x === c ? "selected" : ""}>${x}</option>`
+    cats.map((x) =>
+      `<option value="${x}" ${x === c ? "selected" : ""}>${x}</option>`
     ).join("");
 
+  const filtered = products.filter((p) => {
+
+    const searchOK =
+      !q || p.name.toLowerCase().includes(q);
+
+    const catOK =
+      !c || p.cat === c;
+
+    return searchOK && catOK;
+  });
+
   $("#products").innerHTML =
-    products
-      .filter(p =>
-        (!q || p.name.toLowerCase().includes(q)) &&
-        (!c || p.cat === c)
-      )
-      .map(p => {
+    filtered.map((p) => {
 
-        let picture = p.image
-          ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:220px;object-fit:cover;border-radius:12px;">`
-          : `<div class="pic">${p.emoji || "🛍️"}</div>`;
-
-        return `
-          <article class="card">
-
-            ${picture}
-
-            <div class="body">
-
-              <h3>${p.name}</h3>
-
-              <small>${p.cat}</small>
-
-              <p>${p.desc || ""}</p>
-
-              <div class="price">
-                ${p.price} درهم
-              </div>
-
-              <button
-                class="add"
-                onclick="add('${p.id}')">
-                أضف للسلة
-              </button>
-
-              <button
-                onclick="orderNow('${p.id}')"
-                style="margin-top:8px;width:100%;">
-                🟢 أطلب الآن عبر واتساب
-              </button>
-
-            </div>
-
-          </article>
+      const picture = p.image
+        ? `
+          <img
+            src="${p.image}"
+            alt="${p.name}"
+            style="
+              width:100%;
+              height:220px;
+              object-fit:cover;
+              border-radius:12px;
+            "
+          >
+        `
+        : `
+          <div class="pic">
+            ${p.emoji || "🛍️"}
+          </div>
         `;
 
-      }).join("") || "<p>لا توجد منتجات.</p>";
+      return `
+        <article class="card">
+
+          ${picture}
+
+          <div class="body">
+
+            <h3>${p.name}</h3>
+
+            <small>${p.cat}</small>
+
+            ${
+              p.desc
+                ? `<p>${p.desc}</p>`
+                : ""
+            }
+
+            <div class="price">
+              ${p.price} درهم
+            </div>
+
+            <button
+              class="add"
+              onclick="add('${p.id}')">
+              🛒 أضف للسلة
+            </button>
+
+            <button
+              onclick="orderNow('${p.id}')"
+              style="
+                margin-top:8px;
+                width:100%;
+              ">
+              🟢 أطلب الآن عبر واتساب
+            </button>
+
+          </div>
+
+        </article>
+      `;
+
+    }).join("") || "<p>لا توجد منتجات.</p>";
 
   renderCart();
 }
 
-/* السلة */
+/* =========================
+   السلة
+========================= */
+
 function renderCart() {
 
-  let n = 0;
-  let sum = 0;
+  let count = 0;
+  let total = 0;
 
-  $("#items").innerHTML =
-    Object.keys(cart).map(id => {
+  const html = Object.keys(cart)
+    .map((id) => {
 
-      let p = products.find(x => x.id === id);
+      const p = products.find(
+        (x) => x.id === id
+      );
 
       if (!p) return "";
 
-      let q = cart[id];
+      const quantity = cart[id];
 
-      n += q;
-      sum += p.price * q;
+      count += quantity;
+      total += p.price * quantity;
 
       return `
         <div class="row">
 
           <span>
             ${p.name}<br>
-            ${p.price} × ${q}
+            ${p.price} × ${quantity}
           </span>
 
           <span>
-            <button onclick="chg('${id}',-1)">−</button>
-            ${q}
-            <button onclick="chg('${id}',1)">+</button>
+            <button onclick="chg('${id}', -1)">−</button>
+            ${quantity}
+            <button onclick="chg('${id}', 1)">+</button>
           </span>
 
         </div>
       `;
+    })
+    .join("");
 
-    }).join("") || "<p>السلة فارغة.</p>";
+  $("#items").innerHTML =
+    html || "<p>السلة فارغة.</p>";
 
-  $("#count").textContent = n;
-  $("#total").textContent = sum;
+  $("#count").textContent = count;
+  $("#total").textContent = total;
 }
 
-/* إضافة للسلة */
+/* =========================
+   إضافة للسلة
+========================= */
+
 function add(id) {
 
   cart[id] = (cart[id] || 0) + 1;
 
-  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
 
   renderCart();
-
   openCart();
 }
 
-/* تغيير الكمية */
-function chg(id, d) {
+/* =========================
+   تغيير الكمية
+========================= */
 
-  cart[id] = (cart[id] || 0) + d;
+function chg(id, amount) {
+
+  cart[id] = (cart[id] || 0) + amount;
 
   if (cart[id] <= 0) {
     delete cart[id];
   }
 
-  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
 
   renderCart();
 }
 
-/* طلب مباشر عبر واتساب */
-function orderNow(id) {
+/* =========================
+   السلة
+========================= */
 
-  const p = products.find(x => x.id === id);
-
-  if (!p) return;
-
-  const msg =
-    `السلام عليكم، أريد طلب:%0A%0A` +
-    `المنتج: ${p.name}%0A` +
-    `الثمن: ${p.price} درهم`;
-
-  location.href =
-    "https://wa.me/212718000706?text=" + msg;
-}
-
-/* فتح وإغلاق السلة */
 function openCart() {
   $("#cart").classList.add("open");
 }
@@ -232,9 +288,74 @@ function closeCart() {
   $("#cart").classList.remove("open");
 }
 
-/* الإدارة */
+/* =========================
+   تسجيل الدخول
+========================= */
+
+function openLogin() {
+
+  /*
+    إذا كان Admin داخل من قبل،
+    نفتحو الإدارة مباشرة.
+  */
+  if (auth.currentUser) {
+    openAdmin();
+    return;
+  }
+
+  $("#login").classList.add("open");
+}
+
+function closeLogin() {
+  $("#login").classList.remove("open");
+}
+
+$("#loginForm").onsubmit = async (e) => {
+
+  e.preventDefault();
+
+  const email = $("#loginEmail").value.trim();
+  const password = $("#loginPassword").value;
+
+  const message = $("#loginMessage");
+
+  message.textContent = "جاري تسجيل الدخول...";
+
+  try {
+
+    await auth.signInWithEmailAndPassword(
+      email,
+      password
+    );
+
+    message.textContent =
+      "تم الدخول بنجاح ✅";
+
+    closeLogin();
+    openAdmin();
+
+  } catch (error) {
+
+    console.error(error);
+
+    message.textContent =
+      "الإيميل أو كلمة السر غير صحيحة ❌";
+  }
+};
+
+/* =========================
+   إدارة المتجر
+========================= */
+
 function openAdmin() {
+
+  if (!auth.currentUser) {
+    openLogin();
+    return;
+  }
+
   $("#admin").classList.add("open");
+
   renderAdmin();
 }
 
@@ -242,34 +363,62 @@ function closeAdmin() {
   $("#admin").classList.remove("open");
 }
 
+/* =========================
+   قائمة الإدارة
+========================= */
+
 function renderAdmin() {
 
+  if (!auth.currentUser) {
+    $("#adminList").innerHTML = "";
+    return;
+  }
+
+  /*
+    ما نظهروش starter داخل الإدارة
+    لأنها ماشي محفوظة في Firebase.
+  */
+
   $("#adminList").innerHTML =
-    products.map(p => `
-      <div class="adminrow">
+    products.map((p) => {
 
-        <b>${p.name}</b>
-        — ${p.price}dh
+      return `
+        <div class="adminrow">
 
-        <br>
+          <b>${p.name}</b>
+          — ${p.price}dh
 
-        <small>${p.cat}</small>
+          <br>
 
-        <br>
+          <small>${p.cat}</small>
 
-        <button onclick="edit('${p.id}')">
-          ✏️ تعديل
-        </button>
+          <br>
 
-      </div>
-    `).join("");
+          <button
+            onclick="edit('${p.id}')">
+            ✏️ تعديل
+          </button>
 
+          <button
+            onclick="del('${p.id}')">
+            🗑️ حذف
+          </button>
+
+        </div>
+      `;
+
+    }).join("");
 }
 
-/* تعديل */
+/* =========================
+   تعديل منتج
+========================= */
+
 function edit(id) {
 
-  let p = products.find(x => x.id === id);
+  const p = products.find(
+    (x) => x.id === id
+  );
 
   if (!p) return;
 
@@ -284,18 +433,32 @@ function edit(id) {
   openAdmin();
 }
 
-/* حفظ المنتج */
-$("#productForm").onsubmit = async e => {
+/* =========================
+   إضافة / تعديل المنتج
+========================= */
+
+$("#productForm").onsubmit = async (e) => {
 
   e.preventDefault();
 
-  let id = $("#editId").value;
+  if (!auth.currentUser) {
 
-  let data = {
+    alert("خاصك تدخل لحساب الإدارة أولاً.");
+
+    openLogin();
+
+    return;
+  }
+
+  const id = $("#editId").value;
+
+  const data = {
 
     name: $("#pname").value.trim(),
 
-    price: Number($("#pprice").value),
+    price: Number(
+      $("#pprice").value
+    ),
 
     cat: $("#pcat").value.trim(),
 
@@ -303,7 +466,9 @@ $("#productForm").onsubmit = async e => {
 
     image: $("#pimage").value.trim(),
 
-    emoji: $("#pemoji").value.trim() || "🛍️"
+    emoji:
+      $("#pemoji").value.trim() ||
+      "🛍️"
 
   };
 
@@ -311,13 +476,15 @@ $("#productForm").onsubmit = async e => {
 
     if (id) {
 
-      await db.collection("products")
+      await db
+        .collection("products")
         .doc(id)
         .set(data);
 
     } else {
 
-      await db.collection("products")
+      await db
+        .collection("products")
         .add(data);
 
     }
@@ -326,7 +493,9 @@ $("#productForm").onsubmit = async e => {
 
     $("#editId").value = "";
 
-    alert("تم حفظ المنتج في المتجر Online ✅");
+    alert(
+      "تم حفظ المنتج Online بنجاح ✅"
+    );
 
     await loadProducts();
 
@@ -334,48 +503,164 @@ $("#productForm").onsubmit = async e => {
 
     console.error(error);
 
-    alert("ما قدرناش نحفظو المنتج في Firebase.");
-
+    alert(
+      "ما قدرناش نحفظو المنتج في Firebase ❌"
+    );
   }
-
 };
 
-/* إرسال السلة عبر واتساب */
-$("#order").onsubmit = e => {
+/* =========================
+   حذف المنتج
+========================= */
+
+async function del(id) {
+
+  if (!auth.currentUser) {
+
+    alert(
+      "خاصك تدخل لحساب الإدارة."
+    );
+
+    return;
+  }
+
+  if (!confirm("واش متأكد بغيتي تحذف هاد المنتج؟")) {
+    return;
+  }
+
+  try {
+
+    await db
+      .collection("products")
+      .doc(id)
+      .delete();
+
+    delete cart[id];
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(cart)
+    );
+
+    alert("تم حذف المنتج ✅");
+
+    await loadProducts();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "وقع مشكل أثناء حذف المنتج ❌"
+    );
+  }
+}
+
+/* =========================
+   طلب مباشر عبر WhatsApp
+========================= */
+
+function orderNow(id) {
+
+  const p = products.find(
+    (x) => x.id === id
+  );
+
+  if (!p) return;
+
+  const message =
+    "السلام عليكم، أريد طلب:%0A%0A" +
+    "المنتج: " +
+    encodeURIComponent(p.name) +
+    "%0A" +
+    "الثمن: " +
+    encodeURIComponent(p.price) +
+    " درهم";
+
+  location.href =
+    "https://wa.me/212718000706?text=" +
+    message;
+}
+
+/* =========================
+   إرسال السلة عبر WhatsApp
+========================= */
+
+$("#order").onsubmit = (e) => {
 
   e.preventDefault();
 
   if (!Object.keys(cart).length) {
-    return alert("السلة فارغة");
+
+    alert("السلة فارغة");
+
+    return;
   }
 
-  let f = new FormData(e.target);
+  const form = new FormData(e.target);
 
-  let items = Object.keys(cart)
-    .map(id => {
+  const items = Object.keys(cart)
+    .map((id) => {
 
-      let p = products.find(x => x.id === id);
+      const p = products.find(
+        (x) => x.id === id
+      );
 
-      return `${p.name} x${cart[id]}`;
-
+      return (
+        p.name +
+        " x" +
+        cart[id]
+      );
     })
     .join("، ");
 
-  let msg =
-    `السلام عليكم، أريد الطلب:%0A` +
-    `${items}%0A` +
-    `الاسم: ${f.get("name")}%0A` +
-    `الهاتف: ${f.get("phone")}%0A` +
-    `العنوان: ${f.get("address")}`;
+  const message =
+    "السلام عليكم، أريد الطلب:%0A" +
+    encodeURIComponent(items) +
+    "%0Aالاسم: " +
+    encodeURIComponent(form.get("name")) +
+    "%0Aالهاتف: " +
+    encodeURIComponent(form.get("phone")) +
+    "%0Aالعنوان: " +
+    encodeURIComponent(form.get("address"));
 
   location.href =
-    "https://wa.me/212718000706?text=" + msg;
+    "https://wa.me/212718000706?text=" +
+    message;
 };
 
-/* البحث */
+/* =========================
+   البحث
+========================= */
+
 $("#search").oninput = render;
 
 $("#cat").onchange = render;
 
-/* تشغيل المتجر */
+/* =========================
+   Firebase Auth
+========================= */
+
+auth.onAuthStateChanged((user) => {
+
+  if (user) {
+
+    console.log(
+      "Admin connecté:",
+      user.email
+    );
+
+  } else {
+
+    console.log(
+      "Aucun administrateur connecté"
+    );
+  }
+
+});
+
+/* =========================
+   تشغيل المتجر
+========================= */
+
 loadProducts();
