@@ -9,13 +9,14 @@ body {
   color: #222;
   direction: rtl;
 }
-
 header {
   background: linear-gradient(135deg, #0f766e, #14b8a6);
   color: white;
-  padding: 22px 15px;
+  padding: 0;
   text-align: center;
-  border-radius: 0 0 22px 22px;
+  border-radius: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 header h1 {
