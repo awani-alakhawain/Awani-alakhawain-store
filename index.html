@@ -50,8 +50,42 @@
     <input name="name" required placeholder="الاسم الكامل">
     <input name="phone" required placeholder="رقم الهاتف">
     <textarea name="address" required placeholder="العنوان"></textarea>
-    <button>إرسال الطلب عبر WhatsApp</button>
+    <button type="submit">إرسال الطلب عبر WhatsApp</button>
   </form>
+</div>
+
+<!-- تسجيل الدخول للإدارة -->
+<div id="login" class="panel">
+
+  <div class="panelhead">
+    <h2>🔐 دخول الإدارة</h2>
+    <button onclick="closeLogin()">✕</button>
+  </div>
+
+  <form id="loginForm">
+
+    <input
+      id="loginEmail"
+      type="email"
+      required
+      placeholder="الإيميل"
+    >
+
+    <input
+      id="loginPassword"
+      type="password"
+      required
+      placeholder="كلمة السر"
+    >
+
+    <button type="submit">
+      دخول
+    </button>
+
+  </form>
+
+  <p id="loginMessage"></p>
+
 </div>
 
 <!-- إدارة المتجر -->
@@ -63,7 +97,7 @@
   </div>
 
   <p class="hint">
-    من هنا تقدر تزيد وتعدل وتحذف المنتجات.
+    من هنا تقدر تزيد وتعدل المنتجات.
   </p>
 
   <form id="productForm">
@@ -115,7 +149,7 @@
 
 </div>
 
-<button class="adminBtn" onclick="openAdmin()">
+<button class="adminBtn" onclick="openLogin()">
   ⚙️ إدارة المنتجات
 </button>
 
@@ -126,12 +160,12 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-auth-compat.js"></script>
 
 <script>
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCq7WCBST7RansdCn6jkadxYKt2zmeVtkk",
+  apiKey: "AIzaSyCq7WCBST7RansdCn6jkadxYKt2zmeVtKkk",
   authDomain: "awani-alakhawain-store.firebaseapp.com",
   projectId: "awani-alakhawain-store",
   storageBucket: "awani-alakhawain-store.firebasestorage.app",
@@ -142,6 +176,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 </script>
 
