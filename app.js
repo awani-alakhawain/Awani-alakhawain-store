@@ -403,6 +403,10 @@ function renderAdmin() {
             onclick="del('${p.id}')">
             🗑️ حذف
           </button>
+          <button
+  onclick="shareOnFacebook('${p.id}')">
+  📘 نشر في Facebook
+</button>
 
         </div>
       `;
