@@ -1,18 +1,150 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>أواني الأخوين</title><link rel="stylesheet" href="style.css"></head>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أواني الأخوين</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
 <body>
-<header><div><h1>أواني الأخوين</h1><small>متجر الأواني المنزلية</small></div><button onclick="openCart()">🛒 السلة <b id="count">0</b></button></header>
+
+<header>
+  <div>
+    <h1>أواني الأخوين</h1>
+    <small>متجر الأواني المنزلية</small>
+  </div>
+  <button onclick="openCart()">🛒 السلة <b id="count">0</b></button>
+</header>
+
 <main>
-<section class="hero"><h2>مرحبا بكم 👋</h2><p>منتجات منزلية بأثمنة مناسبة والدفع عند الاستلام.</p></section>
-<div class="tools"><input id="search" placeholder="🔎 ابحث عن منتج"><select id="cat"><option value="">كل الفئات</option></select></div>
+
+<section class="hero">
+  <h2>مرحبا بكم 👋</h2>
+  <p>منتجات منزلية بأثمنة مناسبة والدفع عند الاستلام.</p>
+</section>
+
+<div class="tools">
+  <input id="search" placeholder="🔎 ابحث عن منتج">
+  <select id="cat">
+    <option value="">كل الفئات</option>
+  </select>
+</div>
+
 <section id="products" class="grid"></section>
+
 </main>
-<div id="cart" class="panel"><div class="panelhead"><h2>السلة</h2><button onclick="closeCart()">✕</button></div><div id="items"></div><h3>المجموع: <span id="total">0</span> درهم</h3><form id="order"><input name="name" required placeholder="الاسم الكامل"><input name="phone" required placeholder="رقم الهاتف"><textarea name="address" required placeholder="العنوان"></textarea><button>إرسال الطلب عبر WhatsApp</button></form></div>
-<div id="admin" class="panel"><div class="panelhead"><h2>⚙️ إدارة المتجر</h2><button onclick="closeAdmin()">✕</button></div>
-<p class="hint">من هنا تقدر تزيد وتعدل وتحذف المنتجات من الهاتف. البيانات كتتخزن فالمتصفح.</p>
-<form id="productForm"><input type="hidden" id="editId"><input id="pname" required placeholder="اسم المنتج"><input id="pprice" type="number" required placeholder="الثمن بالدرهم"><input id="pcat" required placeholder="الفئة (مثلا: أباريق)"><input id="pemoji" placeholder="رمز/إيموجي للمنتج مثلا 🫖"><button>حفظ المنتج</button></form>
-<div id="adminList"></div></div>
-<button class="adminBtn" onclick="openAdmin()">⚙️ إدارة المنتجات</button>
-<footer>📞 0718000706 — أواني الأخوين</footer>
-<script src="app.js"></script></body></html>
+
+<!-- السلة -->
+<div id="cart" class="panel">
+  <div class="panelhead">
+    <h2>السلة</h2>
+    <button onclick="closeCart()">✕</button>
+  </div>
+
+  <div id="items"></div>
+
+  <h3>المجموع: <span id="total">0</span> درهم</h3>
+
+  <form id="order">
+    <input name="name" required placeholder="الاسم الكامل">
+    <input name="phone" required placeholder="رقم الهاتف">
+    <textarea name="address" required placeholder="العنوان"></textarea>
+    <button>إرسال الطلب عبر WhatsApp</button>
+  </form>
+</div>
+
+<!-- إدارة المتجر -->
+<div id="admin" class="panel">
+
+  <div class="panelhead">
+    <h2>⚙️ إدارة المتجر</h2>
+    <button onclick="closeAdmin()">✕</button>
+  </div>
+
+  <p class="hint">
+    من هنا تقدر تزيد وتعدل وتحذف المنتجات.
+  </p>
+
+  <form id="productForm">
+
+    <input type="hidden" id="editId">
+
+    <input
+      id="pname"
+      required
+      placeholder="اسم المنتج"
+    >
+
+    <input
+      id="pprice"
+      type="number"
+      required
+      placeholder="الثمن بالدرهم"
+    >
+
+    <input
+      id="pcat"
+      required
+      placeholder="الفئة مثلا: أباريق"
+    >
+
+    <textarea
+      id="pdesc"
+      placeholder="وصف المنتج"
+    ></textarea>
+
+    <input
+      id="pimage"
+      type="url"
+      placeholder="رابط صورة المنتج"
+    >
+
+    <input
+      id="pemoji"
+      placeholder="رمز/إيموجي مثلا 🫖"
+    >
+
+    <button type="submit">
+      حفظ المنتج
+    </button>
+
+  </form>
+
+  <div id="adminList"></div>
+
+</div>
+
+<button class="adminBtn" onclick="openAdmin()">
+  ⚙️ إدارة المنتجات
+</button>
+
+<footer>
+  📞 0718000706 — أواني الأخوين
+</footer>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore-compat.js"></script>
+
+<script>
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCq7WCBST7RansdCn6jkadxYKt2zmeVtkk",
+  authDomain: "awani-alakhawain-store.firebaseapp.com",
+  projectId: "awani-alakhawain-store",
+  storageBucket: "awani-alakhawain-store.firebasestorage.app",
+  messagingSenderId: "640020412037",
+  appId: "1:640020412037:web:6ace50c3ea7967dadc9bec"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+
+</script>
+
+<script src="app.js"></script>
+
+</body>
+</html>
