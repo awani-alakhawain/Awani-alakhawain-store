@@ -582,7 +582,7 @@ function orderNow(id) {
     " درهم";
 
   location.href =
-    "https://wa.me/212718000706?text=" +
+    "https://wa.me/212660234149?text=" +
     message;
 }
 
@@ -629,7 +629,7 @@ $("#order").onsubmit = (e) => {
     encodeURIComponent(form.get("address"));
 
   location.href =
-    "https://wa.me/212718000706?text=" +
+    "https://wa.me/212660234149?text=" +
     message;
 };
 
