@@ -407,6 +407,10 @@ function renderAdmin() {
   onclick="shareOnFacebook('${p.id}')">
   📘 نشر في Facebook
 </button>
+<button
+  onclick="shareProduct('${p.id}')">
+  📢 مشاركة المنتج
+</button>
 
         </div>
       `;
