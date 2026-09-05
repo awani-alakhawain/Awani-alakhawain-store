@@ -423,7 +423,8 @@ function renderAdmin() {
 ========================= */
 
 function edit(id) {
-
+  
+alert("زر التعديل خدام ✅");
   const p = products.find(
     (x) => x.id === id
   );
