@@ -751,3 +751,13 @@ function shareProduct(id) {
 ========================= */
 
 loadProducts();
+async function importGitHubImages() {
+
+  if (!auth.currentUser) {
+    alert("خاصك تدخل لحساب الإدارة أولاً.");
+    openLogin();
+    return;
+  }
+
+  alert("غادي نزيدو استيراد الصور من GitHub هنا.");
+}
