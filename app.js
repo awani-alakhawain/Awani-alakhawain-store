@@ -759,5 +759,85 @@ async function importGitHubImages() {
     return;
   }
 
-  alert("غادي نزيدو استيراد الصور من GitHub هنا.");
+  const apiUrl =
+    "https://api.github.com/repos/awani-alakhawain/Awani-alakhawain-store/contents/";
+
+  try {
+
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      throw new Error("GitHub API error");
+    }
+
+    const files = await response.json();
+
+    const images = files.filter((file) => {
+
+      return (
+        file.type === "file" &&
+        /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name)
+      );
+
+    });
+
+    if (!images.length) {
+      alert("ما لقيتش صور جديدة فـGitHub.");
+      return;
+    }
+
+    let added = 0;
+
+    for (const file of images) {
+
+      const imageUrl =
+        "https://raw.githubusercontent.com/awani-alakhawain/Awani-alakhawain-store/main/" +
+        encodeURIComponent(file.name);
+
+      const exists = products.some(
+        (p) => p.image === imageUrl
+      );
+
+      if (exists) {
+        continue;
+      }
+
+      await db
+        .collection("products")
+        .add({
+
+          name: "منتج جديد",
+
+          price: 0,
+
+          cat: "أخرى",
+
+          desc: "",
+
+          image: imageUrl,
+
+          emoji: "🛍️"
+
+        });
+
+      added++;
+
+    }
+
+    alert(
+      "تم استيراد " +
+      added +
+      " منتج جديد بنجاح ✅"
+    );
+
+    await loadProducts();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "وقع مشكل أثناء استيراد الصور ❌"
+    );
+  }
 }
