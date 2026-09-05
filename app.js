@@ -714,24 +714,62 @@ function shareProduct(id) {
     "🛍️ " + p.name +
     "\n💰 الثمن: " + p.price + " درهم" +
     "\n\n" + (p.desc || "") +
-    "\n\n📦 للطلب:" +
+    "\n\n📦 للطلب والدخول للمتجر:" +
     "\n" + storeUrl;
 
-  if (navigator.share) {
+  const encodedText =
+    encodeURIComponent(text);
 
-    navigator.share({
-      title: p.name,
-      text: text,
-      url: storeUrl
-    });
+  const encodedUrl =
+    encodeURIComponent(storeUrl);
+
+  const choice = prompt(
+    "📢 اختار فين بغيتي تشارك المنتج:\n\n" +
+    "1 - 📘 Facebook\n" +
+    "2 - 📸 Instagram\n" +
+    "3 - 🎵 TikTok\n" +
+    "4 - 🟢 WhatsApp\n\n" +
+    "كتب رقم الاختيار:"
+  );
+
+  if (choice === "1") {
+
+    window.open(
+      "https://www.facebook.com/sharer/sharer.php?u=" +
+      encodedUrl +
+      "&quote=" +
+      encodedText,
+      "_blank"
+    );
+
+  } else if (choice === "2") {
+
+    window.open(
+      "https://www.instagram.com/",
+      "_blank"
+    );
+
+  } else if (choice === "3") {
+
+    window.open(
+      "https://www.tiktok.com/",
+      "_blank"
+    );
+
+  } else if (choice === "4") {
+
+    window.open(
+      "https://wa.me/?text=" +
+      encodedText,
+      "_blank"
+    );
 
   } else {
 
-    alert("خاصك تستعمل الهاتف باش تظهر لك خيارات المشاركة.");
+    alert("اختيار غير صحيح.");
 
   }
 }
-
 /* =========================
    تشغيل المتجر
 ========================= */
