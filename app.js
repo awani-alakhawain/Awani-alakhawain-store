@@ -205,7 +205,7 @@ function renderCart() {
       const p = products.find(
         (x) => x.id === id
       );
-
+alert("لقينا المنتج ✅");
       if (!p) return "";
 
       const quantity = cart[id];
