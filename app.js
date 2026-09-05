@@ -717,58 +717,34 @@ function shareProduct(id) {
     "\n\n📦 للطلب والدخول للمتجر:" +
     "\n" + storeUrl;
 
-  const encodedText =
-    encodeURIComponent(text);
-
-  const encodedUrl =
-    encodeURIComponent(storeUrl);
-
-  const choice = prompt(
-    "📢 اختار فين بغيتي تشارك المنتج:\n\n" +
-    "1 - 📘 Facebook\n" +
-    "2 - 📸 Instagram\n" +
-    "3 - 🎵 TikTok\n" +
-    "4 - 🟢 WhatsApp\n\n" +
-    "كتب رقم الاختيار:"
-  );
-
-  if (choice === "1") {
-
-    window.open(
-      "https://www.facebook.com/sharer/sharer.php?u=" +
-      encodedUrl +
-      "&quote=" +
-      encodedText,
-      "_blank"
-    );
-
-  } else if (choice === "2") {
-
-    window.open(
-      "https://www.instagram.com/",
-      "_blank"
-    );
-
-  } else if (choice === "3") {
-
-    window.open(
-      "https://www.tiktok.com/",
-      "_blank"
-    );
-
-  } else if (choice === "4") {
-
-    window.open(
-      "https://wa.me/?text=" +
-      encodedText,
-      "_blank"
-    );
-
-  } else {
-
-    alert("اختيار غير صحيح.");
-
+  if (!p.image) {
+    alert("هاد المنتج ما عندوش صورة.");
+    return;
   }
+
+  const imageUrl = p.image;
+
+  window.open(imageUrl, "_blank");
+
+  setTimeout(() => {
+
+    if (navigator.share) {
+
+      navigator.share({
+        title: p.name,
+        text: text,
+        url: imageUrl
+      });
+
+    } else {
+
+      alert(
+        "الصورة تحلات. دابا تقدر تحفظها وتشاركها في Facebook أو Instagram أو WhatsApp."
+      );
+
+    }
+
+  }, 500);
 }
 /* =========================
    تشغيل المتجر
