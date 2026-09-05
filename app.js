@@ -695,6 +695,38 @@ function shareOnFacebook(id) {
     "_blank"
   );
 }
+function shareProduct(id) {
+
+  const p = products.find(
+    (x) => x.id === id
+  );
+
+  if (!p) return;
+
+  const storeUrl =
+    "https://awani-alakhawain.github.io/Awani-alakhawain-store/";
+
+  const text =
+    "🛍️ " + p.name +
+    "\n💰 الثمن: " + p.price + " درهم" +
+    "\n\n" + (p.desc || "") +
+    "\n\n📦 للطلب:" +
+    "\n" + storeUrl;
+
+  if (navigator.share) {
+
+    navigator.share({
+      title: p.name,
+      text: text,
+      url: storeUrl
+    });
+
+  } else {
+
+    alert("خاصك تستعمل الهاتف باش تظهر لك خيارات المشاركة.");
+
+  }
+}
 
 /* =========================
    تشغيل المتجر
