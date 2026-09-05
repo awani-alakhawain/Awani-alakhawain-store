@@ -299,7 +299,8 @@ function openLogin() {
     نفتحو الإدارة مباشرة.
   */
   if (auth.currentUser) {
-    openAdmin();
+    alert("وصلنا لـ openAdmin ✅");
+openAdmin();
     return;
   }
 
