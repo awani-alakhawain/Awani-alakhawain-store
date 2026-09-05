@@ -426,6 +426,7 @@ function renderAdmin() {
 function edit(id) {
   
 alert("زر التعديل خدام ✅");
+  alert("غادي نقلب على المنتج ✅");
   const p = products.find(
     (x) => x.id === id
   );
