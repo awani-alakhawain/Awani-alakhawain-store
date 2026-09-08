@@ -345,3 +345,21 @@ button {
   margin: auto;
   border-radius: 12px;
 }
+.urgent-ad {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  text-align: center;
+  padding: 8px 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .urgent-ad {
+    font-size: 12px;
+    padding: 7px 5px;
+  }
+}
