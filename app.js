@@ -99,8 +99,9 @@ async function loadProducts() {
       products = starter;
     }
 
-    render();
-    renderAdmin();
+   render();
+renderAdmin();
+renderFeaturedAd();
 
   } catch (error) {
     console.error(error);
@@ -108,7 +109,8 @@ async function loadProducts() {
     products = starter;
 
     render();
-    renderAdmin();
+renderAdmin();
+renderFeaturedAd();
 
     alert("وقع مشكل في الاتصال بـ Firebase.");
   }
