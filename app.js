@@ -1,3 +1,28 @@
+// المنتج اللي بغينا نعرضوه كإعلان
+const featuredProductName = "بانيني كاب كيك";
+function renderFeaturedAd() {
+  const ad = document.getElementById("featured-ad");
+  if (!ad) return;
+  const p = products.find(
+    x => x.name.trim().toLowerCase() === featuredProductName.trim().toLowerCase()
+  );
+  if (!p) {
+    ad.innerHTML = `
+      <div class="ad-title">🔥 ${featuredProductName}</div>
+      <div class="ad-price">150 درهم</div>
+    `;
+    return;
+  }
+  const image = p.image
+    ? `<img src="${p.image}" alt="${p.name}">`
+    : `<div class="ad-emoji">${p.emoji || "🛍️"}</div>`;
+  ad.innerHTML = `
+    ${image}
+    <div class="ad-title">🔥 ${p.name}</div>
+    <div class="ad-price">${p.price} درهم</div>
+  `;
+  ad.onclick = () => openProduct(p.id);
+}
 const starter = [
   {
     id: "starter1",
