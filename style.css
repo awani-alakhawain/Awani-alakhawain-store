@@ -331,3 +331,17 @@ button {
     🛒 السلة <b id="count">0</b>
   </button>
 </header>
+.store-logo {
+  width: 100%;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.store-logo img {
+  width: 140px;
+  height: 70px;
+  object-fit: contain;
+  display: block;
+  margin: auto;
+  border-radius: 12px;
+}
