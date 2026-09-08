@@ -844,3 +844,49 @@ async function importGitHubImages() {
     );
   }
 }
+function openProduct(id) {
+
+  const p = products.find(
+    (x) => x.id === id
+  );
+
+  if (!p) return;
+
+  const image = p.image
+    ? `<img src="${p.image}" alt="${p.name}">`
+    : `<div class="pic">${p.emoji || "🛍️"}</div>`;
+
+  document.body.innerHTML = `
+    <div class="product-detail">
+
+      <button onclick="location.reload()">
+        ← رجوع للمنتجات
+      </button>
+
+      ${image}
+
+      <h1>${p.name}</h1>
+
+      <small>${p.cat}</small>
+
+      <div class="detail-price">
+        ${p.price} درهم
+      </div>
+
+      ${
+        p.desc
+          ? `<p>${p.desc}</p>`
+          : ""
+      }
+
+      <button onclick="add('${p.id}')">
+        🛒 أضف للسلة
+      </button>
+
+      <button onclick="orderNow('${p.id}')">
+        🟢 أطلب الآن عبر واتساب
+      </button>
+
+    </div>
+  `;
+}
