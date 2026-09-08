@@ -145,7 +145,7 @@ function render() {
         `;
 
       return `
-        <article class="card">
+       <article class="card" onclick="openProduct('${p.id}')">
 
           ${picture}
 
