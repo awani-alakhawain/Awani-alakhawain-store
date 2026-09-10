@@ -500,3 +500,263 @@ header button {
     font-size: 14px;
   }
 }
+/* =========================================
+   تصميم جديد - أواني الأخوين
+   ========================================= */
+
+:root {
+  --main-blue: #075985;
+  --dark-blue: #064e6b;
+  --teal: #0f766e;
+  --gold: #fbbf24;
+  --light-bg: #f8fafc;
+}
+
+/* الخلفية العامة */
+body {
+  background: #f8fafc;
+  color: #123;
+  font-family: Arial, sans-serif;
+}
+
+/* الهيدر */
+header {
+  background: white !important;
+  color: var(--main-blue) !important;
+  border-radius: 0 0 20px 20px !important;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.08) !important;
+  padding: 10px !important;
+}
+
+/* الشعار */
+header img {
+  max-width: 190px !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: 100px !important;
+}
+
+/* الإعلان العلوي */
+.urgent-ad {
+  background: var(--main-blue) !important;
+  color: white !important;
+  text-align: center !important;
+  border: 0 !important;
+  padding: 9px 10px !important;
+  font-size: 14px !important;
+}
+
+/* البحث */
+.controls {
+  background: white;
+  padding: 14px;
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+  margin-bottom: 22px !important;
+}
+
+.controls input,
+.controls select {
+  border: 1px solid #dbe5ec !important;
+  outline: none;
+  font-size: 15px;
+}
+
+.controls input:focus,
+.controls select:focus {
+  border-color: var(--main-blue) !important;
+  box-shadow: 0 0 0 3px rgba(7,89,133,0.08);
+}
+
+/* شبكة المنتجات */
+#products {
+  gap: 20px !important;
+}
+
+/* بطاقة المنتج */
+.card {
+  border: 1px solid #e7edf2;
+  border-radius: 18px !important;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.07) !important;
+  transition: transform .2s ease, box-shadow .2s ease !important;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12) !important;
+}
+
+/* صورة المنتج */
+.card img,
+.card .pic {
+  background: white !important;
+  border-radius: 18px 18px 0 0 !important;
+}
+
+/* معلومات المنتج */
+.card .body {
+  padding: 15px !important;
+  background: white;
+}
+
+.body h3 {
+  color: var(--main-blue);
+  font-size: 18px !important;
+  font-weight: 700;
+}
+
+.body small {
+  display: inline-block;
+  background: #eef7fa;
+  color: var(--teal) !important;
+  padding: 4px 9px;
+  border-radius: 20px;
+  margin-bottom: 5px;
+}
+
+.body p {
+  color: #64748b;
+}
+
+/* الثمن */
+.price {
+  color: var(--main-blue) !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+}
+
+/* زر أضف للسلة */
+.add {
+  background: var(--main-blue) !important;
+  border-radius: 12px !important;
+  font-weight: bold;
+  transition: .2s;
+}
+
+.add:hover {
+  background: var(--dark-blue) !important;
+  transform: translateY(-1px);
+}
+
+/* أزرار عامة */
+button {
+  border-radius: 12px !important;
+  font-weight: 600;
+}
+
+/* صفحة تفاصيل المنتج */
+.product-detail {
+  max-width: 650px !important;
+  width: 94% !important;
+  margin: 25px auto !important;
+  border-radius: 22px !important;
+  padding: 20px !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.09) !important;
+}
+
+.product-detail img {
+  max-width: 100% !important;
+  height: min(450px, 65vh) !important;
+  object-fit: contain !important;
+  border-radius: 18px !important;
+}
+
+.product-detail h1 {
+  color: var(--main-blue);
+  font-weight: 800;
+}
+
+.detail-price {
+  color: var(--main-blue) !important;
+  font-size: 27px !important;
+}
+
+/* الهاتف */
+@media (max-width: 600px) {
+
+  body {
+    font-size: 15px;
+  }
+
+  header img {
+    max-width: 155px !important;
+    max-height: 80px !important;
+  }
+
+  .container {
+    width: 94% !important;
+    margin: 12px auto !important;
+  }
+
+  .controls {
+    padding: 10px !important;
+    gap: 8px !important;
+  }
+
+  .controls input,
+  .controls select {
+    min-width: 100% !important;
+    font-size: 14px !important;
+  }
+
+  #products {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .card {
+    border-radius: 14px !important;
+  }
+
+  .card img,
+  .card .pic {
+    height: 155px !important;
+  }
+
+  .card .body {
+    padding: 9px !important;
+  }
+
+  .body h3 {
+    font-size: 15px !important;
+    line-height: 1.4;
+  }
+
+  .body p {
+    font-size: 13px !important;
+    line-height: 1.5;
+  }
+
+  .body small {
+    font-size: 11px;
+  }
+
+  .price {
+    font-size: 18px !important;
+    margin: 8px 0 !important;
+  }
+
+  .card button {
+    font-size: 12px !important;
+    padding: 9px 6px !important;
+  }
+
+  .product-detail {
+    width: 94% !important;
+    margin: 10px auto !important;
+    padding: 14px !important;
+  }
+
+  .product-detail img {
+    height: 280px !important;
+  }
+
+  .product-detail h1 {
+    font-size: 21px !important;
+  }
+
+  .detail-price {
+    font-size: 23px !important;
+  }
+}  
