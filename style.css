@@ -1091,3 +1091,148 @@ header {
     font-size: 55px;
   }
 } 
+  /* ===== Header احترافي ===== */
+
+.top-bar {
+  background: #075985;
+  color: white;
+  padding: 8px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+header {
+  background: #fff !important;
+  padding: 15px 5% !important;
+  box-shadow: 0 3px 15px rgba(0,0,0,.08) !important;
+  border-radius: 0 !important;
+}
+
+.header-content {
+  max-width: 1150px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.store-logo {
+  width: 75px !important;
+  height: 75px !important;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.logo-text strong {
+  color: #075985;
+  font-size: 21px;
+}
+
+.logo-text small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* البحث */
+
+.header-search {
+  flex: 1;
+  display: flex;
+  background: #f8fafc;
+  border: 1px solid #dbe5ec;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.header-search input {
+  flex: 1;
+  border: 0 !important;
+  outline: 0;
+  background: transparent;
+  padding: 13px 15px;
+  font-size: 15px;
+}
+
+.header-search select {
+  border: 0 !important;
+  border-right: 1px solid #dbe5ec !important;
+  background: white;
+  padding: 0 12px;
+  outline: 0;
+}
+
+/* السلة */
+
+.cart-button {
+  background: #075985 !important;
+  color: white !important;
+  border: 0;
+  padding: 13px 18px;
+  border-radius: 14px !important;
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.cart-button b {
+  background: #fbbf24;
+  color: #123;
+  border-radius: 50%;
+  padding: 3px 7px;
+  margin-right: 4px;
+}
+
+/* الهاتف */
+
+@media (max-width: 700px) {
+
+  .top-bar {
+    font-size: 11px;
+    padding: 7px 10px;
+  }
+
+  .header-content {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .logo-box {
+    width: 100%;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .store-logo {
+    width: 58px !important;
+    height: 58px !important;
+  }
+
+  .logo-text strong {
+    font-size: 18px;
+  }
+
+  .header-search {
+    order: 3;
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .cart-button {
+    margin-right: auto;
+  }
+}
