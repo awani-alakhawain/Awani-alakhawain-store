@@ -759,4 +759,201 @@ button {
   .detail-price {
     font-size: 23px !important;
   }
-}  
+} 
+  /* ===== تحسين واجهة أواني الأخوين ===== */
+
+body {
+  background: #f7fafc;
+  color: #172033;
+}
+
+/* الهيدر */
+header {
+  background: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(0,0,0,.08) !important;
+  border-radius: 0 0 22px 22px !important;
+}
+
+/* منطقة الشعار والإعلان */
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.store-logo {
+  max-width: 170px !important;
+  max-height: 90px !important;
+  object-fit: contain;
+}
+
+/* إعلان كاب كيك */
+.featured-ad {
+  background: linear-gradient(135deg, #075985, #0f766e) !important;
+  color: white !important;
+  border-radius: 18px !important;
+  padding: 14px 22px !important;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+}
+
+.ad-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.ad-price {
+  color: #fbbf24;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+/* شريط العروض */
+.urgent-ad {
+  background: #075985 !important;
+  color: white !important;
+  padding: 10px !important;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* الواجهة الرئيسية */
+.hero {
+  background: linear-gradient(135deg, #e0f2fe, #ecfeff) !important;
+  border-radius: 24px !important;
+  padding: 35px 20px !important;
+  margin: 22px auto !important;
+  max-width: 1100px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0,0,0,.05);
+}
+
+.hero h2 {
+  color: #075985;
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  font-size: 17px;
+  color: #475569;
+}
+
+/* البحث والفئات */
+.tools {
+  max-width: 1100px;
+  margin: 20px auto;
+  display: flex;
+  gap: 12px;
+}
+
+.tools input,
+.tools select {
+  border: 1px solid #dbe5ec !important;
+  border-radius: 13px !important;
+  padding: 13px !important;
+  font-size: 15px;
+  background: white;
+}
+
+/* المنتجات */
+#products {
+  max-width: 1100px;
+  margin: 25px auto;
+}
+
+/* كروت المنتجات */
+.card {
+  background: white !important;
+  border: 1px solid #e5eaf0 !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+  box-shadow: 0 5px 18px rgba(0,0,0,.07) !important;
+  transition: .2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.12) !important;
+}
+
+.card img {
+  width: 100%;
+  height: 230px !important;
+  object-fit: cover !important;
+}
+
+.card .body {
+  padding: 15px !important;
+}
+
+.card h3 {
+  color: #075985 !important;
+  font-size: 18px !important;
+}
+
+.price {
+  color: #075985 !important;
+  font-size: 23px !important;
+  font-weight: 800 !important;
+  margin: 10px 0 !important;
+}
+
+/* الهاتف */
+@media (max-width: 600px) {
+
+  .header-content {
+    flex-direction: column;
+  }
+
+  .store-logo {
+    max-width: 145px !important;
+  }
+
+  .featured-ad {
+    width: 90%;
+  }
+
+  .hero {
+    margin: 12px 10px !important;
+    padding: 25px 12px !important;
+  }
+
+  .hero h2 {
+    font-size: 24px;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+
+  .tools {
+    margin: 12px 10px;
+    flex-direction: column;
+  }
+
+  #products {
+    margin: 15px 10px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .card img {
+    height: 155px !important;
+  }
+
+  .card .body {
+    padding: 9px !important;
+  }
+
+  .card h3 {
+    font-size: 15px !important;
+  }
+
+  .price {
+    font-size: 18px !important;
+  }
+}
