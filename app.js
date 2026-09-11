@@ -917,3 +917,238 @@ function openProduct(id) {
     </div>
   `;
 }
+/* =========================
+   إدارة الفئات
+========================= */
+
+async function loadCategories() {
+
+  if (!auth.currentUser) {
+    $("#categoryAdminList").innerHTML = "";
+    return;
+  }
+
+  try {
+
+    const snapshot =
+      await db.collection("categories").get();
+
+    const categories = [];
+
+    snapshot.forEach((doc) => {
+
+      categories.push({
+        id: doc.id,
+        ...doc.data()
+      });
+
+    });
+
+    $("#categoryAdminList").innerHTML =
+      categories.map((cat) => {
+
+        return `
+          <div class="adminrow">
+
+            ${
+              cat.image
+                ? `<img
+                    src="${cat.image}"
+                    style="
+                      width:60px;
+                      height:60px;
+                      object-fit:cover;
+                      border-radius:10px;
+                    "
+                  >`
+                : ""
+            }
+
+            <b>${cat.name}</b>
+
+            <br>
+
+            <button
+              onclick="editCategory('${cat.id}')">
+              ✏️ تعديل
+            </button>
+
+            <button
+              onclick="deleteCategory('${cat.id}')">
+              🗑️ حذف
+            </button>
+
+          </div>
+        `;
+
+      }).join("") ||
+      "<p>مازال ما كايناش فئات.</p>";
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("وقع مشكل في تحميل الفئات ❌");
+  }
+}
+
+
+/* إضافة أو تعديل فئة */
+
+$("#categoryForm").onsubmit =
+  async (e) => {
+
+    e.preventDefault();
+
+    if (!auth.currentUser) {
+
+      alert(
+        "خاصك تدخل لحساب الإدارة أولاً."
+      );
+
+      openLogin();
+
+      return;
+    }
+
+    const id =
+      $("#editCategoryId").value;
+
+    const data = {
+
+      name:
+        $("#categoryName")
+          .value
+          .trim(),
+
+      image:
+        $("#categoryImage")
+          .value
+          .trim()
+
+    };
+
+    if (!data.name) {
+
+      alert("دخل اسم الفئة.");
+
+      return;
+    }
+
+    try {
+
+      if (id) {
+
+        await db
+          .collection("categories")
+          .doc(id)
+          .set(data);
+
+      } else {
+
+        await db
+          .collection("categories")
+          .add(data);
+
+      }
+
+      e.target.reset();
+
+      $("#editCategoryId").value = "";
+
+      alert(
+        "تم حفظ الفئة بنجاح ✅"
+      );
+
+      await loadCategories();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "ما قدرناش نحفظو الفئة ❌"
+      );
+    }
+  };
+
+
+/* تعديل فئة */
+
+async function editCategory(id) {
+
+  try {
+
+    const doc =
+      await db
+        .collection("categories")
+        .doc(id)
+        .get();
+
+    if (!doc.exists) return;
+
+    const cat = doc.data();
+
+    $("#editCategoryId").value = id;
+    $("#categoryName").value =
+      cat.name || "";
+
+    $("#categoryImage").value =
+      cat.image || "";
+
+    openAdmin();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "وقع مشكل أثناء تعديل الفئة ❌"
+    );
+  }
+}
+
+
+/* حذف فئة */
+
+async function deleteCategory(id) {
+
+  if (!auth.currentUser) {
+
+    alert(
+      "خاصك تدخل لحساب الإدارة."
+    );
+
+    return;
+  }
+
+  if (
+    !confirm(
+      "واش متأكد بغيتي تحذف هاد الفئة؟"
+    )
+  ) {
+    return;
+  }
+
+  try {
+
+    await db
+      .collection("categories")
+      .doc(id)
+      .delete();
+
+    alert(
+      "تم حذف الفئة ✅"
+    );
+
+    await loadCategories();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "وقع مشكل أثناء حذف الفئة ❌"
+    );
+  }
+}
