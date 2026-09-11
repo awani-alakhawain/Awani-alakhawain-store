@@ -1154,3 +1154,83 @@ async function deleteCategory(id) {
     );
   }
 }
+/* =========================
+   عرض الفئات للزبناء
+========================= */
+
+async function renderCategories() {
+
+  const container = $("#categories");
+
+  if (!container) return;
+
+  try {
+
+    const snapshot =
+      await db.collection("categories").get();
+
+    const categories = [];
+
+    snapshot.forEach((doc) => {
+
+      categories.push({
+        id: doc.id,
+        ...doc.data()
+      });
+
+    });
+
+    if (!categories.length) {
+
+      container.innerHTML = "";
+
+      return;
+    }
+
+    container.innerHTML =
+      categories.map((cat) => {
+
+        const image = cat.image
+          ? `<img src="${cat.image}" alt="${cat.name}">`
+          : `<div class="category-placeholder">🛍️</div>`;
+
+        return `
+          <div
+            class="category-card"
+            onclick="selectCategory('${cat.name}')">
+
+            ${image}
+
+            <h3>${cat.name}</h3>
+
+          </div>
+        `;
+
+      }).join("");
+
+  } catch (error) {
+
+    console.error(error);
+
+    container.innerHTML = "";
+  }
+}
+
+
+/* اختيار فئة */
+
+function selectCategory(categoryName) {
+
+  const catSelect = $("#cat");
+
+  if (!catSelect) return;
+
+  catSelect.value = categoryName;
+
+  render();
+
+  window.scrollTo({
+    top: document.querySelector("#products").offsetTop - 20,
+    behavior: "smooth"
+  });
+}
