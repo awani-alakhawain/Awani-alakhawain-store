@@ -102,6 +102,7 @@ async function loadProducts() {
    render();
 renderAdmin();
 renderFeaturedAd();
+    loadCategories();
 
   } catch (error) {
     console.error(error);
@@ -111,6 +112,7 @@ renderFeaturedAd();
     render();
 renderAdmin();
 renderFeaturedAd();
+    loadCategories (); 
 
     alert("وقع مشكل في الاتصال بـ Firebase.");
   }
