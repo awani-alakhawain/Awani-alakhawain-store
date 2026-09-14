@@ -99,22 +99,29 @@ async function loadProducts() {
       products = starter;
     }
 
-   render();
-renderAdmin();
+render();
 renderFeaturedAd();
-    loadCategories();
-    renderCategories ();
+
+if (auth.currentUser) {
+  renderAdmin();
+  loadCategories();
+}
+
+renderCategories();
 
   } catch (error) {
     console.error(error);
 
     products = starter;
-
-    render();
-renderAdmin();
+render();
 renderFeaturedAd();
-    loadCategories (); 
-    renderCategories();
+
+if (auth.currentUser) {
+  renderAdmin();
+  loadCategories();
+}
+
+renderCategories();
 
     alert("وقع مشكل في الاتصال بـ Firebase.");
   }
