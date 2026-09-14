@@ -1421,3 +1421,42 @@ header {
     padding: 9px 5px !important;
   }
 }
+  /* =========================
+   بحث إدارة المنتجات
+========================= */
+
+.admin-search {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.admin-search input,
+.admin-search select {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.admin-search input:focus,
+.admin-search select:focus {
+  border-color: #0f766e;
+}
+
+@media (max-width: 600px) {
+
+  .admin-search {
+    flex-direction: column;
+  }
+
+  .admin-search input,
+  .admin-search select {
+    width: 100%;
+  }
+}
