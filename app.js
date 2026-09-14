@@ -399,6 +399,10 @@ function closeAdmin() {
    قائمة الإدارة
 ========================= */
 
+function renderAdmin()/* =========================
+   إدارة المنتجات - بحث وفلترة
+========================= */
+
 function renderAdmin() {
 
   if (!auth.currentUser) {
@@ -406,50 +410,181 @@ function renderAdmin() {
     return;
   }
 
-  /*
-    ما نظهروش starter داخل الإدارة
-    لأنها ماشي محفوظة في Firebase.
-  */
+  const searchInput = $("#adminProductSearch");
+  const categorySelect = $("#adminProductCategory");
+
+  const search =
+    searchInput
+      ? searchInput.value.trim().toLowerCase()
+      : "";
+
+  const selectedCategory =
+    categorySelect
+      ? categorySelect.value
+      : "";
+
+  /* إنشاء لائحة الفئات الموجودة في المنتجات */
+
+  const categories = [
+    ...new Set(
+      products
+        .map((p) => p.cat)
+        .filter(Boolean)
+    )
+  ];
+
+  if (categorySelect) {
+
+    const currentValue =
+      categorySelect.value;
+
+    categorySelect.innerHTML =
+      '<option value="">📂 كل الفئات</option>' +
+      categories
+        .map((cat) =>
+          `<option value="${cat}">
+            ${cat}
+          </option>`
+        )
+        .join("");
+
+    categorySelect.value =
+      categories.includes(currentValue)
+        ? currentValue
+        : "";
+  }
+
+  /* البحث والفلترة */
+
+  const filteredProducts =
+    products.filter((p) => {
+
+      const name =
+        (p.name || "")
+          .toLowerCase();
+
+      const category =
+        p.cat || "";
+
+      const searchOK =
+        !search ||
+        name.includes(search);
+
+      const categoryOK =
+        !selectedCategory ||
+        category === selectedCategory;
+
+      return searchOK && categoryOK;
+    });
+
+  /* عرض النتائج */
 
   $("#adminList").innerHTML =
-    products.map((p) => {
+    filteredProducts.length
 
-      return `
-        <div class="adminrow">
+      ? filteredProducts
+          .map((p) => {
 
-          <b>${p.name}</b>
-          — ${p.price}dh
+            return `
+              <div class="adminrow">
 
-          <br>
+                ${
+                  p.image
+                    ? `
+                      <img
+                        src="${p.image}"
+                        alt="${p.name}"
+                        style="
+                          width:70px;
+                          height:70px;
+                          object-fit:cover;
+                          border-radius:10px;
+                          display:block;
+                          margin-bottom:8px;
+                        "
+                      >
+                    `
+                    : ""
+                }
 
-          <small>${p.cat}</small>
+                <b>${p.name}</b>
 
-          <br>
+                — ${p.price}dh
 
-          <button
-            onclick="edit('${p.id}')">
-            ✏️ تعديل
-          </button>
+                <br>
 
-          <button
-            onclick="del('${p.id}')">
-            🗑️ حذف
-          </button>
-          <button
-  onclick="shareOnFacebook('${p.id}')">
-  📘 نشر في Facebook
-</button>
-<button
-  onclick="shareProduct('${p.id}')">
-  📢 مشاركة المنتج
-</button>
+                <small>
+                  📂 ${p.cat}
+                </small>
 
-        </div>
-      `;
+                <br>
 
-    }).join("");
+                <button
+                  onclick="edit('${p.id}')">
+                  ✏️ تعديل
+                </button>
+
+                <button
+                  onclick="del('${p.id}')">
+                  🗑️ حذف
+                </button>
+
+                <button
+                  onclick="shareOnFacebook('${p.id}')">
+                  📘 نشر في Facebook
+                </button>
+
+                <button
+                  onclick="shareProduct('${p.id}')">
+                  📢 مشاركة المنتج
+                </button>
+
+              </div>
+            `;
+
+          })
+          .join("")
+
+      : "<p>🔎 ما لقيتش هاد المنتج.</p>";
 }
 
+
+/* البحث داخل الإدارة */
+
+document.addEventListener(
+  "input",
+  function (e) {
+
+    if (
+      e.target &&
+      e.target.id ===
+        "adminProductSearch"
+    ) {
+
+      renderAdmin();
+    }
+
+  }
+);
+
+
+/* الفلترة حسب الفئة */
+
+document.addEventListener(
+  "change",
+  function (e) {
+
+    if (
+      e.target &&
+      e.target.id ===
+        "adminProductCategory"
+    ) {
+
+      renderAdmin();
+    }
+
+  }
+);
 /* =========================
    تعديل منتج
 ========================= */
