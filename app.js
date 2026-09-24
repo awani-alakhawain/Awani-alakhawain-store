@@ -1069,12 +1069,17 @@ function openProduct(id) {
 
 async function loadCategories() {
 
-  if (!auth.currentUser) {
-    $("#categoryAdminList").innerHTML = "";
-    return;
-  }
+if (!auth.currentUser) {
+  return;
+}
 
-  try {
+const adminList = $("#categoryAdminList");
+
+if (!adminList) {
+  return;
+}
+
+try {
 
     const snapshot =
       await db.collection("categories").get();
@@ -1090,7 +1095,7 @@ async function loadCategories() {
 
     });
 
-    $("#categoryAdminList").innerHTML =
+ adminList.innerHTML =
       categories.map((cat) => {
 
         return `
