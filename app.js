@@ -1078,7 +1078,6 @@ const adminList = $("#categoryAdminList");
 if (!adminList) {
   return;
 }
-
 try {
 
     const snapshot =
@@ -1146,7 +1145,7 @@ try {
 
 /* إضافة أو تعديل فئة */
 
-$("#categoryForm").onsubmit =
+adminList.innerHTML =
   async (e) => {
 
     e.preventDefault();
