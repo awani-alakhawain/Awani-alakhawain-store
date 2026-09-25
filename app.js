@@ -1,18 +1,120 @@
-// المنتج اللي بغينا نعرضوه كإعلان
-const featuredProductName = "بانيني كاب كيك";
+// ===============================
+// عروض المنتجات - البانر المتحرك
+// ===============================
+
+let offerIndex = 0;
+let offerTimer = null;
+
 function renderFeaturedAd() {
   const ad = document.getElementById("featured-ad");
   if (!ad) return;
-  const p = products.find(
-    x => x.name.trim().toLowerCase() === featuredProductName.trim().toLowerCase()
-  );
-  if (!p) {
-    ad.innerHTML = `
-      <div class="ad-title">🔥 ${featuredProductName}</div>
-      <div class="ad-price">150 درهم</div>
-    `;
+
+  // المنتجات التي عندها عرض حقيقي
+  const offers = products.filter(p => {
+    const oldPrice = Number(p.oldPrice || 0);
+    const price = Number(p.price || 0);
+
+    return oldPrice > price;
+  });
+
+  // إلا ماكاين حتى عرض
+  if (offers.length === 0) {
+    ad.innerHTML = "";
+    ad.style.display = "none";
+
+    if (offerTimer) {
+      clearInterval(offerTimer);
+      offerTimer = null;
+    }
+
     return;
   }
+
+  ad.style.display = "block";
+
+  // تصحيح index
+  if (offerIndex >= offers.length) {
+    offerIndex = 0;
+  }
+
+  function showOffer(index) {
+    const p = offers[index];
+
+    const image = p.image
+      ? `<img src="${p.image}" alt="${p.name}">`
+      : `<div class="offer-emoji">${p.emoji || "🛍️"}</div>`;
+
+    ad.innerHTML = `
+      <div class="offer-slide">
+        ${image}
+
+        <div class="offer-info">
+          <div class="offer-title">
+            🔥 ${p.name}
+          </div>
+
+          <div class="offer-prices">
+            <span class="old-price">
+              ${p.oldPrice} درهم
+            </span>
+
+            <span class="new-price">
+              ${p.price} درهم
+            </span>
+          </div>
+
+          <div class="offer-label">
+            🔥 عرض محدود
+          </div>
+        </div>
+      </div>
+    `;
+
+    const slide = ad.querySelector(".offer-slide");
+
+    if (slide) {
+      slide.onclick = () => openProduct(p.id);
+
+      // دخول من اليمين
+      slide.classList.add("offer-enter");
+
+      setTimeout(() => {
+        slide.classList.remove("offer-enter");
+      }, 700);
+    }
+  }
+
+  showOffer(offerIndex);
+
+  // وقف المؤقت القديم
+  if (offerTimer) {
+    clearInterval(offerTimer);
+  }
+
+  // تبديل العرض كل 4 ثواني
+  offerTimer = setInterval(() => {
+
+    const currentOffers = products.filter(p => {
+      return Number(p.oldPrice || 0) > Number(p.price || 0);
+    });
+
+    if (currentOffers.length === 0) {
+      clearInterval(offerTimer);
+      offerTimer = null;
+      ad.style.display = "none";
+      return;
+    }
+
+    offerIndex++;
+
+    if (offerIndex >= currentOffers.length) {
+      offerIndex = 0;
+    }
+
+    showOffer(offerIndex);
+
+  }, 4000);
+}
   const image = p.image
     ? `<img src="${p.image}" alt="${p.name}">`
     : `<div class="ad-emoji">${p.emoji || "🛍️"}</div>`;
@@ -80,15 +182,17 @@ async function loadProducts() {
     snapshot.forEach((doc) => {
       const data = doc.data();
 
-      products.push({
-        id: doc.id,
-        name: data.name || "",
-        price: Number(data.price || 0),
-        cat: data.cat || "أخرى",
-        emoji: data.emoji || "🛍️",
-        desc: data.desc || "",
-        image: data.image || ""
-      });
+    products.push({
+  id: doc.id,
+  name: data.name || "",
+  price: Number(data.price || 0),
+  oldPrice: Number(data.oldPrice || 0),
+  offer: data.offer === true,
+  cat: data.cat || "أخرى",
+  emoji: data.emoji || "🛍️",
+  desc: data.desc || "",
+  image: data.image || ""
+});
     });
 
     /*
@@ -609,6 +713,8 @@ function edit(id) {
   $("#editId").value = p.id;
   $("#pname").value = p.name;
   $("#pprice").value = p.price;
+  $("#poldprice").value = p.oldPrice || "";
+$("#poffer").checked = p.offer === true;
   $("#pcat").value = p.cat;
   $("#pdesc").value = p.desc || "";
   $("#pimage").value = p.image || "";
@@ -637,24 +743,26 @@ $("#productForm").onsubmit = async (e) => {
   const id = $("#editId").value;
 
   const data = {
+const oldPrice = Number($("#poldprice").value || 0);
+const price = Number($("#pprice").value || 0);
 
-    name: $("#pname").value.trim(),
+const data = {
+  name: $("#pname").value.trim(),
 
-    price: Number(
-      $("#pprice").value
-    ),
+  price: price,
 
-    cat: $("#pcat").value.trim(),
+  oldPrice: oldPrice,
 
-    desc: $("#pdesc").value.trim(),
+  offer: $("#poffer").checked && oldPrice > price,
 
-    image: $("#pimage").value.trim(),
+  cat: $("#pcat").value.trim(),
 
-    emoji:
-      $("#pemoji").value.trim() ||
-      "🛍️"
+  desc: $("#pdesc").value.trim(),
 
-  };
+  image: $("#pimage").value.trim(),
+
+  emoji: $("#pemoji").value.trim() || "🛍️"
+};
 
   try {
 
