@@ -861,30 +861,34 @@ function showCartMessage(
 
 }
 
+
 function add(id) {
+  // حساب عدد القطع الموجودة قبل الإضافة
   const beforeTotal = Object.values(cart).reduce(
-    (sum, qty) => sum + Number(qty),
+    (sum, qty) => sum + Number(qty || 0),
     0
   );
 
-  cart[id] = (cart[id] || 0) + 1;
+  // إضافة قطعة واحدة
+  cart[id] = Number(cart[id] || 0) + 1;
 
+  // حفظ السلة
   localStorage.setItem("cart", JSON.stringify(cart));
 
-  const afterTotal = Object.values(cart).reduce(
-    (sum, qty) => sum + Number(qty),
-    0
-  );
+  // حساب العدد بعد الإضافة
+  const afterTotal = beforeTotal + 1;
 
-  // الصوت حسب عدد المنتجات
+  // الصوت حسب المرحلة
   playCartSound(afterTotal);
 
-  // رسالة تحفيزية مختلفة
+  // الرسائل التحفيزية
   if (afterTotal === 1) {
 
     showCartMessage(
       "✨ زوين! تزاد المنتج للسلة 🛒<br>" +
-      "<span style='font-size:12px'>زيد منتج آخر واستافد من التوصيل غير بـ <b>15 درهم</b> 🚚</span>",
+      "<span style='font-size:12px'>" +
+      "زيد منتج آخر واستافد من التوصيل غير بـ <b>15 درهم</b> 🚚" +
+      "</span>",
       "normal"
     );
 
@@ -892,15 +896,19 @@ function add(id) {
 
     showCartMessage(
       "🔥 برافو! وصلتي لجوج منتجات 🎉<br>" +
-      "<span style='font-size:12px'>بقا غير منتج واحد وتربح <b>التوصيل مجاناً 🎁</b></span>",
+      "<span style='font-size:12px'>" +
+      "بقا غير منتج واحد وتربح <b>التوصيل مجاناً 🎁</b>" +
+      "</span>",
       "reward"
     );
 
   } else if (afterTotal === 3) {
 
     showCartMessage(
-      "🎉🏆 مبروك! ربحت التوصيل مجاناً! 🚚✨<br>" +
-      "<span style='font-size:12px'>وصلتي لـ <b>3 منتجات</b> — التوصيل ديالك مجاني 🎁</span>",
+      "🎉🏆 مبروك! ربحتي التوصيل مجاناً! 🚚✨<br>" +
+      "<span style='font-size:12px'>" +
+      "وصلتي لـ <b>3 منتجات</b> — التوصيل ديالك مجاني 🎁" +
+      "</span>",
       "free"
     );
 
@@ -908,7 +916,9 @@ function add(id) {
 
     showCartMessage(
       "🛒 تزاد المنتج للسلة ✓<br>" +
-      "<span style='font-size:12px'>والتوصيل باقي مجاني 🎁🚚</span>",
+      "<span style='font-size:12px'>" +
+      "والتوصيل باقي مجاني 🎁🚚" +
+      "</span>",
       "free"
     );
   }
@@ -916,12 +926,8 @@ function add(id) {
   // تحديث السلة والعداد فقط
   renderCart();
 
-  // مهم جداً:
-  // لا تفتح السلة هنا
-  // لا تستعمل openCart()
+  // ممنوع openCart() هنا
 }
-
-
  
 
 
