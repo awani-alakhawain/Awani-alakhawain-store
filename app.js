@@ -26,8 +26,8 @@ const starter = [
     oldPrice: 0,
     offer: false,
     cat: "أواني الطبخ",
-    emoji: "🍳",
     desc: "طقم عملي للمطبخ.",
+    emoji: "🍳",
     image: ""
   },
   {
@@ -864,74 +864,149 @@ function showCartMessage(
 }
 
 
+
+// ===============================
+// إضافة للسلة - نسخة مضبوطة
+// ===============================
+
+let lastAddTime = 0;
+let lastAddId = null;
+
 function add(id) {
-  // حساب عدد القطع الموجودة قبل الإضافة
-  const beforeTotal = Object.values(cart).reduce(
+
+  // منع نفس الضغط من يتسجل أكثر من مرة بسرعة
+  const now = Date.now();
+
+  if (
+    lastAddId === id &&
+    now - lastAddTime < 500
+  ) {
+    return;
+  }
+
+  lastAddId = id;
+  lastAddTime = now;
+
+
+  // العدد الحقيقي قبل الإضافة
+  let beforeTotal = Object.values(cart).reduce(
     (sum, qty) => sum + Number(qty || 0),
     0
   );
 
-  // إضافة قطعة واحدة
+
+  // إضافة قطعة واحدة فقط
   cart[id] = Number(cart[id] || 0) + 1;
 
+
+  // العدد الحقيقي بعد الإضافة
+  let afterTotal = Object.values(cart).reduce(
+    (sum, qty) => sum + Number(qty || 0),
+    0
+  );
+
+
   // حفظ السلة
-  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
 
-  // حساب العدد بعد الإضافة
-  const afterTotal = beforeTotal + 1;
 
-  // الصوت حسب المرحلة
-  playCartSound(afterTotal);
+  console.log(
+    "🛒 Cart:",
+    beforeTotal,
+    "→",
+    afterTotal
+  );
 
+
+  // ===============================
   // الرسائل التحفيزية
+  // ===============================
+
   if (afterTotal === 1) {
 
+    playCartSound(1);
+
     showCartMessage(
-      "✨ زوين! تزاد المنتج للسلة 🛒<br>" +
-      "<span style='font-size:12px'>" +
-      "زيد منتج آخر واستافد من التوصيل غير بـ <b>15 درهم</b> 🚚" +
-      "</span>",
+      `
+      ✨ زوين! تزاد المنتج للسلة 🛒
+      <br>
+      <span style="font-size:12px;">
+        زيد منتج آخر واستافد من التوصيل غير بـ
+        <b>15 درهم</b> 🚚
+      </span>
+      `,
       "normal"
     );
 
-  } else if (afterTotal === 2) {
+  }
+
+  else if (afterTotal === 2) {
+
+    playCartSound(2);
 
     showCartMessage(
-      "🔥 برافو! وصلتي لجوج منتجات 🎉<br>" +
-      "<span style='font-size:12px'>" +
-      "بقا غير منتج واحد وتربح <b>التوصيل مجاناً 🎁</b>" +
-      "</span>",
+      `
+      🔥 برافو! وصلتي لجوج منتجات 🎉
+      <br>
+      <span style="font-size:12px;">
+        بقا غير <b>منتج واحد</b>
+        وتربح
+        <b>التوصيل مجاناً 🎁</b>
+      </span>
+      `,
       "reward"
     );
 
-  } else if (afterTotal === 3) {
-
-    showCartMessage(
-      "🎉🏆 مبروك! ربحتي التوصيل مجاناً! 🚚✨<br>" +
-      "<span style='font-size:12px'>" +
-      "وصلتي لـ <b>3 منتجات</b> — التوصيل ديالك مجاني 🎁" +
-      "</span>",
-      "free"
-    );
-
-  } else {
-
-    showCartMessage(
-      "🛒 تزاد المنتج للسلة ✓<br>" +
-      "<span style='font-size:12px'>" +
-      "والتوصيل باقي مجاني 🎁🚚" +
-      "</span>",
-      "free"
-    );
   }
 
-  // تحديث السلة والعداد فقط
+  else if (afterTotal === 3) {
+
+    playCartSound(3);
+
+    showCartMessage(
+      `
+      🎉🏆 مبروك! ربحتي التوصيل مجاناً!
+      🚚✨
+      <br>
+      <span style="font-size:12px;">
+        وصلتي لـ <b>3 منتجات</b>
+        — التوصيل ديالك مجاني 🎁
+      </span>
+      `,
+      "free"
+    );
+
+  }
+
+  else {
+
+    playCartSound(4);
+
+    showCartMessage(
+      `
+      🛒 تزاد المنتج للسلة ✓
+      <br>
+      <span style="font-size:12px;">
+        عندك دابا <b>${afterTotal} منتجات</b>
+        والتوصيل باقي مجاني 🎁🚚
+      </span>
+      `,
+      "free"
+    );
+
+  }
+
+
+  // تحديث العداد والسلة
   renderCart();
 
-  // ممنوع openCart() هنا
-}
- 
 
+  // ⚠️ مهم:
+  // ما كايناش openCart()
+}
 
 // ===============================
 // تغيير الكمية
