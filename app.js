@@ -607,7 +607,8 @@ function render() {
 // السلة + التوصيل
 // ===============================
 function renderCart() {
-
+console.log("CART:", cart);
+console.log("PRODUCTS:", products);
   let count = 0;
   let productsTotal = 0;
 
