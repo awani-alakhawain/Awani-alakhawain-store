@@ -90,7 +90,6 @@ function renderFeaturedAd() {
   });
 
 
-  // ماكاين حتى عرض
   if (offers.length === 0) {
 
     ad.innerHTML = "";
@@ -196,13 +195,11 @@ function renderFeaturedAd() {
   showOffer(offerIndex);
 
 
-  // إيقاف المؤقت القديم
   if (offerTimer) {
     clearInterval(offerTimer);
   }
 
 
-  // تغيير العرض كل 4 ثواني
   offerTimer = setInterval(() => {
 
     const currentOffers =
@@ -300,9 +297,7 @@ async function loadProducts() {
     });
 
 
-    // إذا كانت collection خاوية
     if (products.length === 0) {
-
       products = starter;
     }
 
@@ -331,9 +326,6 @@ async function loadProducts() {
       error
     );
 
-
-    // نستعمل المنتجات التجريبية
-    // باش المتجر مايبقاش خاوي
 
     products = starter;
 
@@ -500,6 +492,7 @@ function render() {
                   margin-top:5px;
                 "
               >
+
                 <span
                   style="
                     text-decoration:line-through;
@@ -518,6 +511,7 @@ function render() {
                 >
                   ${p.price} درهم
                 </span>
+
               </div>
             `
 
@@ -632,7 +626,7 @@ function renderCart() {
 
 
         const quantity =
-          cart[id];
+          Number(cart[id]);
 
 
         count += quantity;
@@ -724,23 +718,24 @@ function renderCart() {
 
 
 // ===============================
-// إضافة للسلة
+// إضافة للسلة + صوت + عروض
 // ===============================
-
-// ===============================
-// إضافة للسلة + إشعارات تحفيزية
-// ===============================
-
-let offer15Shown = false;
-let freeDeliveryShown = false;
 
 function playCartSound() {
 
   try {
 
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if (!AudioContext) {
+      return;
+    }
+
     const audioContext =
-      new (window.AudioContext ||
-        window.webkitAudioContext)();
+      new AudioContext();
+
 
     const oscillator =
       audioContext.createOscillator();
@@ -748,38 +743,47 @@ function playCartSound() {
     const gain =
       audioContext.createGain();
 
-    oscillator.type = "sine";
+
+    oscillator.type =
+      "sine";
+
 
     oscillator.frequency.setValueAtTime(
       700,
       audioContext.currentTime
     );
 
+
     oscillator.frequency.exponentialRampToValueAtTime(
       950,
       audioContext.currentTime + 0.08
     );
+
 
     gain.gain.setValueAtTime(
       0.0001,
       audioContext.currentTime
     );
 
+
     gain.gain.exponentialRampToValueAtTime(
       0.08,
       audioContext.currentTime + 0.02
     );
+
 
     gain.gain.exponentialRampToValueAtTime(
       0.0001,
       audioContext.currentTime + 0.18
     );
 
+
     oscillator.connect(gain);
 
     gain.connect(
       audioContext.destination
     );
+
 
     oscillator.start();
 
@@ -794,6 +798,7 @@ function playCartSound() {
     console.log(
       "Cart sound unavailable"
     );
+
   }
 }
 
@@ -822,14 +827,17 @@ function showCartMessage(
     document.body.appendChild(
       box
     );
+
   }
 
 
   box.className =
     "cart-message " + type;
 
+
   box.innerHTML =
     message;
+
 
   box.style.display =
     "block";
@@ -850,31 +858,51 @@ function showCartMessage(
       },
       3500
     );
+
 }
 
 
 function add(id) {
 
+  // عدد القطع قبل الإضافة
+  const beforeTotal =
+    Object.values(cart).reduce(
+      (sum, qty) =>
+        sum + Number(qty),
+      0
+    );
+
+
+  // إضافة قطعة واحدة
   cart[id] =
     (cart[id] || 0) + 1;
 
 
+  // حفظ السلة
   localStorage.setItem(
     "cart",
     JSON.stringify(cart)
   );
 
 
-  // عدد المنتجات المختلفة في السلة
-  const uniqueProducts =
-    Object.keys(cart).length;
+  // عدد القطع بعد الإضافة
+  const afterTotal =
+    Object.values(cart).reduce(
+      (sum, qty) =>
+        sum + Number(qty),
+      0
+    );
 
 
+  // تشغيل الصوت
   playCartSound();
 
 
-  // المنتج الأول
-  if (uniqueProducts === 1) {
+  // القطعة الأولى
+  if (
+    beforeTotal === 0 &&
+    afterTotal === 1
+  ) {
 
     showCartMessage(
       "🛒 تمت إضافة المنتج إلى السلة ✓",
@@ -884,29 +912,25 @@ function add(id) {
   }
 
 
-  // المنتج الثاني
+  // القطعة الثانية
   else if (
-    uniqueProducts === 2 &&
-    !offer15Shown
+    beforeTotal === 1 &&
+    afterTotal === 2
   ) {
 
-    offer15Shown = true;
-
     showCartMessage(
-      "🎉 ممتاز! عندك جوج منتجات — باقي غير منتج واحد باش تستافد من التوصيل بـ 15 درهم 🚚",
+      "🎉 ممتاز! عندك جوج منتجات — استفد من التوصيل بـ 15 درهم 🚚",
       "reward"
     );
 
   }
 
 
-  // المنتج الثالث
+  // القطعة الثالثة
   else if (
-    uniqueProducts >= 3 &&
-    !freeDeliveryShown
+    beforeTotal === 2 &&
+    afterTotal === 3
   ) {
-
-    freeDeliveryShown = true;
 
     showCartMessage(
       "🎁 مبروك! وصلتي لـ 3 منتجات — التوصيل مجاني 🚚✨",
@@ -939,6 +963,7 @@ function chg(
   if (cart[id] <= 0) {
 
     delete cart[id];
+
   }
 
 
@@ -961,11 +986,13 @@ function openCart() {
   const cartElement =
     $("#cart");
 
+
   if (cartElement) {
 
     cartElement.classList.add(
       "open"
     );
+
   }
 }
 
@@ -975,11 +1002,13 @@ function closeCart() {
   const cartElement =
     $("#cart");
 
+
   if (cartElement) {
 
     cartElement.classList.remove(
       "open"
     );
+
   }
 }
 
@@ -1001,11 +1030,13 @@ function openLogin() {
   const login =
     $("#login");
 
+
   if (login) {
 
     login.classList.add(
       "open"
     );
+
   }
 }
 
@@ -1015,11 +1046,13 @@ function closeLogin() {
   const login =
     $("#login");
 
+
   if (login) {
 
     login.classList.remove(
       "open"
     );
+
   }
 }
 
@@ -1059,6 +1092,7 @@ if (loginForm) {
 
         message.textContent =
           "جاري تسجيل الدخول...";
+
       }
 
 
@@ -1075,6 +1109,7 @@ if (loginForm) {
 
           message.textContent =
             "تم الدخول بنجاح ✅";
+
         }
 
 
@@ -1093,9 +1128,13 @@ if (loginForm) {
 
           message.textContent =
             "الإيميل أو كلمة السر غير صحيحة ❌";
+
         }
+
       }
+
     };
+
 }
 
 
@@ -1122,6 +1161,7 @@ function openAdmin() {
     admin.classList.add(
       "open"
     );
+
   }
 
 
@@ -1142,6 +1182,7 @@ function closeAdmin() {
     admin.classList.remove(
       "open"
     );
+
   }
 }
 
@@ -1157,10 +1198,12 @@ function renderAdmin() {
     const adminList =
       $("#adminList");
 
+
     if (adminList) {
 
       adminList.innerHTML =
         "";
+
     }
 
     return;
@@ -1277,6 +1320,7 @@ function renderAdmin() {
         searchOK &&
         categoryOK
       );
+
     });
 
 
@@ -1385,6 +1429,7 @@ function renderAdmin() {
                   offer
                     ? `
                       <br>
+
                       <small
                         style="
                           color:#dc2626;
@@ -1447,6 +1492,7 @@ function renderAdmin() {
       :
 
         "<p>🔎 ما لقيتش هاد المنتج.</p>";
+
 }
 
 
@@ -1465,7 +1511,9 @@ document.addEventListener(
     ) {
 
       renderAdmin();
+
     }
+
   }
 );
 
@@ -1485,7 +1533,9 @@ document.addEventListener(
     ) {
 
       renderAdmin();
+
     }
+
   }
 );
 
@@ -1527,6 +1577,7 @@ function edit(id) {
 
     oldPriceInput.value =
       p.oldPrice || "";
+
   }
 
 
@@ -1538,6 +1589,7 @@ function edit(id) {
 
     offerCheckbox.checked =
       p.offer === true;
+
   }
 
 
@@ -1558,6 +1610,7 @@ function edit(id) {
 
 
   openAdmin();
+
 }
 
 
@@ -1711,8 +1764,11 @@ if (productForm) {
         alert(
           "ما قدرناش نحفظو المنتج في Firebase ❌"
         );
+
       }
+
     };
+
 }
 
 
@@ -1778,6 +1834,7 @@ async function del(id) {
     alert(
       "وقع مشكل أثناء حذف المنتج ❌"
     );
+
   }
 }
 
@@ -1928,6 +1985,7 @@ if (orderForm) {
         "https://wa.me/212660234149?text=" +
 
         message;
+
     };
 }
 
@@ -1944,6 +2002,7 @@ if (searchInput) {
 
   searchInput.oninput =
     render;
+
 }
 
 
@@ -1955,6 +2014,7 @@ if (catSelect) {
 
   catSelect.onchange =
     render;
+
 }
 
 
@@ -1979,7 +2039,9 @@ auth.onAuthStateChanged(
       console.log(
         "Aucun administrateur connecté"
       );
+
     }
+
   }
 );
 
@@ -2141,6 +2203,7 @@ function shareProduct(id) {
         alert(
           "الصورة تحلات. دابا تقدر تحفظها وتشاركها في Facebook أو Instagram أو WhatsApp."
         );
+
       }
 
     },
@@ -2182,6 +2245,7 @@ async function importGitHubImages() {
       throw new Error(
         "GitHub API error"
       );
+
     }
 
 
@@ -2202,6 +2266,7 @@ async function importGitHubImages() {
               .test(file.name)
 
           );
+
         }
       );
 
@@ -2279,6 +2344,7 @@ async function importGitHubImages() {
 
 
       added++;
+
     }
 
 
@@ -2305,6 +2371,7 @@ async function importGitHubImages() {
     alert(
       "وقع مشكل أثناء استيراد الصور ❌"
     );
+
   }
 }
 
@@ -2687,8 +2754,11 @@ if (categoryForm) {
         alert(
           "ما قدرناش نحفظو الفئة ❌"
         );
+
       }
+
     };
+
 }
 
 
@@ -2742,6 +2812,7 @@ async function editCategory(id) {
     alert(
       "وقع مشكل أثناء تعديل الفئة ❌"
     );
+
   }
 }
 
@@ -2801,6 +2872,7 @@ async function deleteCategory(id) {
     alert(
       "وقع مشكل أثناء حذف الفئة ❌"
     );
+
   }
 }
 
@@ -2917,6 +2989,7 @@ async function renderCategories() {
 
     container.innerHTML =
       "";
+
   }
 }
 
@@ -2963,6 +3036,7 @@ function selectCategory(
         "smooth"
 
     });
+
   }
 }
 
