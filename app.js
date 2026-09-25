@@ -727,6 +727,132 @@ function renderCart() {
 // إضافة للسلة
 // ===============================
 
+// ===============================
+// إضافة للسلة + إشعارات تحفيزية
+// ===============================
+
+let offer15Shown = false;
+let freeDeliveryShown = false;
+
+function playCartSound() {
+
+  try {
+
+    const audioContext =
+      new (window.AudioContext ||
+        window.webkitAudioContext)();
+
+    const oscillator =
+      audioContext.createOscillator();
+
+    const gain =
+      audioContext.createGain();
+
+    oscillator.type = "sine";
+
+    oscillator.frequency.setValueAtTime(
+      700,
+      audioContext.currentTime
+    );
+
+    oscillator.frequency.exponentialRampToValueAtTime(
+      950,
+      audioContext.currentTime + 0.08
+    );
+
+    gain.gain.setValueAtTime(
+      0.0001,
+      audioContext.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.08,
+      audioContext.currentTime + 0.02
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      audioContext.currentTime + 0.18
+    );
+
+    oscillator.connect(gain);
+
+    gain.connect(
+      audioContext.destination
+    );
+
+    oscillator.start();
+
+    oscillator.stop(
+      audioContext.currentTime + 0.18
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(
+      "Cart sound unavailable"
+    );
+  }
+}
+
+
+function showCartMessage(
+  message,
+  type = "normal"
+) {
+
+  let box =
+    document.getElementById(
+      "cart-message"
+    );
+
+
+  if (!box) {
+
+    box =
+      document.createElement(
+        "div"
+      );
+
+    box.id =
+      "cart-message";
+
+    document.body.appendChild(
+      box
+    );
+  }
+
+
+  box.className =
+    "cart-message " + type;
+
+  box.innerHTML =
+    message;
+
+  box.style.display =
+    "block";
+
+
+  clearTimeout(
+    box.hideTimer
+  );
+
+
+  box.hideTimer =
+    setTimeout(
+      () => {
+
+        box.style.display =
+          "none";
+
+      },
+      3500
+    );
+}
+
+
 function add(id) {
 
   cart[id] =
@@ -737,6 +863,57 @@ function add(id) {
     "cart",
     JSON.stringify(cart)
   );
+
+
+  // عدد المنتجات المختلفة في السلة
+  const uniqueProducts =
+    Object.keys(cart).length;
+
+
+  playCartSound();
+
+
+  // المنتج الأول
+  if (uniqueProducts === 1) {
+
+    showCartMessage(
+      "🛒 تمت إضافة المنتج إلى السلة ✓",
+      "normal"
+    );
+
+  }
+
+
+  // المنتج الثاني
+  else if (
+    uniqueProducts === 2 &&
+    !offer15Shown
+  ) {
+
+    offer15Shown = true;
+
+    showCartMessage(
+      "🎉 ممتاز! عندك جوج منتجات — باقي غير منتج واحد باش تستافد من التوصيل بـ 15 درهم 🚚",
+      "reward"
+    );
+
+  }
+
+
+  // المنتج الثالث
+  else if (
+    uniqueProducts >= 3 &&
+    !freeDeliveryShown
+  ) {
+
+    freeDeliveryShown = true;
+
+    showCartMessage(
+      "🎁 مبروك! وصلتي لـ 3 منتجات — التوصيل مجاني 🚚✨",
+      "free"
+    );
+
+  }
 
 
   renderCart();
