@@ -723,7 +723,13 @@ function renderCart() {
 // إضافة للسلة + صوت + عروض
 // ===============================
 
-function playCartSound() {
+// ===============================
+// أصوات تحفيزية مختلفة
+// ===============================
+
+let cartAudioContext = null;
+
+function playCartSound(level = 1) {
 
   try {
 
@@ -735,66 +741,185 @@ function playCartSound() {
       return;
     }
 
-    const audioContext =
-      new AudioContext();
+
+    if (!cartAudioContext) {
+
+      cartAudioContext =
+        new AudioContext();
+
+    }
 
 
-    const oscillator =
-      audioContext.createOscillator();
+    if (
+      cartAudioContext.state ===
+      "suspended"
+    ) {
 
-    const gain =
-      audioContext.createGain();
+      cartAudioContext.resume();
 
-
-    oscillator.type =
-      "sine";
-
-
-    oscillator.frequency.setValueAtTime(
-      700,
-      audioContext.currentTime
-    );
+    }
 
 
-    oscillator.frequency.exponentialRampToValueAtTime(
-      950,
-      audioContext.currentTime + 0.08
-    );
+    const ctx =
+      cartAudioContext;
 
 
-    gain.gain.setValueAtTime(
-      0.0001,
-      audioContext.currentTime
-    );
+    const playTone = (
+      frequency,
+      start,
+      duration,
+      volume
+    ) => {
+
+      const oscillator =
+        ctx.createOscillator();
+
+      const gain =
+        ctx.createGain();
 
 
-    gain.gain.exponentialRampToValueAtTime(
-      0.08,
-      audioContext.currentTime + 0.02
-    );
+      oscillator.type =
+        "sine";
 
 
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001,
-      audioContext.currentTime + 0.18
-    );
+      oscillator.frequency.setValueAtTime(
+        frequency,
+        ctx.currentTime + start
+      );
 
 
-    oscillator.connect(gain);
+      gain.gain.setValueAtTime(
+        0.0001,
+        ctx.currentTime + start
+      );
 
-    gain.connect(
-      audioContext.destination
-    );
+
+      gain.gain.exponentialRampToValueAtTime(
+        volume,
+        ctx.currentTime + start + 0.02
+      );
 
 
-    oscillator.start();
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        ctx.currentTime + start + duration
+      );
 
-    oscillator.stop(
-      audioContext.currentTime + 0.18
-    );
+
+      oscillator.connect(gain);
+
+      gain.connect(
+        ctx.destination
+      );
+
+
+      oscillator.start(
+        ctx.currentTime + start
+      );
+
+      oscillator.stop(
+        ctx.currentTime + start + duration
+      );
+
+    };
+
+
+    // المنتج الأول 🔔
+    if (level === 1) {
+
+      playTone(
+        620,
+        0,
+        0.18,
+        0.045
+      );
+
+      playTone(
+        820,
+        0.10,
+        0.20,
+        0.035
+      );
+
+    }
+
+
+    // المنتج الثاني 🎉
+    else if (level === 2) {
+
+      playTone(
+        660,
+        0,
+        0.16,
+        0.045
+      );
+
+      playTone(
+        880,
+        0.12,
+        0.18,
+        0.05
+      );
+
+      playTone(
+        1040,
+        0.24,
+        0.22,
+        0.045
+      );
+
+    }
+
+
+    // المنتج الثالث 🏆
+    else if (level === 3) {
+
+      playTone(
+        660,
+        0,
+        0.15,
+        0.045
+      );
+
+      playTone(
+        830,
+        0.12,
+        0.16,
+        0.05
+      );
+
+      playTone(
+        1100,
+        0.24,
+        0.28,
+        0.06
+      );
+
+    }
+
+
+    // المنتجات من الرابع فما فوق
+    else {
+
+      playTone(
+        750,
+        0,
+        0.14,
+        0.035
+      );
+
+    }
 
   }
 
+  catch (error) {
+
+    console.log(
+      "Cart sound unavailable"
+    );
+
+  }
+}
   catch (error) {
 
     console.log(
