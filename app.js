@@ -2171,9 +2171,7 @@ if (orderForm) {
       e.preventDefault();
 
 
-      if (
-        !Object.keys(cart).length
-      ) {
+      if (!Object.keys(cart).length) {
 
         alert(
           "السلة فارغة"
@@ -2184,9 +2182,11 @@ if (orderForm) {
 
 
       const form =
-        new FormData(
-          e.target
-        );
+        new FormData(e.target);
+
+
+      let totalQuantity = 0;
+      let productsTotal = 0;
 
 
       const items =
@@ -2200,20 +2200,30 @@ if (orderForm) {
                 (x) => x.id === id
               );
 
-
             if (!p) {
               return "";
             }
 
 
+            const quantity =
+              Number(cart[id] || 0);
+
+
+            totalQuantity +=
+              quantity;
+
+
+            productsTotal +=
+              p.price * quantity;
+
+
             return (
-
               p.name +
-
               " x" +
-
-              cart[id]
-
+              quantity +
+              " = " +
+              (p.price * quantity) +
+              " درهم"
             );
 
           })
@@ -2223,15 +2233,76 @@ if (orderForm) {
           .join("، ");
 
 
+      // ===============================
+      // حساب التوصيل
+      // ===============================
+
+      let shipping = 0;
+
+      if (totalQuantity === 1) {
+
+        shipping = 30;
+
+      }
+
+      else if (totalQuantity === 2) {
+
+        shipping = 15;
+
+      }
+
+      else {
+
+        shipping = 0;
+
+      }
+
+
+      const finalTotal =
+        productsTotal + shipping;
+
+
+      const shippingText =
+        shipping === 0
+          ? "مجاني"
+          : shipping + " درهم";
+
+
       const message =
 
-        "السلام عليكم، أريد الطلب:%0A" +
+        "السلام عليكم، أريد الطلب:%0A%0A" +
+
+        encodeURIComponent(items) +
+
+        "%0A%0Aعدد المنتجات: " +
 
         encodeURIComponent(
-          items
+          totalQuantity
         ) +
 
-        "%0Aالاسم: " +
+        "%0Aثمن المنتجات: " +
+
+        encodeURIComponent(
+          productsTotal
+        ) +
+
+        " درهم" +
+
+        "%0Aالتوصيل: " +
+
+        encodeURIComponent(
+          shippingText
+        ) +
+
+        "%0Aالمجموع النهائي: " +
+
+        encodeURIComponent(
+          finalTotal
+        ) +
+
+        " درهم" +
+
+        "%0A%0Aالاسم: " +
 
         encodeURIComponent(
           form.get("name")
@@ -2257,9 +2328,8 @@ if (orderForm) {
         message;
 
     };
+
 }
-
-
 // ===============================
 // البحث
 // ===============================
