@@ -602,234 +602,154 @@ function render() {
 // السلة
 // ===============================
 
-function renderCart() {
 
+// ===============================
+// السلة + التوصيل
+// ===============================
+function renderCart() {
   let count = 0;
   let productsTotal = 0;
-
-  const html =
-    Object.keys(cart)
-
-      .map((id) => {
-
-        const p =
-          products.find(
-            (x) => x.id === id
-          );
-
-        if (!p) {
-          return "";
-        }
-
-        const quantity =
-          Number(cart[id] || 0);
-
-        count += quantity;
-
-        productsTotal +=
-          p.price * quantity;
-
-        return `
-          <div class="row">
-
-            <span>
-
-              ${p.name}
-
-              <br>
-
-              ${p.price}
-              ×
-              ${quantity}
-
-            </span>
-
-            <span>
-
-              <button
-                onclick="
-                  chg('${id}', -1)
-                "
-              >
-                −
-              </button>
-
-              ${quantity}
-
-              <button
-                onclick="
-                  chg('${id}', 1)
-                "
-              >
-                +
-              </button>
-
-            </span>
-
-          </div>
-        `;
-
-      })
-
-      .join("");
-
-
+  const rows = Object.keys(cart)
+    .map((id) => {
+      const p = products.find(
+        (x) => x.id === id
+      );
+      if (!p) {
+        return "";
+      }
+      const quantity = Number(cart[id] || 0);
+      if (quantity <= 0) {
+        return "";
+      }
+      count += quantity;
+      productsTotal +=
+        Number(p.price || 0) * quantity;
+      return `
+        <div class="row">
+          <span>
+            <b>${p.name}</b>
+            <br>
+            ${p.price} درهم × ${quantity}
+          </span>
+          <span>
+            <button
+              onclick="chg('${id}', -1)"
+            >
+              −
+            </button>
+            ${quantity}
+            <button
+              onclick="chg('${id}', 1)"
+            >
+              +
+            </button>
+          </span>
+        </div>
+      `;
+    })
+    .join("");
   // ===============================
   // حساب التوصيل
   // ===============================
-
   let shipping = 0;
   let shippingText = "";
-
   if (count === 0) {
-
     shipping = 0;
-
     shippingText =
-      "🚚 التوصيل: أضف منتجات لمعرفة ثمن التوصيل.";
-
+      "🚚 التوصيل: أضف منتجات لمعرفة الثمن.";
   }
-
   else if (count === 1) {
-
     shipping = 30;
-
     shippingText =
       "🚚 التوصيل: <strong>30 درهم</strong>";
-
   }
-
   else if (count === 2) {
-
     shipping = 15;
-
     shippingText =
       "🚚 التوصيل: <strong>15 درهم</strong>";
-
   }
-
   else {
-
     shipping = 0;
-
     shippingText =
       "🎁 التوصيل: <strong style='color:#16a34a;'>مجاني</strong>";
-
   }
-
-
+  // ===============================
+  // المجموع النهائي
+  // ===============================
   const finalTotal =
     productsTotal + shipping;
-
-
-  // ===============================
-  // العناصر
-  // ===============================
-
   const items =
     $("#items");
-
   const countElement =
     $("#count");
-
-  const productsTotalElement =
-    $("#products-total");
-
-  const shippingTotalElement =
-    $("#shipping-total");
-
   const totalElement =
     $("#total");
-
-  const shippingInfo =
-    $("#shipping-info");
-
-
+  // ===============================
+  // عرض محتوى السلة
+  // ===============================
   if (items) {
-
     items.innerHTML =
-      html ||
-      "<p>السلة فارغة.</p>";
-
+      (rows || "<p>السلة فارغة.</p>") +
+      `
+        <div
+          style="
+            margin-top:15px;
+            padding:12px;
+            border-top:1px solid #ddd;
+          "
+        >
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              margin-bottom:6px;
+            "
+          >
+            <span>ثمن المنتجات:</span>
+            <strong>${productsTotal} درهم</strong>
+          </div>
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              margin-bottom:6px;
+            "
+          >
+            <span>التوصيل:</span>
+            <strong>${shippingText}</strong>
+          </div>
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              font-size:18px;
+              font-weight:800;
+              margin-top:10px;
+              padding-top:10px;
+              border-top:1px solid #ddd;
+            "
+          >
+            <span>المجموع النهائي:</span>
+            <strong>${finalTotal} درهم</strong>
+          </div>
+        </div>
+      `;
   }
-
-
+  // ===============================
+  // عداد السلة
+  // ===============================
   if (countElement) {
-
     countElement.textContent =
       count;
-
   }
-
-
-  if (productsTotalElement) {
-
-    productsTotalElement.textContent =
-      productsTotal;
-
-  }
-
-
-  if (shippingTotalElement) {
-
-    shippingTotalElement.textContent =
-      shipping;
-
-  }
-
-
+  // ===============================
+  // المجموع النهائي
+  // ===============================
   if (totalElement) {
-
     totalElement.textContent =
       finalTotal;
-
-  }
-
-
-  if (shippingInfo) {
-
-    shippingInfo.innerHTML =
-      shippingText;
-
-  }
-
-}
-      .join("");
-
-
-  const items =
-    $("#items");
-
-  const countElement =
-    $("#count");
-
-  const totalElement =
-    $("#total");
-
-
-  if (items) {
-
-    items.innerHTML =
-      html ||
-      "<p>السلة فارغة.</p>";
-  }
-
-
-  if (countElement) {
-
-    countElement.textContent =
-      count;
-  }
-
-
-  if (totalElement) {
-
-    totalElement.textContent =
-      total;
   }
 }
-
-
 // ===============================
 // إضافة للسلة + صوت + عروض
 // ===============================
