@@ -65,6 +65,8 @@ let cart = JSON.parse(
   localStorage.getItem("cart") || "{}"
 );
 
+localStorage.removeItem("cart");
+cart = {};
 const $ = (s) => document.querySelector(s);
 
 
