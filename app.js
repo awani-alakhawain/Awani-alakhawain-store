@@ -3461,3 +3461,1005 @@ if (typeof auth !== "undefined") {
 
   });
 }
+/* =========================================================
+   🎁 AWANI EL AKHAWAIN - SHIPPING GAME
+   شخصية + مراحل التوصيل + هدية مجانية
+   ========================================================= */
+
+(function () {
+  if (window.__awaniShippingGameLoaded) return;
+  window.__awaniShippingGameLoaded = true;
+
+  const AWANI_LOGO =
+    "https://raw.githubusercontent.com/awani-alakhawain/Awani-alakhawain-store/refs/heads/main/587681220_17951617638049632_8425599764459275730_n.jpg";
+
+  let shippingGame;
+  let lastGameCount = 0;
+  let giftShown = false;
+
+  /* =========================
+     CSS
+  ========================= */
+
+  const style = document.createElement("style");
+
+  style.textContent = `
+  #awani-shipping-game {
+    position: relative;
+    width: min(96%, 900px);
+    margin: 12px auto 18px;
+    z-index: 1000;
+    direction: rtl;
+    font-family: Arial, sans-serif;
+  }
+
+  .awani-game-box {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    padding: 14px 14px 16px;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,193,7,.25), transparent 25%),
+      radial-gradient(circle at 85% 20%, rgba(255,80,80,.18), transparent 25%),
+      linear-gradient(135deg,#fff,#fff8e7);
+    border: 2px solid rgba(255,184,0,.35);
+    box-shadow:
+      0 12px 35px rgba(0,0,0,.12),
+      0 3px 10px rgba(0,0,0,.08);
+    transition: .35s ease;
+  }
+
+  .awani-game-box.game-pop {
+    animation: awaniGamePop .65s cubic-bezier(.2,1.5,.4,1);
+  }
+
+  @keyframes awaniGamePop {
+    0% {
+      transform: scale(.75);
+      opacity: 0;
+    }
+    55% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .awani-game-title {
+    text-align: center;
+    font-size: 19px;
+    font-weight: 900;
+    margin-bottom: 3px;
+  }
+
+  .awani-game-message {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    min-height: 20px;
+  }
+
+  .awani-road {
+    position: relative;
+    height: 82px;
+    margin: 2px 8px 0;
+  }
+
+  .awani-road-line {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 43px;
+    height: 9px;
+    border-radius: 20px;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        #333 0 18px,
+        #fff 18px 32px
+      );
+    box-shadow: 0 3px 8px rgba(0,0,0,.2);
+  }
+
+  .awani-progress {
+    position: absolute;
+    left: 8%;
+    top: 43px;
+    height: 9px;
+    width: 0%;
+    border-radius: 20px;
+    background: linear-gradient(90deg,#ffb300,#ff5b00,#ff1744);
+    transition: width .9s cubic-bezier(.2,1.2,.3,1);
+    z-index: 2;
+  }
+
+  .awani-stage {
+    position: absolute;
+    top: 30px;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #777;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    z-index: 5;
+    box-shadow: 0 3px 8px rgba(0,0,0,.15);
+  }
+
+  .awani-stage.one {
+    left: 8%;
+  }
+
+  .awani-stage.two {
+    left: 50%;
+  }
+
+  .awani-stage.three {
+    left: 92%;
+  }
+
+  .awani-stage.active {
+    border-color: #ff9800;
+    background: #fff3cd;
+    transform: translateX(-50%) scale(1.15);
+  }
+
+  .awani-stage.free {
+    border-color: #16a34a;
+    background: #dcfce7;
+  }
+
+  .awani-rider {
+    position: absolute;
+    left: 8%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 72px;
+    height: 72px;
+    z-index: 10;
+    transition:
+      left 1s cubic-bezier(.2,1.3,.3,1),
+      transform .25s ease;
+  }
+
+  .awani-rider.move {
+    animation:
+      awaniRide .8s ease-in-out,
+      awaniBounce .35s infinite alternate;
+  }
+
+  @keyframes awaniRide {
+    0% { transform: translateX(-50%) rotate(-5deg); }
+    30% { transform: translateX(-50%) translateY(-12px) rotate(5deg); }
+    60% { transform: translateX(-50%) translateY(0) rotate(-4deg); }
+    100% { transform: translateX(-50%) rotate(0); }
+  }
+
+  @keyframes awaniBounce {
+    from { margin-top: 0; }
+    to { margin-top: -4px; }
+  }
+
+  .awani-rider-avatar {
+    width: 58px;
+    height: 58px;
+    margin: auto;
+    border-radius: 50%;
+    background: #111;
+    border: 4px solid #fff;
+    box-shadow: 0 5px 14px rgba(0,0,0,.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    position: relative;
+  }
+
+  .awani-rider-logo {
+    position: absolute;
+    width: 23px;
+    height: 23px;
+    right: -5px;
+    top: -5px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    background: white;
+  }
+
+  .awani-shirt-name {
+    position: absolute;
+    bottom: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: white;
+    border-radius: 20px;
+    padding: 2px 7px;
+    font-size: 7px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .awani-labels {
+    display: flex;
+    justify-content: space-between;
+    margin: 1px 5% 0;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .awani-labels span:last-child {
+    color: #159447;
+  }
+
+  .awani-small {
+    position: fixed !important;
+    width: auto !important;
+    right: 12px;
+    bottom: 82px;
+    left: auto !important;
+    margin: 0 !important;
+    z-index: 9998 !important;
+    pointer-events: none;
+  }
+
+  .awani-small .awani-game-box {
+    width: 105px;
+    min-height: 74px;
+    padding: 7px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.2);
+  }
+
+  .awani-small .awani-game-title {
+    font-size: 11px;
+  }
+
+  .awani-small .awani-game-message {
+    font-size: 9px;
+    margin: 0;
+  }
+
+  .awani-small .awani-road {
+    height: 35px;
+    margin: 0;
+  }
+
+  .awani-small .awani-road-line,
+  .awani-small .awani-progress {
+    top: 20px;
+    height: 5px;
+  }
+
+  .awani-small .awani-stage {
+    top: 11px;
+    width: 15px;
+    height: 15px;
+    border-width: 2px;
+    font-size: 7px;
+  }
+
+  .awani-small .awani-rider {
+    width: 35px;
+    height: 35px;
+    top: -2px;
+  }
+
+  .awani-small .awani-rider-avatar {
+    width: 31px;
+    height: 31px;
+    font-size: 17px;
+    border-width: 2px;
+  }
+
+  .awani-small .awani-rider-logo {
+    width: 12px;
+    height: 12px;
+    border-width: 1px;
+  }
+
+  .awani-small .awani-shirt-name,
+  .awani-small .awani-labels {
+    display: none;
+  }
+
+  /* =========================
+     🎁 WIN POPUP
+  ========================= */
+
+  #awani-gift-win {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.48);
+    backdrop-filter: blur(5px);
+    padding: 18px;
+  }
+
+  #awani-gift-win.show {
+    display: flex;
+    animation: awaniOverlay .3s ease;
+  }
+
+  @keyframes awaniOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .awani-gift-card {
+    position: relative;
+    width: min(92vw,430px);
+    min-height: 300px;
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at 50% 10%,#fff7d1,transparent 30%),
+      linear-gradient(145deg,#fff,#fff3d4);
+    box-shadow: 0 25px 80px rgba(0,0,0,.4);
+    text-align: center;
+    overflow: hidden;
+    padding: 22px 18px;
+    animation: giftCardIn .65s cubic-bezier(.2,1.5,.4,1);
+  }
+
+  @keyframes giftCardIn {
+    0% {
+      transform: scale(.5) translateY(100px) rotate(-5deg);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1) translateY(0) rotate(0);
+      opacity: 1;
+    }
+  }
+
+  .awani-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .awani-confetti i {
+    position: absolute;
+    width: 8px;
+    height: 16px;
+    border-radius: 3px;
+    animation: confettiFall 1.8s linear infinite;
+  }
+
+  .awani-confetti i:nth-child(1){left:8%;top:-20px;animation-delay:.1s}
+  .awani-confetti i:nth-child(2){left:22%;top:-20px;animation-delay:.3s}
+  .awani-confetti i:nth-child(3){left:40%;top:-20px;animation-delay:.5s}
+  .awani-confetti i:nth-child(4){left:58%;top:-20px;animation-delay:.2s}
+  .awani-confetti i:nth-child(5){left:76%;top:-20px;animation-delay:.4s}
+  .awani-confetti i:nth-child(6){left:91%;top:-20px;animation-delay:.7s}
+
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(360px) rotate(500deg); opacity: 0; }
+  }
+
+  .awani-gift-emoji {
+    font-size: 105px;
+    line-height: 1;
+    margin: 15px auto 8px;
+    filter: drop-shadow(0 12px 12px rgba(0,0,0,.22));
+    animation:
+      giftShake .55s ease-in-out infinite alternate;
+  }
+
+  @keyframes giftShake {
+    from { transform: rotate(-5deg) scale(1); }
+    to { transform: rotate(5deg) scale(1.08); }
+  }
+
+  .awani-win-title {
+    font-size: 29px;
+    font-weight: 1000;
+    margin: 4px 0;
+    animation: winPulse 1s ease-in-out infinite alternate;
+  }
+
+  @keyframes winPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.06); }
+  }
+
+  .awani-win-text {
+    font-size: 21px;
+    font-weight: 1000;
+    margin: 7px 0;
+  }
+
+  .awani-win-free {
+    display: inline-block;
+    background: #16a34a;
+    color: white;
+    padding: 9px 18px;
+    border-radius: 30px;
+    font-size: 20px;
+    font-weight: 1000;
+    box-shadow: 0 7px 18px rgba(22,163,74,.35);
+    animation: freePulse .8s infinite alternate;
+  }
+
+  @keyframes freePulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+  }
+
+  .awani-close-gift {
+    margin-top: 15px;
+    border: 0;
+    background: #111;
+    color: white;
+    border-radius: 25px;
+    padding: 9px 22px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  @media(max-width:600px){
+    .awani-game-box {
+      border-radius: 18px;
+    }
+
+    .awani-game-title {
+      font-size: 16px;
+    }
+
+    .awani-game-message {
+      font-size: 12px;
+    }
+
+    .awani-rider {
+      width: 62px;
+      height: 62px;
+    }
+
+    .awani-rider-avatar {
+      width: 52px;
+      height: 52px;
+      font-size: 28px;
+    }
+
+    .awani-gift-card {
+      min-height: 285px;
+    }
+
+    .awani-gift-emoji {
+      font-size: 88px;
+    }
+
+    .awani-win-title {
+      font-size: 25px;
+    }
+
+    .awani-win-text {
+      font-size: 18px;
+    }
+  }
+  `;
+
+  document.head.appendChild(style);
+
+
+  /* =========================
+     إنشاء الواجهة
+  ========================= */
+
+  function createShippingGame() {
+
+    if (document.getElementById("awani-shipping-game")) {
+      shippingGame = document.getElementById("awani-shipping-game");
+      return;
+    }
+
+    const products = document.getElementById("products");
+
+    if (!products) return;
+
+    shippingGame = document.createElement("div");
+    shippingGame.id = "awani-shipping-game";
+
+    shippingGame.innerHTML = `
+      <div class="awani-game-box">
+
+        <div class="awani-game-title">
+          🚴 رحلة التوصيل ديالك
+        </div>
+
+        <div class="awani-game-message">
+          زيد أول منتج وبدا الرحلة! 🚀
+        </div>
+
+        <div class="awani-road">
+
+          <div class="awani-road-line"></div>
+          <div class="awani-progress"></div>
+
+          <div class="awani-stage one">30</div>
+          <div class="awani-stage two">15</div>
+          <div class="awani-stage three">🎁</div>
+
+          <div class="awani-rider">
+
+            <div class="awani-rider-avatar">
+              🚴‍♂️
+              <img
+                class="awani-rider-logo"
+                src="${AWANI_LOGO}"
+                alt="أواني الأخوين"
+              >
+              <div class="awani-shirt-name">
+                أواني الأخوين
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="awani-labels">
+          <span>30 DH</span>
+          <span>15 DH</span>
+          <span>مجاني 🎉</span>
+        </div>
+
+      </div>
+    `;
+
+    products.parentNode.insertBefore(shippingGame, products);
+  }
+
+
+  /* =========================
+     تحديث الرحلة
+  ========================= */
+
+  function updateShippingGame(count, animate = true) {
+
+    createShippingGame();
+
+    if (!shippingGame) return;
+
+    const box = shippingGame.querySelector(".awani-game-box");
+    const rider = shippingGame.querySelector(".awani-rider");
+    const progress = shippingGame.querySelector(".awani-progress");
+    const message = shippingGame.querySelector(".awani-game-message");
+
+    const stages = shippingGame.querySelectorAll(".awani-stage");
+
+    if (!box || !rider || !progress || !message) return;
+
+    let position = "8%";
+    let progressWidth = "0%";
+
+    stages.forEach(s => s.classList.remove("active","free"));
+
+    if (count <= 0) {
+
+      position = "8%";
+      progressWidth = "0%";
+
+      message.textContent =
+        "زيد أول منتج وبدا الرحلة! 🚀";
+
+    } else if (count === 1) {
+
+      position = "8%";
+      progressWidth = "0%";
+
+      message.textContent =
+        "🚀 انطلاقة! التوصيل بـ30 درهم — زيد واحد آخر وخليه 15 DH";
+
+      stages[0].classList.add("active");
+
+    } else if (count === 2) {
+
+      position = "50%";
+      progressWidth = "50%";
+
+      message.textContent =
+        "🔥 ممتاز! التوصيل دابا غير 15 DH — زيد الثالث وخليه مجاني!";
+
+      stages[1].classList.add("active");
+
+    } else {
+
+      position = "92%";
+      progressWidth = "84%";
+
+      message.textContent =
+        "🏁 وصلنا للنهاية! التوصيل مجاني 🎉";
+
+      stages[2].classList.add("active","free");
+    }
+
+    rider.style.left = position;
+    progress.style.width = progressWidth;
+
+    if (animate && count > 0) {
+
+      box.classList.remove("game-pop");
+      rider.classList.remove("move");
+
+      void box.offsetWidth;
+
+      box.classList.add("game-pop");
+      rider.classList.add("move");
+
+      setTimeout(() => {
+        rider.classList.remove("move");
+      }, 1000);
+    }
+  }
+
+
+  /* =========================
+     تحويلها لـ Floating
+  ========================= */
+
+  function makeShippingSmall() {
+
+    if (!shippingGame) return;
+
+    setTimeout(() => {
+
+      if (!shippingGame) return;
+
+      shippingGame.classList.add("awani-small");
+
+    }, 1200);
+  }
+
+
+  /* =========================
+     الرجوع للحجم الكبير
+  ========================= */
+
+  function makeShippingBig() {
+
+    if (!shippingGame) return;
+
+    shippingGame.classList.remove("awani-small");
+  }
+
+
+  /* =========================
+     🎁 Popup الفوز
+  ========================= */
+
+  function createGiftPopup() {
+
+    if (document.getElementById("awani-gift-win")) return;
+
+    const popup = document.createElement("div");
+
+    popup.id = "awani-gift-win";
+
+    popup.innerHTML = `
+
+      <div class="awani-gift-card">
+
+        <div class="awani-confetti">
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+        </div>
+
+        <div class="awani-gift-emoji">
+          🎁
+        </div>
+
+        <div class="awani-win-title">
+          🎉 مبروك عليك! 🎉
+        </div>
+
+        <div class="awani-win-text">
+          ربحت التوصيل مجاناً!
+        </div>
+
+        <div class="awani-win-free">
+          🚚 التوصيل مجاني
+        </div>
+
+        <br>
+
+        <button
+          class="awani-close-gift"
+          type="button"
+        >
+          مواصلة التسوق 🛍️
+        </button>
+
+      </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    popup
+      .querySelector(".awani-close-gift")
+      .addEventListener("click", closeGiftPopup);
+
+    popup.addEventListener("click", e => {
+
+      if (e.target === popup) {
+        closeGiftPopup();
+      }
+
+    });
+  }
+
+
+  function showGiftPopup() {
+
+    createGiftPopup();
+
+    const popup = document.getElementById("awani-gift-win");
+
+    if (!popup) return;
+
+    popup.classList.add("show");
+
+    /* صوت الفوز */
+
+    try {
+
+      const AudioContext =
+        window.AudioContext || window.webkitAudioContext;
+
+      if (AudioContext) {
+
+        const ctx = new AudioContext();
+
+        const now = ctx.currentTime;
+
+        [523,659,784,1046].forEach((freq,index) => {
+
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.frequency.value = freq;
+          osc.type = "sine";
+
+          gain.gain.setValueAtTime(
+            0.0001,
+            now + index * .12
+          );
+
+          gain.gain.exponentialRampToValueAtTime(
+            0.18,
+            now + index * .12 + .03
+          );
+
+          gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now + index * .12 + .25
+          );
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now + index * .12);
+          osc.stop(now + index * .12 + .28);
+
+        });
+
+        setTimeout(() => {
+          try {
+            ctx.close();
+          } catch(e) {}
+        }, 1200);
+
+      }
+
+    } catch(e) {}
+
+    setTimeout(() => {
+
+      closeGiftPopup();
+
+    }, 4500);
+  }
+
+
+  function closeGiftPopup() {
+
+    const popup = document.getElementById("awani-gift-win");
+
+    if (!popup) return;
+
+    popup.classList.remove("show");
+
+  }
+
+
+  /* =========================
+     مراقبة إضافة المنتجات
+  ========================= */
+
+  function setupAddMonitor() {
+
+    if (typeof window.add !== "function") {
+      return false;
+    }
+
+    if (window.__awaniOriginalAdd) {
+      return true;
+    }
+
+    window.__awaniOriginalAdd = window.add;
+
+    window.add = function (id) {
+
+      const beforeCount =
+        Object.values(cart || {}).reduce(
+          (sum, qty) => sum + Number(qty || 0),
+          0
+        );
+
+      /* تشغيل الوظيفة الأصلية */
+
+      window.__awaniOriginalAdd(id);
+
+      setTimeout(() => {
+
+        const afterCount =
+          Object.values(cart || {}).reduce(
+            (sum, qty) => sum + Number(qty || 0),
+            0
+          );
+
+        if (afterCount <= beforeCount) return;
+
+        handleShippingStage(afterCount);
+
+      }, 80);
+
+    };
+
+    return true;
+  }
+
+
+  /* =========================
+     التعامل مع المراحل
+  ========================= */
+
+  function handleShippingStage(count) {
+
+    makeShippingBig();
+
+    updateShippingGame(count, true);
+
+    /* المنتج الثالث = الفوز */
+
+    if (count >= 3 && lastGameCount < 3 && !giftShown) {
+
+      giftShown = true;
+
+      setTimeout(() => {
+
+        showGiftPopup();
+
+      }, 850);
+
+    }
+
+    lastGameCount = count;
+
+    /* بعد ثانية يرجع صغير */
+
+    if (count < 3) {
+
+      makeShippingSmall();
+
+    } else {
+
+      setTimeout(() => {
+
+        makeShippingSmall();
+
+      }, 4800);
+
+    }
+  }
+
+
+  /* =========================
+     مراقبة السلة الحالية
+  ========================= */
+
+  function syncCurrentCart() {
+
+    if (typeof cart === "undefined") return;
+
+    const count =
+      Object.values(cart || {}).reduce(
+        (sum, qty) => sum + Number(qty || 0),
+        0
+      );
+
+    lastGameCount = count;
+
+    updateShippingGame(count, false);
+
+    if (count > 0) {
+      makeShippingSmall();
+    }
+  }
+
+
+  /* =========================
+     تشغيل النظام
+  ========================= */
+
+  function startShippingGame() {
+
+    createShippingGame();
+
+    setupAddMonitor();
+
+    setTimeout(syncCurrentCart, 500);
+
+    /*
+      إذا كانت صفحة المنتجات تأخرت في التحميل،
+      نحاول مرة أخرى.
+    */
+
+    let attempts = 0;
+
+    const timer = setInterval(() => {
+
+      attempts++;
+
+      createShippingGame();
+      setupAddMonitor();
+
+      if (
+        document.getElementById("products") &&
+        typeof cart !== "undefined"
+      ) {
+
+        syncCurrentCart();
+
+      }
+
+      if (attempts >= 20) {
+        clearInterval(timer);
+      }
+
+    }, 500);
+  }
+
+
+  if (document.readyState === "loading") {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      startShippingGame
+    );
+
+  } else {
+
+    startShippingGame();
+
+  }
+
+})();
