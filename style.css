@@ -1623,4 +1623,103 @@ header {
     font-size: 11px;
   }
 }
+  
+/* =================================
+   رسائل السلة والعروض التحفيزية
+================================= */
 
+.cart-message {
+  position: fixed;
+  top: 85px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+
+  width: max-content;
+  max-width: 90%;
+
+  padding: 12px 18px;
+
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 25px rgba(0,0,0,0.15);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  text-align: center;
+
+  direction: rtl;
+
+  animation:
+    cartMessageIn .35s ease;
+}
+
+
+/* رسالة الوصول لجوج منتجات */
+
+.cart-message.reward {
+  border: 2px solid #f59e0b;
+}
+
+
+/* رسالة التوصيل المجاني */
+
+.cart-message.free {
+  border: 2px solid #16a34a;
+  font-size: 15px;
+}
+
+
+/* حركة ظهور الرسالة */
+
+@keyframes cartMessageIn {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -15px)
+      scale(.95);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, 0)
+      scale(1);
+  }
+
+}
+
+
+/* =================================
+   الهاتف
+================================= */
+
+@media (max-width: 600px) {
+
+  .cart-message {
+
+    top: 75px;
+
+    max-width: 92%;
+
+    padding: 10px 13px;
+
+    font-size: 12px;
+
+  }
+
+
+  .cart-message.free {
+
+    font-size: 13px;
+
+  }
+
+}
