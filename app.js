@@ -1,24 +1,98 @@
 // ===============================
-// عروض المنتجات - البانر المتحرك
+// أواني الأخوين - APP.JS
+// ===============================
+
+
+// ===============================
+// المنتجات التجريبية
+// ===============================
+
+const starter = [
+  {
+    id: "starter1",
+    name: "إبريق أنوكس",
+    price: 100,
+    oldPrice: 0,
+    offer: false,
+    cat: "أباريق",
+    emoji: "🫖",
+    desc: "إبريق أنوكس بجودة جيدة.",
+    image: ""
+  },
+  {
+    id: "starter2",
+    name: "طقم أواني الطبخ",
+    price: 249,
+    oldPrice: 0,
+    offer: false,
+    cat: "أواني الطبخ",
+    emoji: "🍳",
+    desc: "طقم عملي للمطبخ.",
+    image: ""
+  },
+  {
+    id: "starter3",
+    name: "كاسرولة أنوكس",
+    price: 120,
+    oldPrice: 0,
+    offer: false,
+    cat: "أواني الطبخ",
+    emoji: "🥘",
+    desc: "كاسرولة أنوكس للاستعمال اليومي.",
+    image: ""
+  },
+  {
+    id: "starter4",
+    name: "صينية تقديم",
+    price: 80,
+    oldPrice: 0,
+    offer: false,
+    cat: "أواني منزلية",
+    emoji: "🍽️",
+    desc: "صينية أنيقة للتقديم.",
+    image: ""
+  }
+];
+
+
+// ===============================
+// المتغيرات
+// ===============================
+
+let products = [];
+
+let cart = JSON.parse(
+  localStorage.getItem("cart") || "{}"
+);
+
+const $ = (s) => document.querySelector(s);
+
+
+// ===============================
+// بانر العروض المتحرك
 // ===============================
 
 let offerIndex = 0;
 let offerTimer = null;
 
 function renderFeaturedAd() {
+
   const ad = document.getElementById("featured-ad");
+
   if (!ad) return;
 
-  // المنتجات التي عندها عرض حقيقي
-  const offers = products.filter(p => {
+  const offers = products.filter((p) => {
+
     const oldPrice = Number(p.oldPrice || 0);
     const price = Number(p.price || 0);
 
     return oldPrice > price;
   });
 
-  // إلا ماكاين حتى عرض
+
+  // ماكاين حتى عرض
   if (offers.length === 0) {
+
     ad.innerHTML = "";
     ad.style.display = "none";
 
@@ -30,30 +104,48 @@ function renderFeaturedAd() {
     return;
   }
 
+
   ad.style.display = "block";
 
-  // تصحيح index
+
   if (offerIndex >= offers.length) {
     offerIndex = 0;
   }
 
+
   function showOffer(index) {
+
     const p = offers[index];
 
     const image = p.image
-      ? `<img src="${p.image}" alt="${p.name}">`
-      : `<div class="offer-emoji">${p.emoji || "🛍️"}</div>`;
+
+      ? `
+        <img
+          src="${p.image}"
+          alt="${p.name}"
+        >
+      `
+
+      : `
+        <div class="offer-emoji">
+          ${p.emoji || "🛍️"}
+        </div>
+      `;
+
 
     ad.innerHTML = `
       <div class="offer-slide">
+
         ${image}
 
         <div class="offer-info">
+
           <div class="offer-title">
             🔥 ${p.name}
           </div>
 
           <div class="offer-prices">
+
             <span class="old-price">
               ${p.oldPrice} درهم
             </span>
@@ -61,546 +153,995 @@ function renderFeaturedAd() {
             <span class="new-price">
               ${p.price} درهم
             </span>
+
           </div>
 
           <div class="offer-label">
             🔥 عرض محدود
           </div>
+
         </div>
+
       </div>
     `;
 
-    const slide = ad.querySelector(".offer-slide");
+
+    const slide =
+      ad.querySelector(".offer-slide");
+
 
     if (slide) {
-      slide.onclick = () => openProduct(p.id);
 
-      // دخول من اليمين
-      slide.classList.add("offer-enter");
+      slide.onclick = () => {
+        openProduct(p.id);
+      };
+
+
+      slide.classList.add(
+        "offer-enter"
+      );
+
 
       setTimeout(() => {
-        slide.classList.remove("offer-enter");
+
+        slide.classList.remove(
+          "offer-enter"
+        );
+
       }, 700);
     }
   }
 
+
   showOffer(offerIndex);
 
-  // وقف المؤقت القديم
+
+  // إيقاف المؤقت القديم
   if (offerTimer) {
     clearInterval(offerTimer);
   }
 
-  // تبديل العرض كل 4 ثواني
+
+  // تغيير العرض كل 4 ثواني
   offerTimer = setInterval(() => {
 
-    const currentOffers = products.filter(p => {
-      return Number(p.oldPrice || 0) > Number(p.price || 0);
-    });
+    const currentOffers =
+      products.filter((p) => {
+
+        return (
+          Number(p.oldPrice || 0) >
+          Number(p.price || 0)
+        );
+
+      });
+
 
     if (currentOffers.length === 0) {
+
       clearInterval(offerTimer);
+
       offerTimer = null;
+
       ad.style.display = "none";
+
       return;
     }
 
+
     offerIndex++;
 
-    if (offerIndex >= currentOffers.length) {
+
+    if (
+      offerIndex >=
+      currentOffers.length
+    ) {
       offerIndex = 0;
     }
+
 
     showOffer(offerIndex);
 
   }, 4000);
 }
-  const image = p.image
-    ? `<img src="${p.image}" alt="${p.name}">`
-    : `<div class="ad-emoji">${p.emoji || "🛍️"}</div>`;
-  ad.innerHTML = `
-    ${image}
-    <div class="ad-title">🔥 ${p.name}</div>
-    <div class="ad-price">${p.price} درهم</div>
-  `;
-  ad.onclick = () => openProduct(p.id);
-}
-const starter = [
-  {
-    id: "starter1",
-    name: "إبريق أنوكس",
-    price: 100,
-    cat: "أباريق",
-    emoji: "🫖",
-    desc: "إبريق أنوكس بجودة جيدة.",
-    image: ""
-  },
-  {
-    id: "starter2",
-    name: "طقم أواني الطبخ",
-    price: 249,
-    cat: "أواني الطبخ",
-    emoji: "🍳",
-    desc: "طقم عملي للمطبخ.",
-    image: ""
-  },
-  {
-    id: "starter3",
-    name: "كاسرولة أنوكس",
-    price: 120,
-    cat: "أواني الطبخ",
-    emoji: "🥘",
-    desc: "كاسرولة أنوكس للاستعمال اليومي.",
-    image: ""
-  },
-  {
-    id: "starter4",
-    name: "صينية تقديم",
-    price: 80,
-    cat: "أواني منزلية",
-    emoji: "🍽️",
-    desc: "صينية أنيقة للتقديم.",
-    image: ""
-  }
-];
 
-let products = [];
-let cart = JSON.parse(localStorage.getItem("cart") || "{}");
 
-const $ = (s) => document.querySelector(s);
-
-/* =========================
-   FIREBASE - تحميل المنتجات
-========================= */
+// ===============================
+// تحميل المنتجات من Firebase
+// ===============================
 
 async function loadProducts() {
+
   try {
-    const snapshot = await db.collection("products").get();
+
+    const snapshot =
+      await db
+        .collection("products")
+        .get();
+
 
     products = [];
 
+
     snapshot.forEach((doc) => {
+
       const data = doc.data();
 
-    products.push({
-  id: doc.id,
-  name: data.name || "",
-  price: Number(data.price || 0),
-  oldPrice: Number(data.oldPrice || 0),
-  offer: data.offer === true,
-  cat: data.cat || "أخرى",
-  emoji: data.emoji || "🛍️",
-  desc: data.desc || "",
-  image: data.image || ""
-});
+
+      products.push({
+
+        id: doc.id,
+
+        name:
+          data.name || "",
+
+        price:
+          Number(data.price || 0),
+
+        oldPrice:
+          Number(data.oldPrice || 0),
+
+        offer:
+          data.offer === true,
+
+        cat:
+          data.cat || "أخرى",
+
+        emoji:
+          data.emoji || "🛍️",
+
+        desc:
+          data.desc || "",
+
+        image:
+          data.image || ""
+
+      });
+
     });
 
-    /*
-      إذا كانت Collection خاوية،
-      نستعمل المنتجات التجريبية فقط للعرض.
-    */
+
+    // إذا كانت collection خاوية
     if (products.length === 0) {
+
       products = starter;
     }
 
-render();
-renderFeaturedAd();
 
-if (auth.currentUser) {
-  renderAdmin();
-  loadCategories();
-}
+    render();
 
-renderCategories();
+    renderFeaturedAd();
 
-  } catch (error) {
-    console.error(error);
+    renderCategories();
+
+
+    if (auth.currentUser) {
+
+      renderAdmin();
+
+      loadCategories();
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Firebase products error:",
+      error
+    );
+
+
+    // نستعمل المنتجات التجريبية
+    // باش المتجر مايبقاش خاوي
 
     products = starter;
-render();
-renderFeaturedAd();
 
-if (auth.currentUser) {
-  renderAdmin();
-  loadCategories();
-}
 
-renderCategories();
+    render();
 
-    alert("وقع مشكل في الاتصال بـ Firebase.");
+    renderFeaturedAd();
+
+    renderCategories();
+
+
+    if (auth.currentUser) {
+
+      renderAdmin();
+
+      loadCategories();
+
+    }
+
+
+    alert(
+      "وقع مشكل في الاتصال بـ Firebase."
+    );
   }
 }
 
-/* =========================
-   عرض المنتجات
-========================= */
+
+// ===============================
+// عرض المنتجات
+// ===============================
 
 function render() {
 
-  const searchInput = $("#search");
-  const catSelect = $("#cat");
+  const searchInput =
+    $("#search");
 
-  if (!searchInput || !catSelect) return;
+  const catSelect =
+    $("#cat");
 
-  const q = searchInput.value.toLowerCase();
-  const c = catSelect.value;
 
-  const cats = [...new Set(products.map((p) => p.cat))];
+  if (
+    !searchInput ||
+    !catSelect
+  ) {
+    return;
+  }
+
+
+  const q =
+    searchInput.value
+      .toLowerCase()
+      .trim();
+
+
+  const c =
+    catSelect.value;
+
+
+  const cats = [
+    ...new Set(
+      products.map(
+        (p) => p.cat
+      )
+    )
+  ];
+
 
   catSelect.innerHTML =
-    '<option value="">كل الفئات</option>' +
-    cats.map((x) =>
-      `<option value="${x}" ${x === c ? "selected" : ""}>${x}</option>`
-    ).join("");
+    `
+      <option value="">
+        كل الفئات
+      </option>
+    ` +
 
-  const filtered = products.filter((p) => {
-
-    const searchOK =
-      !q || p.name.toLowerCase().includes(q);
-
-    const catOK =
-      !c || p.cat === c;
-
-    return searchOK && catOK;
-  });
-
-  $("#products").innerHTML =
-    filtered.map((p) => {
-
-      const picture = p.image
-        ? `
-          <img
-            src="${p.image}"
-            alt="${p.name}"
-            style="
-              width:100%;
-              height:220px;
-              object-fit:cover;
-              border-radius:12px;
-            "
-          >
-        `
-        : `
-          <div class="pic">
-            ${p.emoji || "🛍️"}
-          </div>
-        `;
-
-      return `
-       <article class="card" onclick="openProduct('${p.id}')">
-
-          ${picture}
-
-          <div class="body">
-
-            <h3>${p.name}</h3>
-
-            <small>${p.cat}</small>
-
+    cats
+      .map(
+        (x) => `
+          <option
+            value="${x}"
             ${
-              p.desc
-                ? `<p>${p.desc}</p>`
+              x === c
+                ? "selected"
                 : ""
             }
+          >
+            ${x}
+          </option>
+        `
+      )
+      .join("");
 
-            <div class="price">
-              ${p.price} درهم
+
+  const filtered =
+    products.filter((p) => {
+
+      const searchOK =
+        !q ||
+        (
+          p.name || ""
+        )
+          .toLowerCase()
+          .includes(q);
+
+
+      const catOK =
+        !c ||
+        p.cat === c;
+
+
+      return (
+        searchOK &&
+        catOK
+      );
+    });
+
+
+  const productsContainer =
+    $("#products");
+
+
+  if (!productsContainer) {
+    return;
+  }
+
+
+  productsContainer.innerHTML =
+
+    filtered
+
+      .map((p) => {
+
+        const picture =
+
+          p.image
+
+            ? `
+              <img
+                src="${p.image}"
+                alt="${p.name}"
+                style="
+                  width:100%;
+                  height:220px;
+                  object-fit:cover;
+                  border-radius:12px;
+                "
+              >
+            `
+
+            : `
+              <div class="pic">
+                ${p.emoji || "🛍️"}
+              </div>
+            `;
+
+
+        const offerHTML =
+
+          Number(p.oldPrice || 0) >
+          Number(p.price || 0)
+
+            ? `
+              <div
+                style="
+                  margin-top:5px;
+                "
+              >
+                <span
+                  style="
+                    text-decoration:line-through;
+                    color:#777;
+                    margin-right:8px;
+                  "
+                >
+                  ${p.oldPrice} درهم
+                </span>
+
+                <span
+                  style="
+                    color:#dc2626;
+                    font-weight:800;
+                  "
+                >
+                  ${p.price} درهم
+                </span>
+              </div>
+            `
+
+            : `
+              <div class="price">
+                ${p.price} درهم
+              </div>
+            `;
+
+
+        return `
+
+          <article
+            class="card"
+            onclick="openProduct('${p.id}')"
+          >
+
+            ${picture}
+
+            <div class="body">
+
+              <h3>
+                ${p.name}
+              </h3>
+
+              <small>
+                ${p.cat}
+              </small>
+
+              ${
+                p.desc
+                  ? `
+                    <p>
+                      ${p.desc}
+                    </p>
+                  `
+                  : ""
+              }
+
+              ${offerHTML}
+
+
+              <button
+                class="add"
+                onclick="
+                  event.stopPropagation();
+                  add('${p.id}')
+                "
+              >
+                🛒 أضف للسلة
+              </button>
+
+
+              <button
+                onclick="
+                  event.stopPropagation();
+                  orderNow('${p.id}')
+                "
+                style="
+                  margin-top:8px;
+                  width:100%;
+                "
+              >
+                🟢 أطلب الآن عبر واتساب
+              </button>
+
             </div>
 
-            <button
-              class="add"
-              onclick="add('${p.id}')">
-              🛒 أضف للسلة
-            </button>
+          </article>
 
-            <button
-              onclick="orderNow('${p.id}')"
-              style="
-                margin-top:8px;
-                width:100%;
-              ">
-              🟢 أطلب الآن عبر واتساب
-            </button>
+        `;
 
-          </div>
+      })
 
-        </article>
-      `;
+      .join("")
 
-    }).join("") || "<p>لا توجد منتجات.</p>";
+      ||
+
+      "<p>لا توجد منتجات.</p>";
+
 
   renderCart();
 }
 
-/* =========================
-   السلة
-========================= */
+
+// ===============================
+// السلة
+// ===============================
 
 function renderCart() {
 
   let count = 0;
+
   let total = 0;
 
-  const html = Object.keys(cart)
-    .map((id) => {
 
-      const p = products.find(
-        (x) => x.id === id
-      );
+  const html =
 
-      if (!p) return "";
+    Object.keys(cart)
 
-      const quantity = cart[id];
+      .map((id) => {
 
-      count += quantity;
-      total += p.price * quantity;
+        const p =
+          products.find(
+            (x) => x.id === id
+          );
 
-      return `
-        <div class="row">
 
-          <span>
-            ${p.name}<br>
-            ${p.price} × ${quantity}
-          </span>
+        if (!p) {
+          return "";
+        }
 
-          <span>
-            <button onclick="chg('${id}', -1)">−</button>
-            ${quantity}
-            <button onclick="chg('${id}', 1)">+</button>
-          </span>
 
-        </div>
-      `;
-    })
-    .join("");
+        const quantity =
+          cart[id];
 
-  $("#items").innerHTML =
-    html || "<p>السلة فارغة.</p>";
 
-  $("#count").textContent = count;
-  $("#total").textContent = total;
+        count += quantity;
+
+        total +=
+          p.price *
+          quantity;
+
+
+        return `
+
+          <div class="row">
+
+            <span>
+
+              ${p.name}
+
+              <br>
+
+              ${p.price}
+              ×
+              ${quantity}
+
+            </span>
+
+
+            <span>
+
+              <button
+                onclick="
+                  chg('${id}', -1)
+                "
+              >
+                −
+              </button>
+
+              ${quantity}
+
+              <button
+                onclick="
+                  chg('${id}', 1)
+                "
+              >
+                +
+              </button>
+
+            </span>
+
+          </div>
+
+        `;
+
+      })
+
+      .join("");
+
+
+  const items =
+    $("#items");
+
+  const countElement =
+    $("#count");
+
+  const totalElement =
+    $("#total");
+
+
+  if (items) {
+
+    items.innerHTML =
+      html ||
+      "<p>السلة فارغة.</p>";
+  }
+
+
+  if (countElement) {
+
+    countElement.textContent =
+      count;
+  }
+
+
+  if (totalElement) {
+
+    totalElement.textContent =
+      total;
+  }
 }
 
-/* =========================
-   إضافة للسلة
-========================= */
+
+// ===============================
+// إضافة للسلة
+// ===============================
 
 function add(id) {
 
-  cart[id] = (cart[id] || 0) + 1;
+  cart[id] =
+    (cart[id] || 0) + 1;
+
 
   localStorage.setItem(
     "cart",
     JSON.stringify(cart)
   );
 
+
   renderCart();
+
   openCart();
 }
 
-/* =========================
-   تغيير الكمية
-========================= */
 
-function chg(id, amount) {
+// ===============================
+// تغيير الكمية
+// ===============================
 
-  cart[id] = (cart[id] || 0) + amount;
+function chg(
+  id,
+  amount
+) {
+
+  cart[id] =
+    (cart[id] || 0) +
+    amount;
+
 
   if (cart[id] <= 0) {
+
     delete cart[id];
   }
+
 
   localStorage.setItem(
     "cart",
     JSON.stringify(cart)
   );
 
+
   renderCart();
 }
 
-/* =========================
-   السلة
-========================= */
+
+// ===============================
+// فتح السلة
+// ===============================
 
 function openCart() {
-  $("#cart").classList.add("open");
+
+  const cartElement =
+    $("#cart");
+
+  if (cartElement) {
+
+    cartElement.classList.add(
+      "open"
+    );
+  }
 }
+
 
 function closeCart() {
-  $("#cart").classList.remove("open");
+
+  const cartElement =
+    $("#cart");
+
+  if (cartElement) {
+
+    cartElement.classList.remove(
+      "open"
+    );
+  }
 }
 
-/* =========================
-   تسجيل الدخول
-========================= */
+
+// ===============================
+// تسجيل الدخول
+// ===============================
 
 function openLogin() {
 
-  /*
-    إذا كان Admin داخل من قبل،
-    نفتحو الإدارة مباشرة.
-  */
   if (auth.currentUser) {
-   
-openAdmin();
+
+    openAdmin();
+
     return;
   }
 
-  $("#login").classList.add("open");
+
+  const login =
+    $("#login");
+
+  if (login) {
+
+    login.classList.add(
+      "open"
+    );
+  }
 }
+
 
 function closeLogin() {
-  $("#login").classList.remove("open");
+
+  const login =
+    $("#login");
+
+  if (login) {
+
+    login.classList.remove(
+      "open"
+    );
+  }
 }
 
-$("#loginForm").onsubmit = async (e) => {
 
-  e.preventDefault();
+// ===============================
+// Login Form
+// ===============================
 
-  const email = $("#loginEmail").value.trim();
-  const password = $("#loginPassword").value;
+const loginForm =
+  $("#loginForm");
 
-  const message = $("#loginMessage");
 
-  message.textContent = "جاري تسجيل الدخول...";
+if (loginForm) {
 
-  try {
+  loginForm.onsubmit =
+    async (e) => {
 
-    await auth.signInWithEmailAndPassword(
-      email,
-      password
-    );
+      e.preventDefault();
 
-    message.textContent =
-      "تم الدخول بنجاح ✅";
 
-    closeLogin();
-    openAdmin();
+      const email =
+        $("#loginEmail")
+          .value
+          .trim();
 
-  } catch (error) {
 
-    console.error(error);
+      const password =
+        $("#loginPassword")
+          .value;
 
-    message.textContent =
-      "الإيميل أو كلمة السر غير صحيحة ❌";
-  }
-};
 
-/* =========================
-   إدارة المتجر
-========================= */
+      const message =
+        $("#loginMessage");
+
+
+      if (message) {
+
+        message.textContent =
+          "جاري تسجيل الدخول...";
+      }
+
+
+      try {
+
+        await auth
+          .signInWithEmailAndPassword(
+            email,
+            password
+          );
+
+
+        if (message) {
+
+          message.textContent =
+            "تم الدخول بنجاح ✅";
+        }
+
+
+        closeLogin();
+
+        openAdmin();
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+
+        if (message) {
+
+          message.textContent =
+            "الإيميل أو كلمة السر غير صحيحة ❌";
+        }
+      }
+    };
+}
+
+
+// ===============================
+// إدارة المتجر
+// ===============================
 
 function openAdmin() {
 
   if (!auth.currentUser) {
+
     openLogin();
+
     return;
   }
 
-  $("#admin").classList.add("open");
+
+  const admin =
+    $("#admin");
+
+
+  if (admin) {
+
+    admin.classList.add(
+      "open"
+    );
+  }
+
 
   renderAdmin();
+
+  loadCategories();
 }
+
 
 function closeAdmin() {
-  $("#admin").classList.remove("open");
+
+  const admin =
+    $("#admin");
+
+
+  if (admin) {
+
+    admin.classList.remove(
+      "open"
+    );
+  }
 }
 
-/* =========================
-   قائمة الإدارة
-========================= */
 
-/* =========================
-   إدارة المنتجات - بحث وفلترة
-========================= */
+// ===============================
+// قائمة الإدارة
+// ===============================
 
 function renderAdmin() {
 
   if (!auth.currentUser) {
-    $("#adminList").innerHTML = "";
+
+    const adminList =
+      $("#adminList");
+
+    if (adminList) {
+
+      adminList.innerHTML =
+        "";
+    }
+
     return;
   }
 
-  const searchInput = $("#adminProductSearch");
-  const categorySelect = $("#adminProductCategory");
+
+  const searchInput =
+    $("#adminProductSearch");
+
+
+  const categorySelect =
+    $("#adminProductCategory");
+
 
   const search =
     searchInput
-      ? searchInput.value.trim().toLowerCase()
+      ? searchInput.value
+          .trim()
+          .toLowerCase()
       : "";
+
 
   const selectedCategory =
     categorySelect
       ? categorySelect.value
       : "";
 
-  /* إنشاء لائحة الفئات الموجودة في المنتجات */
 
   const categories = [
+
     ...new Set(
+
       products
-        .map((p) => p.cat)
+
+        .map(
+          (p) => p.cat
+        )
+
         .filter(Boolean)
+
     )
+
   ];
+
 
   if (categorySelect) {
 
     const currentValue =
       categorySelect.value;
 
+
     categorySelect.innerHTML =
-      '<option value="">📂 كل الفئات</option>' +
+
+      `
+        <option value="">
+          📂 كل الفئات
+        </option>
+      ` +
+
       categories
-        .map((cat) =>
-          `<option value="${cat}">
-            ${cat}
-          </option>`
+
+        .map(
+          (cat) => `
+            <option
+              value="${cat}"
+            >
+              ${cat}
+            </option>
+          `
         )
+
         .join("");
 
+
     categorySelect.value =
-      categories.includes(currentValue)
+
+      categories.includes(
+        currentValue
+      )
+
         ? currentValue
+
         : "";
   }
 
-  /* البحث والفلترة */
 
   const filteredProducts =
+
     products.filter((p) => {
 
       const name =
         (p.name || "")
           .toLowerCase();
 
+
       const category =
         p.cat || "";
 
+
       const searchOK =
+
         !search ||
         name.includes(search);
 
-      const categoryOK =
-        !selectedCategory ||
-        category === selectedCategory;
 
-      return searchOK && categoryOK;
+      const categoryOK =
+
+        !selectedCategory ||
+        category ===
+          selectedCategory;
+
+
+      return (
+        searchOK &&
+        categoryOK
+      );
     });
 
-  /* عرض النتائج */
 
-  $("#adminList").innerHTML =
+  const adminList =
+    $("#adminList");
+
+
+  if (!adminList) {
+    return;
+  }
+
+
+  adminList.innerHTML =
+
     filteredProducts.length
 
-      ? filteredProducts
+      ?
+
+        filteredProducts
+
           .map((p) => {
 
+            const offer =
+
+              Number(
+                p.oldPrice || 0
+              ) >
+
+              Number(
+                p.price || 0
+              );
+
+
             return `
-              <div class="adminrow">
+
+              <div
+                class="adminrow"
+              >
 
                 ${
                   p.image
+
                     ? `
                       <img
                         src="${p.image}"
@@ -615,52 +1156,126 @@ function renderAdmin() {
                         "
                       >
                     `
+
                     : ""
                 }
 
-                <b>${p.name}</b>
 
-                — ${p.price}dh
+                <b>
+                  ${p.name}
+                </b>
+
+
+                —
+
+                ${
+                  offer
+
+                    ? `
+                      <span
+                        style="
+                          text-decoration:line-through;
+                          color:#777;
+                        "
+                      >
+                        ${p.oldPrice}dh
+                      </span>
+
+                      <strong
+                        style="
+                          color:#dc2626;
+                        "
+                      >
+                        ${p.price}dh
+                      </strong>
+                    `
+
+                    : `
+                      ${p.price}dh
+                    `
+                }
+
 
                 <br>
+
 
                 <small>
                   📂 ${p.cat}
                 </small>
 
+
+                ${
+                  offer
+                    ? `
+                      <br>
+                      <small
+                        style="
+                          color:#dc2626;
+                          font-weight:bold;
+                        "
+                      >
+                        🔥 عرض محدود
+                      </small>
+                    `
+                    : ""
+                }
+
+
                 <br>
 
+
                 <button
-                  onclick="edit('${p.id}')">
+                  onclick="
+                    edit('${p.id}')
+                  "
+                >
                   ✏️ تعديل
                 </button>
 
+
                 <button
-                  onclick="del('${p.id}')">
+                  onclick="
+                    del('${p.id}')
+                  "
+                >
                   🗑️ حذف
                 </button>
 
+
                 <button
-                  onclick="shareOnFacebook('${p.id}')">
+                  onclick="
+                    shareOnFacebook('${p.id}')
+                  "
+                >
                   📘 نشر في Facebook
                 </button>
 
+
                 <button
-                  onclick="shareProduct('${p.id}')">
+                  onclick="
+                    shareProduct('${p.id}')
+                  "
+                >
                   📢 مشاركة المنتج
                 </button>
 
               </div>
+
             `;
 
           })
+
           .join("")
 
-      : "<p>🔎 ما لقيتش هاد المنتج.</p>";
+      :
+
+        "<p>🔎 ما لقيتش هاد المنتج.</p>";
 }
 
 
-/* البحث داخل الإدارة */
+// ===============================
+// البحث داخل الإدارة
+// ===============================
 
 document.addEventListener(
   "input",
@@ -674,12 +1289,13 @@ document.addEventListener(
 
       renderAdmin();
     }
-
   }
 );
 
 
-/* الفلترة حسب الفئة */
+// ===============================
+// فلترة الإدارة
+// ===============================
 
 document.addEventListener(
   "change",
@@ -693,117 +1309,239 @@ document.addEventListener(
 
       renderAdmin();
     }
-
   }
 );
-/* =========================
-   تعديل منتج
-========================= */
+
+
+// ===============================
+// تعديل منتج
+// ===============================
 
 function edit(id) {
-  
 
-  
-  const p = products.find(
-    (x) => x.id === id
-  );
+  const p =
+    products.find(
+      (x) => x.id === id
+    );
 
-  if (!p) return;
 
-  $("#editId").value = p.id;
-  $("#pname").value = p.name;
-  $("#pprice").value = p.price;
-  $("#poldprice").value = p.oldPrice || "";
-$("#poffer").checked = p.offer === true;
-  $("#pcat").value = p.cat;
-  $("#pdesc").value = p.desc || "";
-  $("#pimage").value = p.image || "";
-  $("#pemoji").value = p.emoji || "";
+  if (!p) {
+    return;
+  }
+
+
+  $("#editId").value =
+    p.id;
+
+
+  $("#pname").value =
+    p.name;
+
+
+  $("#pprice").value =
+    p.price;
+
+
+  const oldPriceInput =
+    $("#poldprice");
+
+
+  if (oldPriceInput) {
+
+    oldPriceInput.value =
+      p.oldPrice || "";
+  }
+
+
+  const offerCheckbox =
+    $("#poffer");
+
+
+  if (offerCheckbox) {
+
+    offerCheckbox.checked =
+      p.offer === true;
+  }
+
+
+  $("#pcat").value =
+    p.cat;
+
+
+  $("#pdesc").value =
+    p.desc || "";
+
+
+  $("#pimage").value =
+    p.image || "";
+
+
+  $("#pemoji").value =
+    p.emoji || "";
+
 
   openAdmin();
 }
 
-/* =========================
-   إضافة / تعديل المنتج
-========================= */
 
-$("#productForm").onsubmit = async (e) => {
+// ===============================
+// إضافة / تعديل المنتج
+// ===============================
 
-  e.preventDefault();
+const productForm =
+  $("#productForm");
 
-  if (!auth.currentUser) {
 
-    alert("خاصك تدخل لحساب الإدارة أولاً.");
+if (productForm) {
 
-    openLogin();
+  productForm.onsubmit =
+    async (e) => {
 
-    return;
-  }
+      e.preventDefault();
 
-  const id = $("#editId").value;
 
-  const data = {
-const oldPrice = Number($("#poldprice").value || 0);
-const price = Number($("#pprice").value || 0);
+      if (!auth.currentUser) {
 
-const data = {
-  name: $("#pname").value.trim(),
+        alert(
+          "خاصك تدخل لحساب الإدارة أولاً."
+        );
 
-  price: price,
+        openLogin();
 
-  oldPrice: oldPrice,
+        return;
+      }
 
-  offer: $("#poffer").checked && oldPrice > price,
 
-  cat: $("#pcat").value.trim(),
+      const id =
+        $("#editId").value;
 
-  desc: $("#pdesc").value.trim(),
 
-  image: $("#pimage").value.trim(),
+      const oldPrice =
+        Number(
+          $("#poldprice").value ||
+          0
+        );
 
-  emoji: $("#pemoji").value.trim() || "🛍️"
-};
 
-  try {
+      const price =
+        Number(
+          $("#pprice").value ||
+          0
+        );
 
-    if (id) {
 
-      await db
-        .collection("products")
-        .doc(id)
-        .set(data);
+      const offerCheckbox =
+        $("#poffer");
 
-    } else {
 
-      await db
-        .collection("products")
-        .add(data);
+      const data = {
 
-    }
+        name:
+          $("#pname")
+            .value
+            .trim(),
 
-    e.target.reset();
 
-    $("#editId").value = "";
+        price:
+          price,
 
-    alert(
-      "تم حفظ المنتج Online بنجاح ✅"
-    );
 
-    await loadProducts();
+        oldPrice:
+          oldPrice,
 
-  } catch (error) {
 
-    console.error(error);
+        offer:
+          offerCheckbox
+            ? (
+                offerCheckbox.checked &&
+                oldPrice > price
+              )
+            : oldPrice > price,
 
-    alert(
-      "ما قدرناش نحفظو المنتج في Firebase ❌"
-    );
-  }
-};
 
-/* =========================
-   حذف المنتج
-========================= */
+        cat:
+          $("#pcat")
+            .value
+            .trim(),
+
+
+        desc:
+          $("#pdesc")
+            .value
+            .trim(),
+
+
+        image:
+          $("#pimage")
+            .value
+            .trim(),
+
+
+        emoji:
+          $("#pemoji")
+            .value
+            .trim() ||
+          "🛍️"
+
+      };
+
+
+      try {
+
+        if (id) {
+
+          await db
+            .collection(
+              "products"
+            )
+            .doc(id)
+            .set(data);
+
+        }
+
+        else {
+
+          await db
+            .collection(
+              "products"
+            )
+            .add(data);
+
+        }
+
+
+        e.target.reset();
+
+
+        $("#editId").value =
+          "";
+
+
+        alert(
+          "تم حفظ المنتج Online بنجاح ✅"
+        );
+
+
+        await loadProducts();
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+
+        alert(
+          "ما قدرناش نحفظو المنتج في Firebase ❌"
+        );
+      }
+    };
+}
+
+
+// ===============================
+// حذف المنتج
+// ===============================
 
 async function del(id) {
 
@@ -816,31 +1554,49 @@ async function del(id) {
     return;
   }
 
-  if (!confirm("واش متأكد بغيتي تحذف هاد المنتج؟")) {
+
+  if (
+    !confirm(
+      "واش متأكد بغيتي تحذف هاد المنتج؟"
+    )
+  ) {
+
     return;
   }
+
 
   try {
 
     await db
-      .collection("products")
+      .collection(
+        "products"
+      )
       .doc(id)
       .delete();
 
+
     delete cart[id];
+
 
     localStorage.setItem(
       "cart",
       JSON.stringify(cart)
     );
 
-    alert("تم حذف المنتج ✅");
+
+    alert(
+      "تم حذف المنتج ✅"
+    );
+
 
     await loadProducts();
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
+
 
     alert(
       "وقع مشكل أثناء حذف المنتج ❌"
@@ -848,490 +1604,920 @@ async function del(id) {
   }
 }
 
-/* =========================
-   طلب مباشر عبر WhatsApp
-========================= */
+
+// ===============================
+// طلب مباشر عبر WhatsApp
+// ===============================
 
 function orderNow(id) {
 
-  const p = products.find(
-    (x) => x.id === id
-  );
+  const p =
+    products.find(
+      (x) => x.id === id
+    );
 
-  if (!p) return;
 
-  const message =
-    "السلام عليكم، أريد طلب:%0A%0A" +
-    "المنتج: " +
-    encodeURIComponent(p.name) +
-    "%0A" +
-    "الثمن: " +
-    encodeURIComponent(p.price) +
-    " درهم";
-
-  location.href =
-    "https://wa.me/212660234149?text=" +
-    message;
-}
-
-/* =========================
-   إرسال السلة عبر WhatsApp
-========================= */
-
-$("#order").onsubmit = (e) => {
-
-  e.preventDefault();
-
-  if (!Object.keys(cart).length) {
-
-    alert("السلة فارغة");
-
+  if (!p) {
     return;
   }
 
-  const form = new FormData(e.target);
-
-  const items = Object.keys(cart)
-    .map((id) => {
-
-      const p = products.find(
-        (x) => x.id === id
-      );
-
-      return (
-        p.name +
-        " x" +
-        cart[id]
-      );
-    })
-    .join("، ");
 
   const message =
-    "السلام عليكم، أريد الطلب:%0A" +
-    encodeURIComponent(items) +
-    "%0Aالاسم: " +
-    encodeURIComponent(form.get("name")) +
-    "%0Aالهاتف: " +
-    encodeURIComponent(form.get("phone")) +
-    "%0Aالعنوان: " +
-    encodeURIComponent(form.get("address"));
+
+    "السلام عليكم، أريد طلب:%0A%0A" +
+
+    "المنتج: " +
+
+    encodeURIComponent(
+      p.name
+    ) +
+
+    "%0A" +
+
+    "الثمن: " +
+
+    encodeURIComponent(
+      p.price
+    ) +
+
+    " درهم";
+
 
   location.href =
+
     "https://wa.me/212660234149?text=" +
+
     message;
-};
+}
 
-/* =========================
-   البحث
-========================= */
 
-$("#search").oninput = render;
+// ===============================
+// إرسال السلة عبر WhatsApp
+// ===============================
 
-$("#cat").onchange = render;
+const orderForm =
+  $("#order");
 
-/* =========================
-   Firebase Auth
-========================= */
 
-auth.onAuthStateChanged((user) => {
+if (orderForm) {
 
-  if (user) {
+  orderForm.onsubmit =
+    (e) => {
 
-    console.log(
-      "Admin connecté:",
-      user.email
-    );
+      e.preventDefault();
 
-  } else {
 
-    console.log(
-      "Aucun administrateur connecté"
-    );
+      if (
+        !Object.keys(cart).length
+      ) {
+
+        alert(
+          "السلة فارغة"
+        );
+
+        return;
+      }
+
+
+      const form =
+        new FormData(
+          e.target
+        );
+
+
+      const items =
+
+        Object.keys(cart)
+
+          .map((id) => {
+
+            const p =
+              products.find(
+                (x) => x.id === id
+              );
+
+
+            if (!p) {
+              return "";
+            }
+
+
+            return (
+
+              p.name +
+
+              " x" +
+
+              cart[id]
+
+            );
+
+          })
+
+          .filter(Boolean)
+
+          .join("، ");
+
+
+      const message =
+
+        "السلام عليكم، أريد الطلب:%0A" +
+
+        encodeURIComponent(
+          items
+        ) +
+
+        "%0Aالاسم: " +
+
+        encodeURIComponent(
+          form.get("name")
+        ) +
+
+        "%0Aالهاتف: " +
+
+        encodeURIComponent(
+          form.get("phone")
+        ) +
+
+        "%0Aالعنوان: " +
+
+        encodeURIComponent(
+          form.get("address")
+        );
+
+
+      location.href =
+
+        "https://wa.me/212660234149?text=" +
+
+        message;
+    };
+}
+
+
+// ===============================
+// البحث
+// ===============================
+
+const searchInput =
+  $("#search");
+
+
+if (searchInput) {
+
+  searchInput.oninput =
+    render;
+}
+
+
+const catSelect =
+  $("#cat");
+
+
+if (catSelect) {
+
+  catSelect.onchange =
+    render;
+}
+
+
+// ===============================
+// Firebase Auth
+// ===============================
+
+auth.onAuthStateChanged(
+  (user) => {
+
+    if (user) {
+
+      console.log(
+        "Admin connecté:",
+        user.email
+      );
+
+    }
+
+    else {
+
+      console.log(
+        "Aucun administrateur connecté"
+      );
+    }
   }
+);
 
-});
-/* =========================
-   نشر المنتج في Facebook
-========================= */
+
+// ===============================
+// نشر المنتج في Facebook
+// ===============================
 
 function shareOnFacebook(id) {
 
-  const p = products.find(
-    (x) => x.id === id
-  );
+  const p =
+    products.find(
+      (x) => x.id === id
+    );
 
-  if (!p) return;
+
+  if (!p) {
+    return;
+  }
+
 
   const storeUrl =
     "https://awani-alakhawain.github.io/Awani-alakhawain-store/";
 
+
   const text =
-    "🛍️ " + p.name +
-    "\n💰 الثمن: " + p.price + " درهم" +
-    "\n\n" + (p.desc || "") +
+
+    "🛍️ " +
+
+    p.name +
+
+    "\n💰 الثمن: " +
+
+    p.price +
+
+    " درهم" +
+
+    "\n\n" +
+
+    (p.desc || "") +
+
     "\n\n📦 للطلب والدخول للمتجر:" +
-    "\n" + storeUrl;
+
+    "\n" +
+
+    storeUrl;
+
 
   const facebookUrl =
+
     "https://www.facebook.com/sharer/sharer.php?u=" +
-    encodeURIComponent(storeUrl) +
+
+    encodeURIComponent(
+      storeUrl
+    ) +
+
     "&quote=" +
-    encodeURIComponent(text);
+
+    encodeURIComponent(
+      text
+    );
+
 
   window.open(
     facebookUrl,
     "_blank"
   );
 }
+
+
+// ===============================
+// مشاركة المنتج
+// ===============================
+
 function shareProduct(id) {
 
-  const p = products.find(
-    (x) => x.id === id
-  );
+  const p =
+    products.find(
+      (x) => x.id === id
+    );
 
-  if (!p) return;
+
+  if (!p) {
+    return;
+  }
+
 
   const storeUrl =
     "https://awani-alakhawain.github.io/Awani-alakhawain-store/";
 
+
   const text =
-    "🛍️ " + p.name +
-    "\n💰 الثمن: " + p.price + " درهم" +
-    "\n\n" + (p.desc || "") +
+
+    "🛍️ " +
+
+    p.name +
+
+    "\n💰 الثمن: " +
+
+    p.price +
+
+    " درهم" +
+
+    "\n\n" +
+
+    (p.desc || "") +
+
     "\n\n📦 للطلب والدخول للمتجر:" +
-    "\n" + storeUrl;
+
+    "\n" +
+
+    storeUrl;
+
 
   if (!p.image) {
-    alert("هاد المنتج ما عندوش صورة.");
+
+    alert(
+      "هاد المنتج ما عندوش صورة."
+    );
+
     return;
   }
 
-  const imageUrl = p.image;
 
-  window.open(imageUrl, "_blank");
+  const imageUrl =
+    p.image;
 
-  setTimeout(() => {
 
-    if (navigator.share) {
+  window.open(
+    imageUrl,
+    "_blank"
+  );
 
-      navigator.share({
-        title: p.name,
-        text: text,
-        url: imageUrl
-      });
 
-    } else {
+  setTimeout(
+    () => {
 
-      alert(
-        "الصورة تحلات. دابا تقدر تحفظها وتشاركها في Facebook أو Instagram أو WhatsApp."
-      );
+      if (
+        navigator.share
+      ) {
 
-    }
+        navigator.share({
 
-  }, 500);
+          title:
+            p.name,
+
+          text:
+            text,
+
+          url:
+            imageUrl
+
+        });
+
+      }
+
+      else {
+
+        alert(
+          "الصورة تحلات. دابا تقدر تحفظها وتشاركها في Facebook أو Instagram أو WhatsApp."
+        );
+      }
+
+    },
+    500
+  );
 }
-/* =========================
-   تشغيل المتجر
-========================= */
 
-loadProducts();
+
+// ===============================
+// استيراد صور GitHub
+// ===============================
+
 async function importGitHubImages() {
 
   if (!auth.currentUser) {
-    alert("خاصك تدخل لحساب الإدارة أولاً.");
+
+    alert(
+      "خاصك تدخل لحساب الإدارة أولاً."
+    );
+
     openLogin();
+
     return;
   }
+
 
   const apiUrl =
     "https://api.github.com/repos/awani-alakhawain/Awani-alakhawain-store/contents/";
 
+
   try {
 
-    const response = await fetch(apiUrl);
+    const response =
+      await fetch(apiUrl);
+
 
     if (!response.ok) {
-      throw new Error("GitHub API error");
+
+      throw new Error(
+        "GitHub API error"
+      );
     }
 
-    const files = await response.json();
 
-    const images = files.filter((file) => {
+    const files =
+      await response.json();
 
-      return (
-        file.type === "file" &&
-        /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name)
+
+    const images =
+      files.filter(
+        (file) => {
+
+          return (
+
+            file.type ===
+              "file" &&
+
+            /\.(jpg|jpeg|png|webp|gif)$/i
+              .test(file.name)
+
+          );
+        }
       );
 
-    });
 
     if (!images.length) {
-      alert("ما لقيتش صور جديدة فـGitHub.");
+
+      alert(
+        "ما لقيتش صور جديدة فـGitHub."
+      );
+
       return;
     }
 
+
     let added = 0;
 
-    for (const file of images) {
+
+    for (
+      const file of images
+    ) {
 
       const imageUrl =
-        "https://raw.githubusercontent.com/awani-alakhawain/Awani-alakhawain-store/main/" +
-        encodeURIComponent(file.name);
 
-      const exists = products.some(
-        (p) => p.image === imageUrl
-      );
+        "https://raw.githubusercontent.com/awani-alakhawain/Awani-alakhawain-store/main/" +
+
+        encodeURIComponent(
+          file.name
+        );
+
+
+      const exists =
+        products.some(
+          (p) =>
+            p.image ===
+            imageUrl
+        );
+
 
       if (exists) {
         continue;
       }
 
+
       await db
-        .collection("products")
+        .collection(
+          "products"
+        )
         .add({
 
-          name: "منتج جديد",
+          name:
+            "منتج جديد",
 
-          price: 0,
+          price:
+            0,
 
-          cat: "أخرى",
+          oldPrice:
+            0,
 
-          desc: "",
+          offer:
+            false,
 
-          image: imageUrl,
+          cat:
+            "أخرى",
 
-          emoji: "🛍️"
+          desc:
+            "",
+
+          image:
+            imageUrl,
+
+          emoji:
+            "🛍️"
 
         });
 
-      added++;
 
+      added++;
     }
 
+
     alert(
+
       "تم استيراد " +
+
       added +
+
       " منتج جديد بنجاح ✅"
+
     );
+
 
     await loadProducts();
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
+
 
     alert(
       "وقع مشكل أثناء استيراد الصور ❌"
     );
   }
 }
+
+
+// ===============================
+// صفحة تفاصيل المنتج
+// ===============================
+
 function openProduct(id) {
 
-  const p = products.find(
-    (x) => x.id === id
-  );
+  const p =
+    products.find(
+      (x) => x.id === id
+    );
 
-  if (!p) return;
 
-  const image = p.image
-    ? `<img src="${p.image}" alt="${p.name}">`
-    : `<div class="pic">${p.emoji || "🛍️"}</div>`;
+  if (!p) {
+    return;
+  }
+
+
+  const image =
+
+    p.image
+
+      ? `
+        <img
+          src="${p.image}"
+          alt="${p.name}"
+        >
+      `
+
+      : `
+        <div class="pic">
+          ${p.emoji || "🛍️"}
+        </div>
+      `;
+
+
+  const offerPrice =
+
+    Number(
+      p.oldPrice || 0
+    ) >
+
+    Number(
+      p.price || 0
+    )
+
+      ? `
+        <div>
+
+          <span
+            style="
+              text-decoration:line-through;
+              color:#777;
+              margin-right:10px;
+            "
+          >
+            ${p.oldPrice} درهم
+          </span>
+
+          <strong
+            style="
+              color:#dc2626;
+              font-size:22px;
+            "
+          >
+            ${p.price} درهم
+          </strong>
+
+        </div>
+      `
+
+      : `
+        <div class="detail-price">
+          ${p.price} درهم
+        </div>
+      `;
+
 
   document.body.innerHTML = `
+
     <div class="product-detail">
 
-      <button onclick="location.reload()">
+      <button
+        onclick="location.reload()"
+      >
         ← رجوع للمنتجات
       </button>
 
+
       ${image}
 
-      <h1>${p.name}</h1>
 
-      <small>${p.cat}</small>
+      <h1>
+        ${p.name}
+      </h1>
 
-      <div class="detail-price">
-        ${p.price} درهم
-      </div>
+
+      <small>
+        ${p.cat}
+      </small>
+
+
+      ${offerPrice}
+
 
       ${
         p.desc
-          ? `<p>${p.desc}</p>`
+
+          ? `
+            <p>
+              ${p.desc}
+            </p>
+          `
+
           : ""
       }
 
-      <button onclick="add('${p.id}')">
+
+      <button
+        onclick="
+          add('${p.id}')
+        "
+      >
         🛒 أضف للسلة
       </button>
 
-      <button onclick="orderNow('${p.id}')">
+
+      <button
+        onclick="
+          orderNow('${p.id}')
+        "
+      >
         🟢 أطلب الآن عبر واتساب
       </button>
 
     </div>
+
   `;
 }
-/* =========================
-   إدارة الفئات
-========================= */
+
+
+// ===============================
+// إدارة الفئات
+// ===============================
 
 async function loadCategories() {
 
-if (!auth.currentUser) {
-  return;
-}
+  if (!auth.currentUser) {
+    return;
+  }
 
-const adminList = $("#categoryAdminList");
 
-if (!adminList) {
-  return;
-}
-try {
+  const adminList =
+    $("#categoryAdminList");
+
+
+  if (!adminList) {
+    return;
+  }
+
+
+  try {
 
     const snapshot =
-      await db.collection("categories").get();
+      await db
+        .collection(
+          "categories"
+        )
+        .get();
+
 
     const categories = [];
 
-    snapshot.forEach((doc) => {
 
-      categories.push({
-        id: doc.id,
-        ...doc.data()
-      });
+    snapshot.forEach(
+      (doc) => {
 
-    });
+        categories.push({
 
- adminList.innerHTML =
-      categories.map((cat) => {
+          id:
+            doc.id,
 
-        return `
-          <div class="adminrow">
+          ...doc.data()
 
-            ${
-              cat.image
-                ? `<img
-                    src="${cat.image}"
-                    style="
-                      width:60px;
-                      height:60px;
-                      object-fit:cover;
-                      border-radius:10px;
-                    "
-                  >`
-                : ""
-            }
+        });
 
-            <b>${cat.name}</b>
+      }
+    );
 
-            <br>
 
-            <button
-              onclick="editCategory('${cat.id}')">
-              ✏️ تعديل
-            </button>
+    adminList.innerHTML =
 
-            <button
-              onclick="deleteCategory('${cat.id}')">
-              🗑️ حذف
-            </button>
+      categories
 
-          </div>
-        `;
+        .map((cat) => {
 
-      }).join("") ||
+          return `
+
+            <div
+              class="adminrow"
+            >
+
+              ${
+                cat.image
+
+                  ? `
+                    <img
+                      src="${cat.image}"
+                      style="
+                        width:60px;
+                        height:60px;
+                        object-fit:cover;
+                        border-radius:10px;
+                      "
+                    >
+                  `
+
+                  : ""
+              }
+
+
+              <b>
+                ${cat.name}
+              </b>
+
+
+              <br>
+
+
+              <button
+                onclick="
+                  editCategory('${cat.id}')
+                "
+              >
+                ✏️ تعديل
+              </button>
+
+
+              <button
+                onclick="
+                  deleteCategory('${cat.id}')
+                "
+              >
+                🗑️ حذف
+              </button>
+
+            </div>
+
+          `;
+
+        })
+
+        .join("")
+
+      ||
+
       "<p>مازال ما كايناش فئات.</p>";
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
 
-    alert("وقع مشكل في تحميل الفئات ❌");
+    alert(
+      "وقع مشكل في تحميل الفئات ❌"
+    );
   }
 }
 
 
-/* إضافة أو تعديل فئة */
+// ===============================
+// إضافة / تعديل فئة
+// ===============================
 
-adminList.innerHTML =
-  async (e) => {
+const categoryForm =
+  $("#categoryForm");
 
-    e.preventDefault();
 
-    if (!auth.currentUser) {
+if (categoryForm) {
 
-      alert(
-        "خاصك تدخل لحساب الإدارة أولاً."
-      );
+  categoryForm.onsubmit =
+    async (e) => {
 
-      openLogin();
+      e.preventDefault();
 
-      return;
-    }
 
-    const id =
-      $("#editCategoryId").value;
+      if (!auth.currentUser) {
 
-    const data = {
+        alert(
+          "خاصك تدخل لحساب الإدارة أولاً."
+        );
 
-      name:
-        $("#categoryName")
-          .value
-          .trim(),
+        openLogin();
 
-      image:
-        $("#categoryImage")
-          .value
-          .trim()
+        return;
+      }
 
-    };
 
-    if (!data.name) {
+      const id =
+        $("#editCategoryId").value;
 
-      alert("دخل اسم الفئة.");
 
-      return;
-    }
+      const data = {
 
-    try {
+        name:
+          $("#categoryName")
+            .value
+            .trim(),
 
-      if (id) {
 
-        await db
-          .collection("categories")
-          .doc(id)
-          .set(data);
+        image:
+          $("#categoryImage")
+            .value
+            .trim()
 
-      } else {
+      };
 
-        await db
-          .collection("categories")
-          .add(data);
+
+      if (!data.name) {
+
+        alert(
+          "دخل اسم الفئة."
+        );
+
+        return;
+      }
+
+
+      try {
+
+        if (id) {
+
+          await db
+            .collection(
+              "categories"
+            )
+            .doc(id)
+            .set(data);
+
+        }
+
+        else {
+
+          await db
+            .collection(
+              "categories"
+            )
+            .add(data);
+
+        }
+
+
+        e.target.reset();
+
+
+        $("#editCategoryId").value =
+          "";
+
+
+        alert(
+          "تم حفظ الفئة بنجاح ✅"
+        );
+
+
+        await loadCategories();
+
+        await renderCategories();
 
       }
 
-      e.target.reset();
+      catch (error) {
 
-      $("#editCategoryId").value = "";
-
-      alert(
-        "تم حفظ الفئة بنجاح ✅"
-      );
-
-      await loadCategories();
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "ما قدرناش نحفظو الفئة ❌"
-      );
-    }
-  };
+        console.error(error);
 
 
-/* تعديل فئة */
+        alert(
+          "ما قدرناش نحفظو الفئة ❌"
+        );
+      }
+    };
+}
+
+
+// ===============================
+// تعديل فئة
+// ===============================
 
 async function editCategory(id) {
 
@@ -1339,26 +2525,42 @@ async function editCategory(id) {
 
     const doc =
       await db
-        .collection("categories")
+        .collection(
+          "categories"
+        )
         .doc(id)
         .get();
 
-    if (!doc.exists) return;
 
-    const cat = doc.data();
+    if (!doc.exists) {
+      return;
+    }
 
-    $("#editCategoryId").value = id;
+
+    const cat =
+      doc.data();
+
+
+    $("#editCategoryId").value =
+      id;
+
+
     $("#categoryName").value =
       cat.name || "";
+
 
     $("#categoryImage").value =
       cat.image || "";
 
+
     openAdmin();
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
+
 
     alert(
       "وقع مشكل أثناء تعديل الفئة ❌"
@@ -1367,7 +2569,9 @@ async function editCategory(id) {
 }
 
 
-/* حذف فئة */
+// ===============================
+// حذف فئة
+// ===============================
 
 async function deleteCategory(id) {
 
@@ -1380,113 +2584,214 @@ async function deleteCategory(id) {
     return;
   }
 
+
   if (
     !confirm(
       "واش متأكد بغيتي تحذف هاد الفئة؟"
     )
   ) {
+
     return;
   }
+
 
   try {
 
     await db
-      .collection("categories")
+      .collection(
+        "categories"
+      )
       .doc(id)
       .delete();
+
 
     alert(
       "تم حذف الفئة ✅"
     );
 
+
     await loadCategories();
 
-  } catch (error) {
+    await renderCategories();
+
+  }
+
+  catch (error) {
 
     console.error(error);
+
 
     alert(
       "وقع مشكل أثناء حذف الفئة ❌"
     );
   }
 }
-/* =========================
-   عرض الفئات للزبناء
-========================= */
+
+
+// ===============================
+// عرض الفئات للزبناء
+// ===============================
 
 async function renderCategories() {
 
-  const container = $("#categories");
+  const container =
+    $("#categories");
 
-  if (!container) return;
+
+  if (!container) {
+    return;
+  }
+
 
   try {
 
     const snapshot =
-      await db.collection("categories").get();
+      await db
+        .collection(
+          "categories"
+        )
+        .get();
+
 
     const categories = [];
 
-    snapshot.forEach((doc) => {
 
-      categories.push({
-        id: doc.id,
-        ...doc.data()
-      });
+    snapshot.forEach(
+      (doc) => {
 
-    });
+        categories.push({
+
+          id:
+            doc.id,
+
+          ...doc.data()
+
+        });
+
+      }
+    );
+
 
     if (!categories.length) {
 
-      container.innerHTML = "";
+      container.innerHTML =
+        "";
 
       return;
     }
 
+
     container.innerHTML =
-      categories.map((cat) => {
 
-        const image = cat.image
-          ? `<img src="${cat.image}" alt="${cat.name}">`
-          : `<div class="category-placeholder">🛍️</div>`;
+      categories
 
-        return `
-          <div
-            class="category-card"
-            onclick="selectCategory('${cat.name}')">
+        .map((cat) => {
 
-            ${image}
+          const image =
 
-            <h3>${cat.name}</h3>
+            cat.image
 
-          </div>
-        `;
+              ? `
+                <img
+                  src="${cat.image}"
+                  alt="${cat.name}"
+                >
+              `
 
-      }).join("");
+              : `
+                <div
+                  class="category-placeholder"
+                >
+                  🛍️
+                </div>
+              `;
 
-  } catch (error) {
+
+          return `
+
+            <div
+              class="category-card"
+              onclick="
+                selectCategory(
+                  '${cat.name}'
+                )
+              "
+            >
+
+              ${image}
+
+              <h3>
+                ${cat.name}
+              </h3>
+
+            </div>
+
+          `;
+
+        })
+
+        .join("");
+
+  }
+
+  catch (error) {
 
     console.error(error);
 
-    container.innerHTML = "";
+    container.innerHTML =
+      "";
   }
 }
 
 
-/* اختيار فئة */
+// ===============================
+// اختيار فئة
+// ===============================
 
-function selectCategory(categoryName) {
+function selectCategory(
+  categoryName
+) {
 
-  const catSelect = $("#cat");
+  const catSelect =
+    $("#cat");
 
-  if (!catSelect) return;
 
-  catSelect.value = categoryName;
+  if (!catSelect) {
+    return;
+  }
+
+
+  catSelect.value =
+    categoryName;
+
 
   render();
 
-  window.scrollTo({
-    top: document.querySelector("#products").offsetTop - 20,
-    behavior: "smooth"
-  });
+
+  const productsElement =
+    document.querySelector(
+      "#products"
+    );
+
+
+  if (productsElement) {
+
+    window.scrollTo({
+
+      top:
+        productsElement.offsetTop -
+        20,
+
+      behavior:
+        "smooth"
+
+    });
+  }
 }
+
+
+// ===============================
+// تشغيل المتجر
+// ===============================
+
+loadProducts();
