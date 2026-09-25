@@ -1723,3 +1723,446 @@ header {
   }
 
 }
+  /* =========================================
+   السلة العائمة - أواني الأخوين
+========================================= */
+
+/* زر السلة العائم */
+#floating-cart {
+  position: fixed !important;
+  right: 18px !important;
+  bottom: 20px !important;
+  top: auto !important;
+  left: auto !important;
+
+  width: 58px !important;
+  height: 58px !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  background: #ffffff !important;
+  color: #111827 !important;
+
+  font-size: 27px !important;
+  line-height: 1 !important;
+
+  box-shadow: 0 6px 20px rgba(0,0,0,.18) !important;
+
+  cursor: pointer !important;
+
+  z-index: 9998 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 0 !important;
+
+  transition: transform .2s ease, box-shadow .2s ease !important;
+}
+
+#floating-cart:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 25px rgba(0,0,0,.22) !important;
+}
+
+#floating-cart:active {
+  transform: scale(.95);
+}
+
+/* عدد المنتجات */
+#floating-cart #count {
+  position: absolute;
+
+  top: -5px;
+  right: -5px;
+
+  min-width: 23px;
+  height: 23px;
+
+  padding: 0 5px;
+
+  border-radius: 50%;
+
+  background: #dc2626;
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  border: 2px solid #ffffff;
+}
+
+/* =========================================
+   نافذة السلة
+========================================= */
+
+#cart {
+  position: fixed !important;
+
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+
+  width: 390px !important;
+  max-width: 92vw !important;
+
+  height: 100vh !important;
+  max-height: 100vh !important;
+
+  margin: 0 !important;
+
+  background: #ffffff !important;
+
+  border-radius: 18px 0 0 18px !important;
+
+  box-shadow: -8px 0 30px rgba(0,0,0,.18) !important;
+
+  z-index: 10000 !important;
+
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  box-sizing: border-box !important;
+
+  padding: 0 !important;
+
+  transform: translateX(110%) !important;
+  transition: transform .3s ease !important;
+}
+
+/* ملي كتفتح السلة */
+#cart.open {
+  transform: translateX(0) !important;
+}
+
+/* رأس السلة */
+#cart .panelhead {
+  position: sticky !important;
+
+  top: 0 !important;
+
+  z-index: 2 !important;
+
+  background: #ffffff !important;
+
+  padding: 16px !important;
+
+  border-bottom: 1px solid #eeeeee !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+#cart .panelhead h2 {
+  margin: 0 !important;
+  font-size: 20px !important;
+}
+
+#cart .panelhead button {
+  width: 38px !important;
+  height: 38px !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+
+  font-size: 18px !important;
+
+  cursor: pointer !important;
+
+  padding: 0 !important;
+}
+
+/* محتوى المنتجات */
+#cart #items {
+  padding: 12px !important;
+}
+
+/* كل منتج داخل السلة */
+#cart #items .cart-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px;
+
+  margin-bottom: 8px;
+
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+
+  background: #ffffff;
+}
+
+/* صور المنتجات */
+#cart #items .cart-item img {
+  width: 65px;
+  height: 65px;
+
+  object-fit: cover;
+
+  border-radius: 10px;
+
+  flex-shrink: 0;
+}
+
+/* ملخص السلة */
+#cart .cart-summary {
+  margin: 10px 12px;
+
+  padding: 12px;
+
+  border-radius: 12px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e5e7eb;
+}
+
+#cart .cart-summary-row {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin: 7px 0;
+
+  font-size: 14px;
+}
+
+#cart .cart-summary-total {
+  padding-top: 10px;
+
+  margin-top: 10px;
+
+  border-top: 1px solid #d1d5db;
+
+  font-size: 18px;
+
+  font-weight: 900;
+}
+
+/* المجموع القديم */
+#cart > h3 {
+  margin: 10px 12px !important;
+
+  padding: 12px !important;
+
+  background: #f8fafc !important;
+
+  border-radius: 12px !important;
+
+  font-size: 17px !important;
+}
+
+/* فورم الطلب */
+#cart #order {
+  padding: 12px !important;
+}
+
+#cart #order input,
+#cart #order textarea {
+  width: 100% !important;
+
+  box-sizing: border-box !important;
+
+  margin-bottom: 10px !important;
+
+  padding: 11px !important;
+
+  border: 1px solid #d1d5db !important;
+
+  border-radius: 10px !important;
+
+  font-size: 14px !important;
+}
+
+#cart #order textarea {
+  min-height: 85px;
+  resize: vertical;
+}
+
+#cart #order button {
+  width: 100% !important;
+
+  padding: 12px !important;
+
+  border: none !important;
+
+  border-radius: 10px !important;
+
+  background: #16a34a !important;
+
+  color: #ffffff !important;
+
+  font-size: 15px !important;
+
+  font-weight: 800 !important;
+
+  cursor: pointer !important;
+}
+
+/* =========================================
+   رسالة الإضافة الصغيرة
+========================================= */
+
+.cart-message {
+  position: fixed !important;
+
+  top: 85px !important;
+  left: 50% !important;
+
+  transform: translateX(-50%) !important;
+
+  z-index: 11000 !important;
+
+  width: max-content !important;
+
+  max-width: 90vw !important;
+
+  box-sizing: border-box !important;
+
+  padding: 11px 16px !important;
+
+  border-radius: 13px !important;
+
+  background: #ffffff !important;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,.16) !important;
+
+  text-align: center !important;
+
+  direction: rtl !important;
+
+  font-size: 13px !important;
+
+  font-weight: 700 !important;
+
+  animation: cartMessageIn .3s ease !important;
+}
+
+.cart-message.reward {
+  border: 2px solid #f59e0b !important;
+}
+
+.cart-message.free {
+  border: 2px solid #16a34a !important;
+  font-size: 14px !important;
+}
+
+@keyframes cartMessageIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -12px) scale(.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* =========================================
+   السلة الصغيرة بعد إضافة المنتج
+========================================= */
+
+.mini-cart-toast {
+  position: fixed !important;
+
+  right: 18px !important;
+  bottom: 90px !important;
+
+  z-index: 11000 !important;
+
+  width: 270px !important;
+  max-width: calc(100vw - 36px) !important;
+
+  box-sizing: border-box !important;
+
+  background: #ffffff !important;
+
+  border-radius: 14px !important;
+
+  box-shadow: 0 8px 28px rgba(0,0,0,.18) !important;
+
+  padding: 10px !important;
+
+  direction: rtl !important;
+
+  animation: miniCartIn .3s ease !important;
+}
+
+@keyframes miniCartIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* الهاتف */
+@media (max-width: 600px) {
+
+  #floating-cart {
+    right: 14px !important;
+    bottom: 15px !important;
+
+    width: 54px !important;
+    height: 54px !important;
+
+    font-size: 25px !important;
+  }
+
+  #cart {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    border-radius: 18px 18px 0 0 !important;
+
+    top: auto !important;
+    bottom: 0 !important;
+
+    height: 88vh !important;
+    max-height: 88vh !important;
+
+    transform: translateY(110%) !important;
+  }
+
+  #cart.open {
+    transform: translateY(0) !important;
+  }
+
+  .cart-message {
+    top: 72px !important;
+
+    max-width: 94vw !important;
+
+    font-size: 12px !important;
+
+    padding: 9px 12px !important;
+  }
+
+  .mini-cart-toast {
+    right: 12px !important;
+    bottom: 80px !important;
+
+    width: 245px !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+}
