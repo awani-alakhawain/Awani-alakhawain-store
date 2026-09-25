@@ -2143,3 +2143,1794 @@ if (
   startAwaniStore();
 
 }
+// =====================================================
+// =====================================================
+// لوحة الإدارة - تسجيل الدخول
+// =====================================================
+// =====================================================
+
+function openLogin() {
+
+  if (auth.currentUser) {
+    openAdmin();
+    return;
+  }
+
+  const login = $("#login");
+
+  if (login) {
+    login.classList.add("open");
+  }
+}
+
+
+function closeLogin() {
+
+  const login = $("#login");
+
+  if (login) {
+    login.classList.remove("open");
+  }
+}
+
+
+// =====================================================
+// تسجيل الدخول
+// =====================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const loginForm = $("#loginForm");
+
+  if (!loginForm) return;
+
+  loginForm.onsubmit = async (e) => {
+
+    e.preventDefault();
+
+    const email =
+      $("#loginEmail")
+        ? $("#loginEmail").value.trim()
+        : "";
+
+    const password =
+      $("#loginPassword")
+        ? $("#loginPassword").value
+        : "";
+
+    const message =
+      $("#loginMessage");
+
+    if (message) {
+      message.textContent =
+        "جاري تسجيل الدخول...";
+    }
+
+    try {
+
+      await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+
+      if (message) {
+        message.textContent =
+          "تم الدخول بنجاح ✅";
+      }
+
+      closeLogin();
+
+      openAdmin();
+
+    } catch (error) {
+
+      console.error(
+        "Login error:",
+        error
+      );
+
+      if (message) {
+        message.textContent =
+          "الإيميل أو كلمة السر غير صحيحة ❌";
+      }
+
+    }
+
+  };
+
+});
+
+
+// =====================================================
+// فتح لوحة الإدارة
+// =====================================================
+
+function openAdmin() {
+
+  if (!auth.currentUser) {
+    openLogin();
+    return;
+  }
+
+  const admin = $("#admin");
+
+  if (admin) {
+    admin.classList.add("open");
+  }
+
+  renderAdmin();
+
+  loadCategories();
+}
+
+
+function closeAdmin() {
+
+  const admin = $("#admin");
+
+  if (admin) {
+    admin.classList.remove("open");
+  }
+
+}
+
+
+// =====================================================
+// عرض المنتجات داخل لوحة الإدارة
+// =====================================================
+
+function renderAdmin() {
+
+  if (
+    typeof auth === "undefined" ||
+    !auth.currentUser
+  ) {
+    return;
+  }
+
+  const list =
+    $("#adminList");
+
+  if (!list) return;
+
+
+  const searchInput =
+    $("#adminProductSearch");
+
+  const categorySelect =
+    $("#adminProductCategory");
+
+
+  const search =
+    searchInput
+      ? searchInput.value
+          .toLowerCase()
+          .trim()
+      : "";
+
+
+  const selectedCategory =
+    categorySelect
+      ? categorySelect.value
+      : "";
+
+
+  // ===================================================
+  // تحديث قائمة الفئات في الإدارة
+  // ===================================================
+
+  const categories = [
+    ...new Set(
+      products
+        .map(p => p.cat)
+        .filter(Boolean)
+    )
+  ];
+
+
+  if (categorySelect) {
+
+    const oldValue =
+      categorySelect.value;
+
+    categorySelect.innerHTML = `
+      <option value="">
+        كل الفئات
+      </option>
+    `;
+
+    categories.forEach(cat => {
+
+      const option =
+        document.createElement("option");
+
+      option.value = cat;
+
+      option.textContent = cat;
+
+      if (cat === oldValue) {
+        option.selected = true;
+      }
+
+      categorySelect.appendChild(
+        option
+      );
+
+    });
+
+  }
+
+
+  // ===================================================
+  // تصفية المنتجات
+  // ===================================================
+
+  const filtered =
+    products.filter(p => {
+
+      const name =
+        String(
+          p.name || ""
+        ).toLowerCase();
+
+
+      const searchOK =
+        !search ||
+        name.includes(search);
+
+
+      const categoryOK =
+        !selectedCategory ||
+        p.cat === selectedCategory;
+
+
+      return (
+        searchOK &&
+        categoryOK
+      );
+
+    });
+
+
+  // ===================================================
+  // عرض المنتجات
+  // ===================================================
+
+  if (filtered.length === 0) {
+
+    list.innerHTML = `
+      <div
+        style="
+          padding:20px;
+          text-align:center;
+        "
+      >
+        لا توجد منتجات.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  list.innerHTML =
+    filtered.map(p => {
+
+      const image =
+        p.image
+          ? `
+            <img
+              src="${p.image}"
+              alt="${p.name}"
+              style="
+                width:80px;
+                height:80px;
+                object-fit:cover;
+                border-radius:12px;
+              "
+              onerror="
+                this.style.display='none';
+              "
+            >
+          `
+          : `
+            <div
+              style="
+                width:80px;
+                height:80px;
+                border-radius:12px;
+                background:#f5f5f5;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:35px;
+              "
+            >
+              ${p.emoji || "🛍️"}
+            </div>
+          `;
+
+
+      const price =
+        Number(p.price || 0);
+
+
+      const oldPrice =
+        Number(p.oldPrice || 0);
+
+
+      const priceHTML =
+        oldPrice > price
+          ? `
+            <span
+              style="
+                text-decoration:line-through;
+                color:#777;
+              "
+            >
+              ${oldPrice} درهم
+            </span>
+
+            <strong
+              style="
+                color:#dc2626;
+                margin-right:8px;
+              "
+            >
+              ${price} درهم
+            </strong>
+          `
+          : `
+            <strong>
+              ${price} درهم
+            </strong>
+          `;
+
+
+      return `
+        <div
+          class="adminrow"
+          style="
+            display:flex;
+            gap:12px;
+            align-items:center;
+            padding:12px;
+            margin-bottom:10px;
+            border:1px solid #eee;
+            border-radius:14px;
+            background:#fff;
+          "
+        >
+
+          ${image}
+
+          <div
+            style="
+              flex:1;
+              min-width:0;
+            "
+          >
+
+            <b>
+              ${p.name}
+            </b>
+
+            <br>
+
+            <small>
+              الفئة: ${p.cat || "أخرى"}
+            </small>
+
+            <br>
+
+            <span>
+              ${priceHTML}
+            </span>
+
+          </div>
+
+
+          <div
+            style="
+              display:flex;
+              flex-direction:column;
+              gap:5px;
+            "
+          >
+
+            <button
+              type="button"
+              onclick="edit('${p.id}')"
+            >
+              ✏️ تعديل
+            </button>
+
+
+            <button
+              type="button"
+              onclick="del('${p.id}')"
+            >
+              🗑️ حذف
+            </button>
+
+
+            <button
+              type="button"
+              onclick="shareProduct('${p.id}')"
+            >
+              📤 مشاركة
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+
+}
+
+
+// =====================================================
+// البحث داخل لوحة الإدارة
+// =====================================================
+
+document.addEventListener(
+  "input",
+  (event) => {
+
+    if (
+      event.target &&
+      event.target.id ===
+        "adminProductSearch"
+    ) {
+
+      renderAdmin();
+
+    }
+
+  }
+);
+
+
+document.addEventListener(
+  "change",
+  (event) => {
+
+    if (
+      event.target &&
+      event.target.id ===
+        "adminProductCategory"
+    ) {
+
+      renderAdmin();
+
+    }
+
+  }
+);
+
+
+// =====================================================
+// تعديل منتج
+// =====================================================
+
+function edit(id) {
+
+  const product =
+    products.find(
+      p =>
+        String(p.id) ===
+        String(id)
+    );
+
+
+  if (!product) {
+    alert(
+      "المنتج غير موجود."
+    );
+    return;
+  }
+
+
+  if ($("#editId")) {
+    $("#editId").value =
+      product.id;
+  }
+
+
+  if ($("#pname")) {
+    $("#pname").value =
+      product.name || "";
+  }
+
+
+  if ($("#pprice")) {
+    $("#pprice").value =
+      product.price || 0;
+  }
+
+
+  if ($("#poldprice")) {
+    $("#poldprice").value =
+      product.oldPrice || 0;
+  }
+
+
+  if ($("#poffer")) {
+    $("#poffer").checked =
+      Number(product.oldPrice || 0) >
+      Number(product.price || 0);
+  }
+
+
+  if ($("#pcat")) {
+    $("#pcat").value =
+      product.cat || "أخرى";
+  }
+
+
+  if ($("#pdesc")) {
+    $("#pdesc").value =
+      product.desc || "";
+  }
+
+
+  if ($("#pimage")) {
+    $("#pimage").value =
+      product.image || "";
+  }
+
+
+  if ($("#pemoji")) {
+    $("#pemoji").value =
+      product.emoji || "🛍️";
+  }
+
+
+  openAdmin();
+
+}
+
+
+// =====================================================
+// حفظ / إضافة منتج
+// =====================================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    const productForm =
+      $("#productForm");
+
+    if (!productForm) return;
+
+
+    productForm.onsubmit =
+      async (e) => {
+
+        e.preventDefault();
+
+
+        if (!auth.currentUser) {
+
+          alert(
+            "خاصك تدخل لحساب الإدارة أولاً."
+          );
+
+          openLogin();
+
+          return;
+        }
+
+
+        const editId =
+          $("#editId")
+            ? $("#editId").value.trim()
+            : "";
+
+
+        const name =
+          $("#pname")
+            ? $("#pname").value.trim()
+            : "";
+
+
+        const price =
+          $("#pprice")
+            ? Number(
+                $("#pprice").value || 0
+              )
+            : 0;
+
+
+        const oldPrice =
+          $("#poldprice")
+            ? Number(
+                $("#poldprice").value || 0
+              )
+            : 0;
+
+
+        const offerCheckbox =
+          $("#poffer");
+
+
+        const offer =
+          offerCheckbox
+            ? offerCheckbox.checked
+            : oldPrice > price;
+
+
+        const cat =
+          $("#pcat")
+            ? $("#pcat").value.trim()
+            : "أخرى";
+
+
+        const desc =
+          $("#pdesc")
+            ? $("#pdesc").value.trim()
+            : "";
+
+
+        const image =
+          $("#pimage")
+            ? $("#pimage").value.trim()
+            : "";
+
+
+        const emoji =
+          $("#pemoji")
+            ? $("#pemoji").value.trim()
+            : "🛍️";
+
+
+        if (!name) {
+
+          alert(
+            "دخل اسم المنتج."
+          );
+
+          return;
+        }
+
+
+        if (price < 0) {
+
+          alert(
+            "الثمن غير صحيح."
+          );
+
+          return;
+        }
+
+
+        const data = {
+
+          name,
+
+          price,
+
+          oldPrice,
+
+          offer:
+            offer &&
+            oldPrice > price,
+
+          cat:
+            cat || "أخرى",
+
+          desc,
+
+          image,
+
+          emoji:
+            emoji || "🛍️"
+
+        };
+
+
+        try {
+
+          if (editId) {
+
+            await db
+              .collection("products")
+              .doc(editId)
+              .set(data, {
+                merge:true
+              });
+
+          } else {
+
+            await db
+              .collection("products")
+              .add(data);
+
+          }
+
+
+          productForm.reset();
+
+
+          if ($("#editId")) {
+            $("#editId").value = "";
+          }
+
+
+          alert(
+            editId
+              ? "تم تعديل المنتج بنجاح ✅"
+              : "تمت إضافة المنتج بنجاح ✅"
+          );
+
+
+          await loadProducts();
+
+          renderAdmin();
+
+
+        } catch (error) {
+
+          console.error(
+            "Product save error:",
+            error
+          );
+
+          alert(
+            "وقع مشكل أثناء حفظ المنتج ❌"
+          );
+
+        }
+
+      };
+
+  }
+);
+
+
+// =====================================================
+// حذف منتج
+// =====================================================
+
+async function del(id) {
+
+  if (!auth.currentUser) {
+
+    alert(
+      "خاصك تدخل لحساب الإدارة أولاً."
+    );
+
+    openLogin();
+
+    return;
+  }
+
+
+  const product =
+    products.find(
+      p =>
+        String(p.id) ===
+        String(id)
+    );
+
+
+  if (!product) return;
+
+
+  const confirmed =
+    confirm(
+      `واش متأكد بغيتي تحذف "${product.name}"؟`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    await db
+      .collection("products")
+      .doc(String(id))
+      .delete();
+
+
+    delete cart[
+      String(id)
+    ];
+
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(cart)
+    );
+
+
+    alert(
+      "تم حذف المنتج بنجاح ✅"
+    );
+
+
+    await loadProducts();
+
+    renderAdmin();
+
+
+  } catch (error) {
+
+    console.error(
+      "Delete product error:",
+      error
+    );
+
+    alert(
+      "وقع مشكل أثناء حذف المنتج ❌"
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// مشاركة المنتج
+// =====================================================
+
+async function shareProduct(id) {
+
+  const p =
+    products.find(
+      x =>
+        String(x.id) ===
+        String(id)
+    );
+
+
+  if (!p) return;
+
+
+  const storeUrl =
+    "https://awani-alakhawain.github.io/Awani-alakhawain-store/";
+
+
+  const text =
+    `🛍️ ${p.name}\n💰 ${p.price} درهم\n\n${p.desc || ""}`;
+
+
+  try {
+
+    if (
+      navigator.share
+    ) {
+
+      await navigator.share({
+
+        title:
+          p.name,
+
+        text,
+
+        url:
+          storeUrl
+
+      });
+
+    } else {
+
+      window.open(
+        storeUrl,
+        "_blank"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.log(
+      "Share cancelled."
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// مشاركة المتجر على Facebook
+// =====================================================
+
+function shareOnFacebook(id) {
+
+  const storeUrl =
+    "https://awani-alakhawain.github.io/Awani-alakhawain-store/";
+
+
+  const p =
+    products.find(
+      x =>
+        String(x.id) ===
+        String(id)
+    );
+
+
+  const quote =
+    p
+      ? `🛍️ ${p.name} - ${p.price} درهم`
+      : "أواني الأخوين";
+
+
+  const url =
+    "https://www.facebook.com/sharer/sharer.php?u=" +
+    encodeURIComponent(
+      storeUrl
+    ) +
+    "&quote=" +
+    encodeURIComponent(
+      quote
+    );
+
+
+  window.open(
+    url,
+    "_blank",
+    "width=700,height=600"
+  );
+
+}
+
+
+// =====================================================
+// استيراد صور GitHub
+// =====================================================
+
+async function importGitHubImages() {
+
+  if (!auth.currentUser) {
+
+    alert(
+      "خاصك تدخل لحساب الإدارة أولاً."
+    );
+
+    openLogin();
+
+    return;
+  }
+
+
+  const apiUrl =
+    "https://api.github.com/repos/awani-alakhawain/Awani-alakhawain-store/contents/";
+
+
+  try {
+
+    const response =
+      await fetch(apiUrl);
+
+
+    if (!response.ok) {
+      throw new Error(
+        "GitHub API error"
+      );
+    }
+
+
+    const files =
+      await response.json();
+
+
+    const images =
+      files.filter(
+        file =>
+          file.type === "file" &&
+          /\.(jpg|jpeg|png|webp|gif)$/i.test(
+            file.name
+          )
+      );
+
+
+    if (!images.length) {
+
+      alert(
+        "ما لقيتش صور فـGitHub."
+      );
+
+      return;
+    }
+
+
+    let added = 0;
+
+
+    for (
+      const file of images
+    ) {
+
+      const imageUrl =
+        "https://raw.githubusercontent.com/awani-alakhawain/Awani-alakhawain-store/main/" +
+        encodeURIComponent(
+          file.name
+        );
+
+
+      const exists =
+        products.some(
+          p =>
+            p.image ===
+            imageUrl
+        );
+
+
+      if (exists) {
+        continue;
+      }
+
+
+      await db
+        .collection("products")
+        .add({
+
+          name:
+            "منتج جديد",
+
+          price:
+            0,
+
+          oldPrice:
+            0,
+
+          offer:
+            false,
+
+          cat:
+            "أخرى",
+
+          desc:
+            "",
+
+          image:
+            imageUrl,
+
+          emoji:
+            "🛍️"
+
+        });
+
+
+      added++;
+
+    }
+
+
+    alert(
+      "تم استيراد " +
+      added +
+      " منتج جديد بنجاح ✅"
+    );
+
+
+    await loadProducts();
+
+
+  } catch (error) {
+
+    console.error(
+      "GitHub import error:",
+      error
+    );
+
+
+    alert(
+      "وقع مشكل أثناء استيراد الصور ❌"
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// =====================================================
+// إدارة الفئات
+// =====================================================
+// =====================================================
+
+
+// =====================================================
+// تحميل الفئات داخل لوحة الإدارة
+// =====================================================
+
+async function loadCategories() {
+
+  if (
+    typeof auth === "undefined" ||
+    !auth.currentUser
+  ) {
+    return;
+  }
+
+
+  const adminList =
+    $("#categoryAdminList");
+
+
+  if (!adminList) {
+    return;
+  }
+
+
+  try {
+
+    const snapshot =
+      await db
+        .collection("categories")
+        .get();
+
+
+    const categories = [];
+
+
+    snapshot.forEach(doc => {
+
+      categories.push({
+
+        id:
+          doc.id,
+
+        ...doc.data()
+
+      });
+
+    });
+
+
+    if (categories.length === 0) {
+
+      adminList.innerHTML = `
+        <p>
+          مازال ما كايناش فئات.
+        </p>
+      `;
+
+      return;
+    }
+
+
+    adminList.innerHTML =
+      categories.map(cat => {
+
+        const image =
+          cat.image
+            ? `
+              <img
+                src="${cat.image}"
+                alt="${cat.name}"
+                style="
+                  width:60px;
+                  height:60px;
+                  object-fit:cover;
+                  border-radius:10px;
+                "
+              >
+            `
+            : `
+              <div
+                style="
+                  width:60px;
+                  height:60px;
+                  border-radius:10px;
+                  background:#f5f5f5;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  font-size:30px;
+                "
+              >
+                🛍️
+              </div>
+            `;
+
+
+        return `
+          <div
+            class="adminrow"
+            style="
+              display:flex;
+              align-items:center;
+              gap:10px;
+              padding:10px;
+              margin-bottom:8px;
+              border:1px solid #eee;
+              border-radius:12px;
+            "
+          >
+
+            ${image}
+
+            <div
+              style="
+                flex:1;
+              "
+            >
+              <b>
+                ${cat.name || "بدون اسم"}
+              </b>
+            </div>
+
+
+            <button
+              type="button"
+              onclick="editCategory('${cat.id}')"
+            >
+              ✏️
+            </button>
+
+
+            <button
+              type="button"
+              onclick="deleteCategory('${cat.id}')"
+            >
+              🗑️
+            </button>
+
+          </div>
+        `;
+
+      }).join("");
+
+
+  } catch (error) {
+
+    console.error(
+      "Categories error:",
+      error
+    );
+
+
+    alert(
+      "وقع مشكل في تحميل الفئات ❌"
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// إضافة / تعديل فئة
+// =====================================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    const categoryForm =
+      $("#categoryForm");
+
+
+    if (!categoryForm) {
+      return;
+    }
+
+
+    categoryForm.onsubmit =
+      async (e) => {
+
+        e.preventDefault();
+
+
+        if (!auth.currentUser) {
+
+          alert(
+            "خاصك تدخل لحساب الإدارة أولاً."
+          );
+
+          openLogin();
+
+          return;
+        }
+
+
+        const editId =
+          $("#editCategoryId")
+            ? $("#editCategoryId")
+                .value
+                .trim()
+            : "";
+
+
+        const name =
+          $("#categoryName")
+            ? $("#categoryName")
+                .value
+                .trim()
+            : "";
+
+
+        const image =
+          $("#categoryImage")
+            ? $("#categoryImage")
+                .value
+                .trim()
+            : "";
+
+
+        if (!name) {
+
+          alert(
+            "دخل اسم الفئة."
+          );
+
+          return;
+        }
+
+
+        try {
+
+          const data = {
+
+            name,
+
+            image
+
+          };
+
+
+          if (editId) {
+
+            await db
+              .collection("categories")
+              .doc(editId)
+              .set(data, {
+                merge:true
+              });
+
+          } else {
+
+            await db
+              .collection("categories")
+              .add(data);
+
+          }
+
+
+          categoryForm.reset();
+
+
+          if ($("#editCategoryId")) {
+            $("#editCategoryId").value = "";
+          }
+
+
+          alert(
+            editId
+              ? "تم تعديل الفئة بنجاح ✅"
+              : "تمت إضافة الفئة بنجاح ✅"
+          );
+
+
+          await loadCategories();
+
+          renderCategories();
+
+
+        } catch (error) {
+
+          console.error(
+            "Category save error:",
+            error
+          );
+
+
+          alert(
+            "وقع مشكل أثناء حفظ الفئة ❌"
+          );
+
+        }
+
+      };
+
+  }
+);
+
+
+// =====================================================
+// تعديل فئة
+// =====================================================
+
+async function editCategory(id) {
+
+  try {
+
+    const doc =
+      await db
+        .collection("categories")
+        .doc(String(id))
+        .get();
+
+
+    if (!doc.exists) {
+
+      alert(
+        "الفئة غير موجودة."
+      );
+
+      return;
+    }
+
+
+    const data =
+      doc.data();
+
+
+    if ($("#editCategoryId")) {
+      $("#editCategoryId").value =
+        doc.id;
+    }
+
+
+    if ($("#categoryName")) {
+      $("#categoryName").value =
+        data.name || "";
+    }
+
+
+    if ($("#categoryImage")) {
+      $("#categoryImage").value =
+        data.image || "";
+    }
+
+
+    openAdmin();
+
+
+  } catch (error) {
+
+    console.error(
+      "Edit category error:",
+      error
+    );
+
+
+    alert(
+      "وقع مشكل في تحميل الفئة ❌"
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// حذف فئة
+// =====================================================
+
+async function deleteCategory(id) {
+
+  if (!auth.currentUser) {
+
+    alert(
+      "خاصك تدخل لحساب الإدارة أولاً."
+    );
+
+    openLogin();
+
+    return;
+  }
+
+
+  const confirmed =
+    confirm(
+      "واش متأكد بغيتي تحذف هاد الفئة؟"
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    await db
+      .collection("categories")
+      .doc(String(id))
+      .delete();
+
+
+    alert(
+      "تم حذف الفئة بنجاح ✅"
+    );
+
+
+    await loadCategories();
+
+    renderCategories();
+
+
+  } catch (error) {
+
+    console.error(
+      "Delete category error:",
+      error
+    );
+
+
+    alert(
+      "وقع مشكل أثناء حذف الفئة ❌"
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// عرض الفئات للزبناء
+// =====================================================
+
+async function renderCategories() {
+
+  const container =
+    $("#categories");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  try {
+
+    const snapshot =
+      await db
+        .collection("categories")
+        .get();
+
+
+    const categories = [];
+
+
+    snapshot.forEach(doc => {
+
+      categories.push({
+
+        id:
+          doc.id,
+
+        ...doc.data()
+
+      });
+
+    });
+
+
+    // إذا ما كايناش فئات في Firebase
+    // نولد الفئات من المنتجات
+
+    if (categories.length === 0) {
+
+      const productCategories = [
+        ...new Set(
+          products
+            .map(p => p.cat)
+            .filter(Boolean)
+        )
+      ];
+
+
+      container.innerHTML =
+        productCategories
+          .map(cat => {
+
+            return `
+              <button
+                type="button"
+                onclick="selectCategory('${String(cat).replace(/'/g, "\\'")}')"
+                style="
+                  cursor:pointer;
+                "
+              >
+                🛍️ ${cat}
+              </button>
+            `;
+
+          })
+          .join("");
+
+
+      return;
+    }
+
+
+    container.innerHTML =
+      categories.map(cat => {
+
+        const name =
+          cat.name || "أخرى";
+
+
+        const image =
+          cat.image
+            ? `
+              <img
+                src="${cat.image}"
+                alt="${name}"
+                style="
+                  width:100%;
+                  height:100%;
+                  object-fit:cover;
+                  border-radius:12px;
+                "
+                onerror="
+                  this.style.display='none';
+                  if(this.nextElementSibling){
+                    this.nextElementSibling.style.display='flex';
+                  }
+                "
+              >
+
+              <span
+                style="
+                  display:none;
+                  width:100%;
+                  height:100%;
+                  align-items:center;
+                  justify-content:center;
+                  font-size:35px;
+                "
+              >
+                🛍️
+              </span>
+            `
+            : `
+              <span
+                style="
+                  display:flex;
+                  width:100%;
+                  height:100%;
+                  align-items:center;
+                  justify-content:center;
+                  font-size:35px;
+                "
+              >
+                🛍️
+              </span>
+            `;
+
+
+        return `
+          <div
+            class="category-card"
+            onclick="selectCategory('${String(name).replace(/'/g, "\\'")}')"
+            style="
+              cursor:pointer;
+            "
+          >
+
+            <div
+              style="
+                width:70px;
+                height:70px;
+                margin:auto;
+                border-radius:12px;
+                overflow:hidden;
+                background:#f5f5f5;
+              "
+            >
+              ${image}
+            </div>
+
+
+            <div
+              style="
+                margin-top:7px;
+                text-align:center;
+              "
+            >
+              ${name}
+            </div>
+
+          </div>
+        `;
+
+      }).join("");
+
+
+  } catch (error) {
+
+    console.error(
+      "Render categories error:",
+      error
+    );
+
+
+    container.innerHTML = "";
+
+  }
+
+}
+
+
+// =====================================================
+// اختيار فئة
+// =====================================================
+
+function selectCategory(categoryName) {
+
+  const cat =
+    $("#cat");
+
+
+  if (cat) {
+
+    cat.value =
+      categoryName;
+
+  }
+
+
+  render();
+
+
+  const productsSection =
+    $("#products");
+
+
+  if (productsSection) {
+
+    productsSection.scrollIntoView({
+      behavior:
+        "smooth"
+    });
+
+  }
+
+}
+
+
+// =====================================================
+// مراقبة تسجيل الدخول
+// =====================================================
+
+if (
+  typeof auth !== "undefined"
+) {
+
+  auth.onAuthStateChanged(
+    (user) => {
+
+      if (user) {
+
+        console.log(
+          "👤 تم تسجيل الدخول للإدارة."
+        );
+
+
+        if (
+          document.getElementById(
+            "admin"
+          )
+        ) {
+
+          renderAdmin();
+
+          loadCategories();
+
+        }
+
+      } else {
+
+        console.log(
+          "👤 لا يوجد حساب إدارة مسجل."
+        );
+
+      }
+
+    }
+  );
+
+}
