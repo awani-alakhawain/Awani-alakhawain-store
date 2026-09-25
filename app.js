@@ -834,3 +834,96 @@ console.log("PRODUCTS:", products);
   }
 
 }
+// ===============================
+// إضافة للسلة
+// ===============================
+
+function add(id) {
+
+  id = String(id);
+
+  cart[id] = Number(cart[id] || 0) + 1;
+
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+
+  renderCart();
+
+  console.log("تمت إضافة المنتج:", id);
+  console.log("السلة:", cart);
+}
+
+
+// ===============================
+// تغيير الكمية
+// ===============================
+
+function chg(id, amount) {
+
+  id = String(id);
+
+  cart[id] =
+    Number(cart[id] || 0) + Number(amount);
+
+  if (cart[id] <= 0) {
+    delete cart[id];
+  }
+
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+
+  renderCart();
+}
+
+
+// ===============================
+// فتح السلة
+// ===============================
+
+function openCart() {
+
+  // إعادة عرض السلة قبل فتحها
+  renderCart();
+
+  const cartElement =
+    document.getElementById("cart");
+
+  if (cartElement) {
+    cartElement.classList.add("open");
+  }
+}
+
+
+// ===============================
+// إغلاق السلة
+// ===============================
+
+function closeCart() {
+
+  const cartElement =
+    document.getElementById("cart");
+
+  if (cartElement) {
+    cartElement.classList.remove("open");
+  }
+}
+
+
+// ===============================
+// تشغيل المتجر
+// ===============================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    console.log("🛍️ أواني الأخوين بدأ التشغيل");
+
+    loadProducts();
+
+  }
+);
