@@ -861,89 +861,68 @@ function showCartMessage(
 
 }
 
-
 function add(id) {
-
-  // عدد القطع قبل الإضافة
-  const beforeTotal =
-    Object.values(cart).reduce(
-      (sum, qty) =>
-        sum + Number(qty),
-      0
-    );
-
-
-  // إضافة قطعة واحدة
-  cart[id] =
-    (cart[id] || 0) + 1;
-
-
-  // حفظ السلة
-  localStorage.setItem(
-    "cart",
-    JSON.stringify(cart)
+  const beforeTotal = Object.values(cart).reduce(
+    (sum, qty) => sum + Number(qty),
+    0
   );
 
+  cart[id] = (cart[id] || 0) + 1;
 
-  // عدد القطع بعد الإضافة
-  const afterTotal =
-    Object.values(cart).reduce(
-      (sum, qty) =>
-        sum + Number(qty),
-      0
-    );
+  localStorage.setItem("cart", JSON.stringify(cart));
 
+  const afterTotal = Object.values(cart).reduce(
+    (sum, qty) => sum + Number(qty),
+    0
+  );
 
-  // تشغيل الصوت
-  playCartSound();
+  // الصوت حسب عدد المنتجات
+  playCartSound(afterTotal);
 
-
-  // القطعة الأولى
-  if (
-    beforeTotal === 0 &&
-    afterTotal === 1
-  ) {
+  // رسالة تحفيزية مختلفة
+  if (afterTotal === 1) {
 
     showCartMessage(
-      "🛒 تمت إضافة المنتج إلى السلة ✓",
+      "✨ زوين! تزاد المنتج للسلة 🛒<br>" +
+      "<span style='font-size:12px'>زيد منتج آخر واستافد من التوصيل غير بـ <b>15 درهم</b> 🚚</span>",
       "normal"
     );
 
-  }
-
-
-  // القطعة الثانية
-  else if (
-    beforeTotal === 1 &&
-    afterTotal === 2
-  ) {
+  } else if (afterTotal === 2) {
 
     showCartMessage(
-      "🎉 ممتاز! عندك جوج منتجات — استفد من التوصيل بـ 15 درهم 🚚",
+      "🔥 برافو! وصلتي لجوج منتجات 🎉<br>" +
+      "<span style='font-size:12px'>بقا غير منتج واحد وتربح <b>التوصيل مجاناً 🎁</b></span>",
       "reward"
     );
 
-  }
-
-
-  // القطعة الثالثة
-  else if (
-    beforeTotal === 2 &&
-    afterTotal === 3
-  ) {
+  } else if (afterTotal === 3) {
 
     showCartMessage(
-      "🎁 مبروك! وصلتي لـ 3 منتجات — التوصيل مجاني 🚚✨",
+      "🎉🏆 مبروك! ربحت التوصيل مجاناً! 🚚✨<br>" +
+      "<span style='font-size:12px'>وصلتي لـ <b>3 منتجات</b> — التوصيل ديالك مجاني 🎁</span>",
       "free"
     );
 
+  } else {
+
+    showCartMessage(
+      "🛒 تزاد المنتج للسلة ✓<br>" +
+      "<span style='font-size:12px'>والتوصيل باقي مجاني 🎁🚚</span>",
+      "free"
+    );
   }
 
-
+  // تحديث السلة والعداد فقط
   renderCart();
 
-  openCart();
+  // مهم جداً:
+  // لا تفتح السلة هنا
+  // لا تستعمل openCart()
 }
+
+
+ 
 
 
 // ===============================
