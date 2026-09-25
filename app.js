@@ -605,12 +605,9 @@ function render() {
 function renderCart() {
 
   let count = 0;
-
-  let total = 0;
-
+  let productsTotal = 0;
 
   const html =
-
     Object.keys(cart)
 
       .map((id) => {
@@ -620,25 +617,19 @@ function renderCart() {
             (x) => x.id === id
           );
 
-
         if (!p) {
           return "";
         }
 
-
         const quantity =
-          Number(cart[id]);
-
+          Number(cart[id] || 0);
 
         count += quantity;
 
-        total +=
-          p.price *
-          quantity;
-
+        productsTotal +=
+          p.price * quantity;
 
         return `
-
           <div class="row">
 
             <span>
@@ -652,7 +643,6 @@ function renderCart() {
               ${quantity}
 
             </span>
-
 
             <span>
 
@@ -677,11 +667,133 @@ function renderCart() {
             </span>
 
           </div>
-
         `;
 
       })
 
+      .join("");
+
+
+  // ===============================
+  // حساب التوصيل
+  // ===============================
+
+  let shipping = 0;
+  let shippingText = "";
+
+  if (count === 0) {
+
+    shipping = 0;
+
+    shippingText =
+      "🚚 التوصيل: أضف منتجات لمعرفة ثمن التوصيل.";
+
+  }
+
+  else if (count === 1) {
+
+    shipping = 30;
+
+    shippingText =
+      "🚚 التوصيل: <strong>30 درهم</strong>";
+
+  }
+
+  else if (count === 2) {
+
+    shipping = 15;
+
+    shippingText =
+      "🚚 التوصيل: <strong>15 درهم</strong>";
+
+  }
+
+  else {
+
+    shipping = 0;
+
+    shippingText =
+      "🎁 التوصيل: <strong style='color:#16a34a;'>مجاني</strong>";
+
+  }
+
+
+  const finalTotal =
+    productsTotal + shipping;
+
+
+  // ===============================
+  // العناصر
+  // ===============================
+
+  const items =
+    $("#items");
+
+  const countElement =
+    $("#count");
+
+  const productsTotalElement =
+    $("#products-total");
+
+  const shippingTotalElement =
+    $("#shipping-total");
+
+  const totalElement =
+    $("#total");
+
+  const shippingInfo =
+    $("#shipping-info");
+
+
+  if (items) {
+
+    items.innerHTML =
+      html ||
+      "<p>السلة فارغة.</p>";
+
+  }
+
+
+  if (countElement) {
+
+    countElement.textContent =
+      count;
+
+  }
+
+
+  if (productsTotalElement) {
+
+    productsTotalElement.textContent =
+      productsTotal;
+
+  }
+
+
+  if (shippingTotalElement) {
+
+    shippingTotalElement.textContent =
+      shipping;
+
+  }
+
+
+  if (totalElement) {
+
+    totalElement.textContent =
+      finalTotal;
+
+  }
+
+
+  if (shippingInfo) {
+
+    shippingInfo.innerHTML =
+      shippingText;
+
+  }
+
+}
       .join("");
 
 
