@@ -105,6 +105,114 @@
     <button onclick="closeCart()">✕</button>
   </div>
 
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+ <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VDSN4EMDMJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-VDSN4EMDMJ');
+</script> 
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أواني الأخوين</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="header-content">
+
+    <div class="logo-box">
+      <img
+        src="https://raw.githubusercontent.com/awani-alakhawain/Awani-alakhawain-store/refs/heads/main/587681220_17951617638049632_8425599764459275730_n.jpg"
+        alt="أواني الأخوين"
+        class="store-logo"
+      >
+
+      <small>متجر الأواني المنزلية</small>
+    </div>
+
+    <div id="featured-ad" class="featured-ad">
+      <div class="ad-title">🔥 بانيني كاب كيك</div>
+      <div class="ad-price">150 درهم</div>
+    </div>
+
+  </div>
+<button id="floating-cart" onclick="openCart()" aria-label="فتح السلة">
+  🛒
+  <b id="count">0</b>
+</button>
+
+</header>
+
+ <div class="urgent-ad">
+  🔥 عروض عاجلة • تخفيضات محدودة • 🚚 توصيل لجميع المدن المغربية 🇲🇦
+</div>
+<main>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <span class="hero-badge">🛍️ أواني الأخوين</span>
+
+      <h2>كل ما تحتاجه لبيتك<br>بثمن مناسب ❤️</h2>
+
+      <p>
+        منتجات منزلية مختارة بعناية،
+        جودة جيدة وأثمنة مناسبة،
+        والدفع عند الاستلام.
+      </p>
+
+      <div class="hero-benefits">
+        <span>🚚 توصيل لجميع المدن</span>
+        <span>💵 الدفع عند الاستلام</span>
+      </div>
+
+      <a href="#products" class="hero-button">
+        🛒 تسوق الآن
+      </a>
+    </div>
+
+    <div class="hero-visual">
+      🍳
+      <div>أواني المطبخ والمنزل</div>
+    </div>
+  </div>
+</section>
+
+<div class="tools">
+  <input id="search" placeholder="🔎 ابحث عن منتج">
+  <select id="cat">
+    <option value="">كل الفئات</option>
+  </select>
+</div>
+<!-- الفئات -->
+<section class="categories-section">
+
+  <div class="section-title">
+    <h2>🛍️ تسوق حسب الفئة</h2>
+    <p>اختار الفئة اللي كتقلب عليها</p>
+  </div>
+
+  <div id="categories" class="categories-grid"></div>
+
+</section>
+<section id="products" class="grid"></section>
+
+</main>
+
+<!-- السلة -->
+<div id="cart" class="panel">
+  <div class="panelhead">
+    <h2>السلة</h2>
+    <button onclick="closeCart()">✕</button>
+  </div>
+
   <div id="items"></div>
 
   <h3>المجموع: <span id="total">0</span> درهم</h3>
@@ -116,6 +224,222 @@
     <button type="submit">إرسال الطلب عبر WhatsApp</button>
   </form>
 </div>
+
+<!-- تسجيل الدخول للإدارة -->
+<div id="login" class="panel">
+
+  <div class="panelhead">
+    <h2>🔐 دخول الإدارة</h2>
+    <button onclick="closeLogin()">✕</button>
+  </div>
+
+  <form id="loginForm">
+
+    <input
+      id="loginEmail"
+      type="email"
+      required
+      placeholder="الإيميل"
+    >
+
+    <input
+      id="loginPassword"
+      type="password"
+      required
+      placeholder="كلمة السر"
+    >
+
+    <button type="submit">
+      دخول
+    </button>
+
+  </form>
+
+  <p id="loginMessage"></p>
+
+</div>
+
+<!-- إدارة المتجر -->
+<div id="admin" class="panel">
+
+  <div class="panelhead">
+    <h2>⚙️ إدارة المتجر</h2>
+    <button onclick="closeAdmin()">✕</button>
+  </div>
+
+  <p class="hint">
+    من هنا تقدر تزيد وتعدل المنتجات.
+  </p>
+
+  <form id="productForm">
+
+    <input type="hidden" id="editId">
+
+    <input
+      id="pname"
+      required
+      placeholder="اسم المنتج"
+    >
+
+    <input
+      id="pprice"
+      type="number"
+      required
+      placeholder="الثمن بالدرهم"
+    >
+   <input
+  id="poldprice"
+  type="number"
+  min="0"
+  placeholder="الثمن القديم (اختياري)"
+>
+
+<label style="display:flex;align-items:center;gap:8px;margin:10px 0;">
+  <input
+    id="poffer"
+    type="checkbox"
+    style="width:auto;"
+  >
+  🔥 عرض محدود
+</label>
+
+    <input
+      id="pcat"
+      required
+      placeholder="الفئة مثلا: أباريق"
+    >
+
+    <textarea
+      id="pdesc"
+      placeholder="وصف المنتج"
+    ></textarea>
+
+    <input
+      id="pimage"
+      type="url"
+      placeholder="رابط صورة المنتج"
+    >
+
+    <input
+      id="pemoji"
+      placeholder="رمز/إيموجي مثلا 🫖"
+    >
+
+    <button type="submit">
+      حفظ المنتج
+    </button>
+
+  </form>
+  <button
+  type="button"
+  onclick="importGitHubImages()">
+  📸 استيراد الصور من GitHub
+</button>
+<div class="admin-search">
+
+  <input
+    id="adminProductSearch"
+    type="search"
+    placeholder="🔎 ابحث عن منتج..."
+  >
+
+  <select id="adminProductCategory">
+    <option value="">📂 كل الفئات</option>
+  </select>
+
+</div>
+
+<div id="adminList"></div>
+<hr>
+
+<h3>📂 إدارة الفئات</h3>
+
+<form id="categoryForm">
+
+  <input
+    type="hidden"
+    id="editCategoryId"
+  >
+
+  <input
+    id="categoryName"
+    required
+    placeholder="اسم الفئة مثلا: أباريق"
+  >
+
+  <input
+    id="categoryImage"
+    type="url"
+    placeholder="رابط صورة الفئة"
+  >
+
+  <button type="submit">
+    💾 حفظ الفئة
+  </button>
+
+</form>
+
+<div id="categoryAdminList"></div>
+
+</div>
+
+<button class="adminBtn" onclick="openLogin()">
+  ⚙️ إدارة المنتجات
+</button>
+
+<footer>
+  📞 0660234149 — أواني الأخوين
+</footer>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-auth-compat.js"></script>
+
+<script>
+
+const firebaseConfig = {
+  apiKey:  "AIzaSyCq7WCBST7RansdCn6jkadxYKt2zmeVtkk",
+  authDomain: "awani-alakhawain-store.firebaseapp.com",
+  projectId: "awani-alakhawain-store",
+  storageBucket: "awani-alakhawain-store.firebasestorage.app",
+  messagingSenderId: "640020412037",
+  appId: "1:640020412037:web:6ace50c3ea7967dadc9bec"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+</script>
+
+<script src="app.js"></script>
+
+<div class="social">
+  <a
+    class="facebook"
+    href="https://www.facebook.com/profile.php?id=100089001657706"
+    target="_blank">
+    📘 Facebook
+  </a>
+
+  <a
+    class="instagram"
+    href="https://www.instagram.com/elakhawayen.stor/"
+    target="_blank">
+    📸 Instagram
+  </a>
+
+  <a
+    class="whatsapp"
+    href="https://wa.me/212660234149"
+    target="_blank">
+    🟢 WhatsApp
+  </a>
+</div>
+</body>
+</html>
 
 <!-- تسجيل الدخول للإدارة -->
 <div id="login" class="panel">
