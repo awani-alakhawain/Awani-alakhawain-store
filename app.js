@@ -1,11 +1,12 @@
-// ===============================
+// ======================================================
 // أواني الأخوين - APP.JS
-// ===============================
+// نسخة كاملة ونظيفة
+// ======================================================
 
 
-// ===============================
-// المنتجات التجريبية
-// ===============================
+// ======================================================
+// منتجات احتياطية
+// ======================================================
 
 const starter = [
   {
@@ -26,8 +27,8 @@ const starter = [
     oldPrice: 0,
     offer: false,
     cat: "أواني الطبخ",
-    desc: "طقم عملي للمطبخ.",
     emoji: "🍳",
+    desc: "طقم عملي للمطبخ.",
     image: ""
   },
   {
@@ -55,201 +56,60 @@ const starter = [
 ];
 
 
-// ===============================
+// ======================================================
 // المتغيرات
-// ===============================
+// ======================================================
 
 let products = [];
 
-let cart = JSON.parse(
-  localStorage.getItem("cart") || "{}"
-);
+let cart = {};
 
+try {
+  cart = JSON.parse(
+    localStorage.getItem("cart") || "{}"
+  );
 
-const $ = (s) => document.querySelector(s);
-
-
-// ===============================
-// بانر العروض المتحرك
-// ===============================
-
-let offerIndex = 0;
-let offerTimer = null;
-
-function renderFeaturedAd() {
-
-  const ad = document.getElementById("featured-ad");
-
-  if (!ad) return;
-
-  const offers = products.filter((p) => {
-
-    const oldPrice = Number(p.oldPrice || 0);
-    const price = Number(p.price || 0);
-
-    return oldPrice > price;
-  });
-
-
-  if (offers.length === 0) {
-
-    ad.innerHTML = "";
-    ad.style.display = "none";
-
-    if (offerTimer) {
-      clearInterval(offerTimer);
-      offerTimer = null;
-    }
-
-    return;
+  if (
+    !cart ||
+    typeof cart !== "object" ||
+    Array.isArray(cart)
+  ) {
+    cart = {};
   }
 
-
-  ad.style.display = "block";
-
-
-  if (offerIndex >= offers.length) {
-    offerIndex = 0;
-  }
-
-
-  function showOffer(index) {
-
-    const p = offers[index];
-
-    const image = p.image
-
-      ? `
-        <img
-          src="${p.image}"
-          alt="${p.name}"
-        >
-      `
-
-      : `
-        <div class="offer-emoji">
-          ${p.emoji || "🛍️"}
-        </div>
-      `;
-
-
-    ad.innerHTML = `
-      <div class="offer-slide">
-
-        ${image}
-
-        <div class="offer-info">
-
-          <div class="offer-title">
-            🔥 ${p.name}
-          </div>
-
-          <div class="offer-prices">
-
-            <span class="old-price">
-              ${p.oldPrice} درهم
-            </span>
-
-            <span class="new-price">
-              ${p.price} درهم
-            </span>
-
-          </div>
-
-          <div class="offer-label">
-            🔥 عرض محدود
-          </div>
-
-        </div>
-
-      </div>
-    `;
-
-
-    const slide =
-      ad.querySelector(".offer-slide");
-
-
-    if (slide) {
-
-      slide.onclick = () => {
-        openProduct(p.id);
-      };
-
-
-      slide.classList.add(
-        "offer-enter"
-      );
-
-
-      setTimeout(() => {
-
-        slide.classList.remove(
-          "offer-enter"
-        );
-
-      }, 700);
-    }
-  }
-
-
-  showOffer(offerIndex);
-
-
-  if (offerTimer) {
-    clearInterval(offerTimer);
-  }
-
-
-  offerTimer = setInterval(() => {
-
-    const currentOffers =
-      products.filter((p) => {
-
-        return (
-          Number(p.oldPrice || 0) >
-          Number(p.price || 0)
-        );
-
-      });
-
-
-    if (currentOffers.length === 0) {
-
-      clearInterval(offerTimer);
-
-      offerTimer = null;
-
-      ad.style.display = "none";
-
-      return;
-    }
-
-
-    offerIndex++;
-
-
-    if (
-      offerIndex >=
-      currentOffers.length
-    ) {
-      offerIndex = 0;
-    }
-
-
-    showOffer(offerIndex);
-
-  }, 4000);
+} catch (error) {
+  cart = {};
 }
 
 
-// ===============================
+const $ = (selector) =>
+  document.querySelector(selector);
+
+
+// ======================================================
 // تحميل المنتجات من Firebase
-// ===============================
+// ======================================================
 
 async function loadProducts() {
 
   try {
+
+    if (
+      typeof db === "undefined" ||
+      !db ||
+      !db.collection
+    ) {
+      console.error(
+        "Firebase Firestore غير متوفر."
+      );
+
+      products = starter;
+
+      render();
+
+      return;
+    }
+
 
     const snapshot =
       await db
@@ -262,15 +122,15 @@ async function loadProducts() {
 
     snapshot.forEach((doc) => {
 
-      const data = doc.data();
-
+      const data = doc.data() || {};
 
       products.push({
 
-        id: doc.id,
+        id: String(doc.id),
 
         name:
-          data.name || "",
+          data.name ||
+          "منتج بدون اسم",
 
         price:
           Number(data.price || 0),
@@ -282,195 +142,166 @@ async function loadProducts() {
           data.offer === true,
 
         cat:
-          data.cat || "أخرى",
+          data.cat ||
+          "أخرى",
 
         emoji:
-          data.emoji || "🛍️",
+          data.emoji ||
+          "🛍️",
 
         desc:
-          data.desc || "",
+          data.desc ||
+          "",
 
         image:
-          data.image || ""
+          data.image ||
+          ""
 
       });
 
     });
 
 
+    // إذا Firebase ما فيه حتى منتج
     if (products.length === 0) {
-      products = starter;
+
+      products = starter.map((p) => ({
+        ...p
+      }));
+
     }
+
+
+    console.log(
+      "✅ المنتجات المحملة:",
+      products
+    );
 
 
     render();
 
+    renderCart();
+
     renderFeaturedAd();
 
     renderCategories();
-
-
-    if (auth.currentUser) {
-
-      renderAdmin();
-
-      loadCategories();
-
-    }
 
   }
 
   catch (error) {
 
     console.error(
-      "Firebase products error:",
+      "❌ خطأ في تحميل المنتجات:",
       error
     );
 
 
-    products = starter;
+    // نخلي المنتجات الاحتياطية تظهر
+    products = starter.map((p) => ({
+      ...p
+    }));
 
 
     render();
+
+    renderCart();
 
     renderFeaturedAd();
 
     renderCategories();
 
-
-    if (auth.currentUser) {
-
-      renderAdmin();
-
-      loadCategories();
-
-    }
-
-
-    alert(
-      "وقع مشكل في الاتصال بـ Firebase."
-    );
   }
 }
 
 
-// ===============================
+// ======================================================
 // عرض المنتجات
-// ===============================
+// ======================================================
 
 function render() {
+
+  const container =
+    $("#products");
+
+
+  if (!container) {
+
+    console.warn(
+      "لم يتم العثور على #products"
+    );
+
+    return;
+  }
+
 
   const searchInput =
     $("#search");
 
-  const catSelect =
+  const categorySelect =
     $("#cat");
 
 
-  if (
-    !searchInput ||
-    !catSelect
-  ) {
-    return;
-  }
+  const search =
+    searchInput
+      ? searchInput.value
+          .toLowerCase()
+          .trim()
+      : "";
 
 
-  const q =
-    searchInput.value
-      .toLowerCase()
-      .trim();
-
-
-  const c =
-    catSelect.value;
-
-
-  const cats = [
-    ...new Set(
-      products.map(
-        (p) => p.cat
-      )
-    )
-  ];
-
-
-  catSelect.innerHTML =
-    `
-      <option value="">
-        كل الفئات
-      </option>
-    ` +
-
-    cats
-      .map(
-        (x) => `
-          <option
-            value="${x}"
-            ${
-              x === c
-                ? "selected"
-                : ""
-            }
-          >
-            ${x}
-          </option>
-        `
-      )
-      .join("");
+  const selectedCategory =
+    categorySelect
+      ? categorySelect.value
+      : "";
 
 
   const filtered =
-    products.filter((p) => {
+    products.filter((product) => {
+
+      const name =
+        String(product.name || "")
+          .toLowerCase();
+
 
       const searchOK =
-        !q ||
-        (
-          p.name || ""
-        )
-          .toLowerCase()
-          .includes(q);
+        !search ||
+        name.includes(search);
 
 
-      const catOK =
-        !c ||
-        p.cat === c;
+      const categoryOK =
+        !selectedCategory ||
+        product.cat === selectedCategory;
 
 
       return (
         searchOK &&
-        catOK
+        categoryOK
       );
+
     });
 
 
-  const productsContainer =
-    $("#products");
+  container.innerHTML = filtered.length
+
+    ? filtered.map((p) => {
+
+        const id =
+          String(p.id);
 
 
-  if (!productsContainer) {
-    return;
-  }
-
-
-  productsContainer.innerHTML =
-
-    filtered
-
-      .map((p) => {
-
-        const picture =
-
+        const imageHTML =
           p.image
 
             ? `
               <img
-                src="${p.image}"
-                alt="${p.name}"
+                src="${escapeHTML(p.image)}"
+                alt="${escapeHTML(p.name)}"
                 style="
                   width:100%;
                   height:220px;
                   object-fit:cover;
                   border-radius:12px;
+                  display:block;
                 "
               >
             `
@@ -482,17 +313,16 @@ function render() {
             `;
 
 
-        const offerHTML =
-
+        const hasOffer =
           Number(p.oldPrice || 0) >
-          Number(p.price || 0)
+          Number(p.price || 0);
+
+
+        const priceHTML =
+          hasOffer
 
             ? `
-              <div
-                style="
-                  margin-top:5px;
-                "
-              >
+              <div style="margin-top:6px">
 
                 <span
                   style="
@@ -504,62 +334,64 @@ function render() {
                   ${p.oldPrice} درهم
                 </span>
 
-                <span
+                <strong
                   style="
                     color:#dc2626;
-                    font-weight:800;
                   "
                 >
                   ${p.price} درهم
-                </span>
+                </strong>
 
               </div>
             `
 
             : `
-              <div class="price">
+              <div
+                class="price"
+                style="margin-top:6px"
+              >
                 ${p.price} درهم
               </div>
             `;
 
 
         return `
-
           <article
             class="card"
-            onclick="openProduct('${p.id}')"
+            onclick="openProduct('${escapeJS(id)}')"
           >
 
-            ${picture}
+            ${imageHTML}
 
             <div class="body">
 
               <h3>
-                ${p.name}
+                ${escapeHTML(p.name)}
               </h3>
 
               <small>
-                ${p.cat}
+                ${escapeHTML(p.cat)}
               </small>
 
               ${
                 p.desc
                   ? `
                     <p>
-                      ${p.desc}
+                      ${escapeHTML(p.desc)}
                     </p>
                   `
                   : ""
               }
 
-              ${offerHTML}
+              ${priceHTML}
 
 
               <button
                 class="add"
+                type="button"
                 onclick="
                   event.stopPropagation();
-                  add('${p.id}')
+                  add('${escapeJS(id)}');
                 "
               >
                 🛒 أضف للسلة
@@ -567,9 +399,10 @@ function render() {
 
 
               <button
+                type="button"
                 onclick="
                   event.stopPropagation();
-                  orderNow('${p.id}')
+                  orderNow('${escapeJS(id)}');
                 "
                 style="
                   margin-top:8px;
@@ -582,107 +415,248 @@ function render() {
             </div>
 
           </article>
-
         `;
 
-      })
+      }).join("")
 
-      .join("")
-
-      ||
-
-      "<p>لا توجد منتجات.</p>";
+    : `
+      <p
+        style="
+          text-align:center;
+          padding:30px;
+        "
+      >
+        لا توجد منتجات.
+      </p>
+    `;
 
 
   renderCart();
 }
 
 
-// ===============================
+// ======================================================
+// إنشاء الفئات
+// ======================================================
+
+function renderCategories() {
+
+  const select =
+    $("#cat");
+
+
+  if (!select) {
+    return;
+  }
+
+
+  const current =
+    select.value;
+
+
+  const categories = [
+    ...new Set(
+      products
+        .map((p) => p.cat)
+        .filter(Boolean)
+    )
+  ];
+
+
+  select.innerHTML = `
+    <option value="">
+      كل الفئات
+    </option>
+
+    ${
+      categories
+        .map((cat) => `
+          <option
+            value="${escapeHTML(cat)}"
+            ${
+              cat === current
+                ? "selected"
+                : ""
+            }
+          >
+            ${escapeHTML(cat)}
+          </option>
+        `)
+        .join("")
+    }
+  `;
+}
+
+
+// ======================================================
+// البحث والفئات
+// ======================================================
+
+document.addEventListener(
+  "input",
+  function (event) {
+
+    if (
+      event.target &&
+      event.target.id === "search"
+    ) {
+      render();
+    }
+
+  }
+);
+
+
+document.addEventListener(
+  "change",
+  function (event) {
+
+    if (
+      event.target &&
+      event.target.id === "cat"
+    ) {
+      render();
+    }
+
+  }
+);
+
+
+// ======================================================
 // السلة
-// ===============================
+// ======================================================
 
-
-// ===============================
-// السلة + التوصيل
-// ===============================
 function renderCart() {
-console.log("CART:", cart);
-console.log("PRODUCTS:", products);
+
+  const items =
+    $("#items");
+
+  const countElement =
+    $("#count");
+
+  const totalElement =
+    $("#total");
+
+
   let count = 0;
+
   let productsTotal = 0;
 
-  const rows = Object.keys(cart)
-    .map((id) => {
 
-      // توحيد ID باش ما يكونش مشكل string / number
-      const productId = String(id);
+  const rows = [];
 
-      const p = products.find(
-        (x) => String(x.id) === productId
+
+  Object.keys(cart).forEach((id) => {
+
+    const productId =
+      String(id);
+
+
+    const quantity =
+      Number(cart[id] || 0);
+
+
+    if (quantity <= 0) {
+      return;
+    }
+
+
+    const product =
+      products.find(
+        (p) =>
+          String(p.id) === productId
       );
 
-      if (!p) {
-        console.warn(
-          "المنتج ما تلقاش فالسلة:",
-          productId
-        );
-        return "";
-      }
 
-      const quantity = Number(cart[id] || 0);
+    if (!product) {
 
-      if (quantity <= 0) {
-        return "";
-      }
+      console.warn(
+        "⚠️ المنتج غير موجود:",
+        productId
+      );
 
-      const price = Number(p.price || 0);
+      return;
+    }
 
-      count += quantity;
 
-      productsTotal += price * quantity;
+    const price =
+      Number(product.price || 0);
 
-      return `
-        <div class="row">
 
-          <span>
-            <b>${p.name}</b>
-            <br>
+    count += quantity;
+
+    productsTotal +=
+      price * quantity;
+
+
+    rows.push(`
+
+      <div
+        class="row"
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          padding:12px 0;
+          border-bottom:1px solid #eee;
+        "
+      >
+
+        <span>
+
+          <b>
+            ${escapeHTML(product.name)}
+          </b>
+
+          <br>
+
+          <small>
             ${price} درهم × ${quantity}
-          </span>
+          </small>
 
-          <span>
+        </span>
 
-            <button
-              type="button"
-              onclick="chg('${productId}', -1)"
-            >
-              −
-            </button>
 
+        <span
+          style="
+            white-space:nowrap;
+          "
+        >
+
+          <button
+            type="button"
+            onclick="chg('${escapeJS(productId)}', -1)"
+          >
+            −
+          </button>
+
+          <b style="margin:0 8px">
             ${quantity}
+          </b>
 
-            <button
-              type="button"
-              onclick="chg('${productId}', 1)"
-            >
-              +
-            </button>
+          <button
+            type="button"
+            onclick="chg('${escapeJS(productId)}', 1)"
+          >
+            +
+          </button>
 
-          </span>
+        </span>
 
-        </div>
-      `;
+      </div>
 
-    })
-    .join("");
+    `);
+
+  });
 
 
-  // ===============================
+  // ====================================================
   // التوصيل
-  // ===============================
+  // ====================================================
 
   let shipping = 0;
+
 
   if (count === 1) {
 
@@ -699,32 +673,25 @@ console.log("PRODUCTS:", products);
   }
 
 
-  // ===============================
-  // المجموع النهائي
-  // ===============================
-
   const finalTotal =
     productsTotal + shipping;
 
 
-  const items = $("#items");
-  const countElement = $("#count");
-  const totalElement = $("#total");
-
-
-  // ===============================
+  // ====================================================
   // عرض السلة
-  // ===============================
+  // ====================================================
 
   if (items) {
 
     if (count === 0) {
 
       items.innerHTML = `
-        <p style="
-          text-align:center;
-          padding:20px;
-        ">
+        <p
+          style="
+            text-align:center;
+            padding:25px;
+          "
+        >
           🛒 السلة فارغة.
         </p>
       `;
@@ -732,14 +699,15 @@ console.log("PRODUCTS:", products);
     } else {
 
       const shippingText =
-        shipping === 0 && count >= 3
+        count >= 3
           ? "مجاني 🎁"
-          : shipping + " درهم";
+          : `${shipping} درهم`;
 
 
       items.innerHTML = `
 
-        ${rows}
+        ${rows.join("")}
+
 
         <div
           style="
@@ -756,6 +724,7 @@ console.log("PRODUCTS:", products);
               margin-bottom:8px;
             "
           >
+
             <span>
               ثمن المنتجات:
             </span>
@@ -763,6 +732,7 @@ console.log("PRODUCTS:", products);
             <strong>
               ${productsTotal} درهم
             </strong>
+
           </div>
 
 
@@ -773,6 +743,7 @@ console.log("PRODUCTS:", products);
               margin-bottom:8px;
             "
           >
+
             <span>
               🚚 التوصيل:
             </span>
@@ -780,6 +751,7 @@ console.log("PRODUCTS:", products);
             <strong>
               ${shippingText}
             </strong>
+
           </div>
 
 
@@ -806,123 +778,541 @@ console.log("PRODUCTS:", products);
           </div>
 
         </div>
+
       `;
 
     }
+
   }
 
-
-  // ===============================
-  // عداد السلة
-  // ===============================
 
   if (countElement) {
 
-    countElement.textContent = count;
+    countElement.textContent =
+      count;
 
   }
 
-
-  // ===============================
-  // المجموع النهائي
-  // ===============================
 
   if (totalElement) {
 
-    totalElement.textContent = finalTotal;
+    totalElement.textContent =
+      finalTotal;
 
   }
 
+
+  // حفظ السلة
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
 }
-// ===============================
+
+
+// ======================================================
 // إضافة للسلة
-// ===============================
+// ======================================================
 
 function add(id) {
 
   id = String(id);
 
-  cart[id] = Number(cart[id] || 0) + 1;
+
+  cart[id] =
+    Number(cart[id] || 0) + 1;
+
 
   localStorage.setItem(
     "cart",
     JSON.stringify(cart)
   );
 
+
   renderCart();
 
-  console.log("تمت إضافة المنتج:", id);
-  console.log("السلة:", cart);
+
+  console.log(
+    "🛒 تمت إضافة:",
+    id,
+    cart
+  );
+
 }
 
 
-// ===============================
+// ======================================================
 // تغيير الكمية
-// ===============================
+// ======================================================
 
 function chg(id, amount) {
 
   id = String(id);
 
+
   cart[id] =
-    Number(cart[id] || 0) + Number(amount);
+    Number(cart[id] || 0) +
+    Number(amount);
+
 
   if (cart[id] <= 0) {
+
     delete cart[id];
+
   }
+
 
   localStorage.setItem(
     "cart",
     JSON.stringify(cart)
   );
 
+
   renderCart();
+
 }
 
 
-// ===============================
+// ======================================================
 // فتح السلة
-// ===============================
+// ======================================================
 
 function openCart() {
 
-  // إعادة عرض السلة قبل فتحها
   renderCart();
 
+
   const cartElement =
-    document.getElementById("cart");
+    $("#cart");
+
 
   if (cartElement) {
-    cartElement.classList.add("open");
+
+    cartElement.classList.add(
+      "open"
+    );
+
   }
+
 }
 
 
-// ===============================
+// ======================================================
 // إغلاق السلة
-// ===============================
+// ======================================================
 
 function closeCart() {
 
   const cartElement =
-    document.getElementById("cart");
+    $("#cart");
+
 
   if (cartElement) {
-    cartElement.classList.remove("open");
+
+    cartElement.classList.remove(
+      "open"
+    );
+
   }
+
 }
 
 
-// ===============================
-// تشغيل المتجر
-// ===============================
+// ======================================================
+// الطلب مباشرة عبر WhatsApp
+// ======================================================
+
+function orderNow(id) {
+
+  id = String(id);
+
+
+  const product =
+    products.find(
+      (p) =>
+        String(p.id) === id
+    );
+
+
+  if (!product) {
+
+    alert(
+      "المنتج غير موجود."
+    );
+
+    return;
+  }
+
+
+  const message =
+    `السلام عليكم، أريد طلب:\n\n` +
+    `المنتج: ${product.name}\n` +
+    `الثمن: ${product.price} درهم\n\n` +
+    `من متجر أواني الأخوين.`;
+
+
+  const url =
+    "https://wa.me/212660234149?text=" +
+    encodeURIComponent(message);
+
+
+  window.open(
+    url,
+    "_blank"
+  );
+
+}
+
+
+// ======================================================
+// صفحة / تفاصيل المنتج
+// ======================================================
+
+function openProduct(id) {
+
+  id = String(id);
+
+
+  const product =
+    products.find(
+      (p) =>
+        String(p.id) === id
+    );
+
+
+  if (!product) {
+    return;
+  }
+
+
+  // إذا كانت الصفحة فيها نافذة تفاصيل
+  const modal =
+    $("#product-modal");
+
+
+  if (modal) {
+
+    modal.innerHTML = `
+
+      <div
+        style="
+          background:white;
+          padding:20px;
+          border-radius:15px;
+          max-width:500px;
+          margin:auto;
+        "
+      >
+
+        ${
+          product.image
+            ? `
+              <img
+                src="${escapeHTML(product.image)}"
+                style="
+                  width:100%;
+                  max-height:400px;
+                  object-fit:contain;
+                  border-radius:12px;
+                "
+              >
+            `
+            : `
+              <div
+                style="
+                  font-size:80px;
+                  text-align:center;
+                "
+              >
+                ${product.emoji || "🛍️"}
+              </div>
+            `
+        }
+
+
+        <h2>
+          ${escapeHTML(product.name)}
+        </h2>
+
+
+        <p>
+          ${escapeHTML(product.desc || "")}
+        </p>
+
+
+        <strong>
+          ${product.price} درهم
+        </strong>
+
+
+        <button
+          type="button"
+          onclick="add('${escapeJS(id)}')"
+          style="
+            width:100%;
+            margin-top:15px;
+          "
+        >
+          🛒 أضف للسلة
+        </button>
+
+      </div>
+
+    `;
+
+
+    modal.style.display =
+      "block";
+
+
+    return;
+  }
+
+
+  // إذا ما كانتش نافذة التفاصيل
+  // نفتح السلة بعد الإضافة فقط عند الحاجة
+
+  console.log(
+    "المنتج:",
+    product
+  );
+
+}
+
+
+// ======================================================
+// بانر العروض
+// ======================================================
+
+let offerTimer = null;
+
+
+function renderFeaturedAd() {
+
+  const ad =
+    $("#featured-ad");
+
+
+  if (!ad) {
+    return;
+  }
+
+
+  const offers =
+    products.filter(
+      (p) =>
+        Number(p.oldPrice || 0) >
+        Number(p.price || 0)
+    );
+
+
+  if (offers.length === 0) {
+
+    ad.innerHTML = "";
+
+    ad.style.display =
+      "none";
+
+    if (offerTimer) {
+
+      clearInterval(
+        offerTimer
+      );
+
+      offerTimer = null;
+
+    }
+
+    return;
+  }
+
+
+  ad.style.display =
+    "block";
+
+
+  let index = 0;
+
+
+  function show() {
+
+    const p =
+      offers[index];
+
+
+    ad.innerHTML = `
+
+      <div
+        class="offer-slide"
+        style="
+          cursor:pointer;
+        "
+      >
+
+        ${
+          p.image
+
+            ? `
+              <img
+                src="${escapeHTML(p.image)}"
+                alt="${escapeHTML(p.name)}"
+              >
+            `
+
+            : `
+              <div class="offer-emoji">
+                ${p.emoji || "🔥"}
+              </div>
+            `
+        }
+
+
+        <div class="offer-info">
+
+          <div class="offer-title">
+            🔥 ${escapeHTML(p.name)}
+          </div>
+
+
+          <div class="offer-prices">
+
+            <span class="old-price">
+              ${p.oldPrice} درهم
+            </span>
+
+            <span class="new-price">
+              ${p.price} درهم
+            </span>
+
+          </div>
+
+
+          <div class="offer-label">
+            🔥 عرض محدود
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    const slide =
+      ad.querySelector(
+        ".offer-slide"
+      );
+
+
+    if (slide) {
+
+      slide.onclick =
+        () => openProduct(p.id);
+
+    }
+
+  }
+
+
+  show();
+
+
+  if (offerTimer) {
+
+    clearInterval(
+      offerTimer
+    );
+
+  }
+
+
+  offerTimer =
+    setInterval(() => {
+
+      index++;
+
+
+      if (
+        index >=
+        offers.length
+      ) {
+
+        index = 0;
+
+      }
+
+
+      show();
+
+    }, 4000);
+
+}
+
+
+// ======================================================
+// أدوات الحماية
+// ======================================================
+
+function escapeHTML(value) {
+
+  return String(value ?? "")
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+function escapeJS(value) {
+
+  return String(value ?? "")
+    .replace(
+      /\\/g,
+      "\\\\"
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    );
+
+}
+
+
+// ======================================================
+// تشغيل الموقع
+// ======================================================
 
 document.addEventListener(
   "DOMContentLoaded",
   function () {
 
-    console.log("🛍️ أواني الأخوين بدأ التشغيل");
+    console.log(
+      "🛍️ أواني الأخوين - بدأ التشغيل"
+    );
 
+
+    // عرض السلة القديمة
+    renderCart();
+
+
+    // تحميل المنتجات
     loadProducts();
 
   }
