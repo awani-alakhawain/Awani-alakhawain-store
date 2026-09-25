@@ -2166,3 +2166,134 @@ header {
     max-width: calc(100vw - 24px) !important;
   }
 }
+/* =========================================
+   رسائل تحفيزية للسلة
+========================================= */
+
+.cart-message {
+  position: fixed !important;
+
+  top: 105px !important;
+  left: 50% !important;
+
+  transform: translateX(-50%);
+
+  z-index: 99999 !important;
+
+  width: 360px;
+  max-width: calc(100vw - 30px);
+
+  padding: 15px 18px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 10px 35px rgba(0,0,0,.18);
+
+  text-align: center;
+
+  direction: rtl;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  line-height: 1.7;
+
+  animation:
+    promoMessageIn .45s ease,
+    promoMessagePulse 2s ease-in-out infinite;
+
+  border: 2px solid #e5e7eb;
+}
+
+/* المرحلة الأولى */
+.cart-message.normal {
+  border-color: #0ea5e9;
+}
+
+/* المرحلة الثانية */
+.cart-message.reward {
+  border-color: #f59e0b;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #fff8e7
+    );
+}
+
+/* المرحلة الثالثة */
+.cart-message.free {
+  border-color: #16a34a;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #f0fdf4
+    );
+
+  font-size: 16px;
+}
+
+@keyframes promoMessageIn {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -25px)
+      scale(.85);
+  }
+
+  70% {
+    transform:
+      translate(-50%, 5px)
+      scale(1.03);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, 0)
+      scale(1);
+  }
+}
+
+@keyframes promoMessagePulse {
+
+  0%, 100% {
+    box-shadow:
+      0 10px 35px rgba(0,0,0,.15);
+  }
+
+  50% {
+    box-shadow:
+      0 12px 40px rgba(0,0,0,.23);
+  }
+}
+
+@media(max-width:600px) {
+
+  .cart-message {
+
+    top: 78px !important;
+
+    width: 330px;
+
+    max-width: calc(100vw - 24px);
+
+    padding: 12px 14px;
+
+    font-size: 13px;
+  }
+
+  .cart-message.free {
+    font-size: 14px;
+  }
+}
