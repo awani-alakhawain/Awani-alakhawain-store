@@ -740,28 +740,20 @@ function playCartSound(level = 1) {
       return;
     }
 
-
     if (!cartAudioContext) {
-
       cartAudioContext =
         new AudioContext();
-
     }
-
 
     if (
       cartAudioContext.state ===
       "suspended"
     ) {
-
       cartAudioContext.resume();
-
     }
-
 
     const ctx =
       cartAudioContext;
-
 
     const playTone = (
       frequency,
@@ -776,41 +768,34 @@ function playCartSound(level = 1) {
       const gain =
         ctx.createGain();
 
-
       oscillator.type =
         "sine";
-
 
       oscillator.frequency.setValueAtTime(
         frequency,
         ctx.currentTime + start
       );
 
-
       gain.gain.setValueAtTime(
         0.0001,
         ctx.currentTime + start
       );
-
 
       gain.gain.exponentialRampToValueAtTime(
         volume,
         ctx.currentTime + start + 0.02
       );
 
-
       gain.gain.exponentialRampToValueAtTime(
         0.0001,
         ctx.currentTime + start + duration
       );
-
 
       oscillator.connect(gain);
 
       gain.connect(
         ctx.destination
       );
-
 
       oscillator.start(
         ctx.currentTime + start
@@ -819,7 +804,6 @@ function playCartSound(level = 1) {
       oscillator.stop(
         ctx.currentTime + start + duration
       );
-
     };
 
 
@@ -841,7 +825,6 @@ function playCartSound(level = 1) {
       );
 
     }
-
 
     // المنتج الثاني 🎉
     else if (level === 2) {
@@ -869,7 +852,6 @@ function playCartSound(level = 1) {
 
     }
 
-
     // المنتج الثالث 🏆
     else if (level === 3) {
 
@@ -896,7 +878,6 @@ function playCartSound(level = 1) {
 
     }
 
-
     // المنتجات من الرابع فما فوق
     else {
 
@@ -918,17 +899,8 @@ function playCartSound(level = 1) {
     );
 
   }
+
 }
-  catch (error) {
-
-    console.log(
-      "Cart sound unavailable"
-    );
-
-  }
-}
-
-
 function showCartMessage(
   message,
   type = "normal"
