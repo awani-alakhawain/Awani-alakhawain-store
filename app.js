@@ -4458,7 +4458,204 @@ if (typeof auth !== "undefined") {
 
   } else {
 
-    startShippingGame();
+  /* =========================================================
+   🛒🚴 AWANI - DRAGGABLE FLOATING CART + MASCOT
+   ========================================================= */
+
+(function () {
+  if (window.__awaniDraggableLoaded) return;
+  window.__awaniDraggableLoaded = true;
+
+  function makeDraggable(el, storageKey, options = {}) {
+    if (!el) return;
+
+    let dragging = false;
+    let moved = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    const threshold = 6;
+
+    // Restore previous position
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey));
+      if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
+        el.style.left = saved.left + "px";
+        el.style.top = saved.top + "px";
+        el.style.right = "auto";
+        el.style.bottom = "auto";
+      }
+    } catch (e) {}
+
+    function keepInsideViewport() {
+      const rect = el.getBoundingClientRect();
+
+      let left = rect.left;
+      let top = rect.top;
+
+      const maxLeft = Math.max(5, window.innerWidth - rect.width - 5);
+      const maxTop = Math.max(5, window.innerHeight - rect.height - 5);
+
+      left = Math.min(Math.max(5, left), maxLeft);
+      top = Math.min(Math.max(5, top), maxTop);
+
+      el.style.left = left + "px";
+      el.style.top = top + "px";
+      el.style.right = "auto";
+      el.style.bottom = "auto";
+
+      try {
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({ left, top })
+        );
+      } catch (e) {}
+    }
+
+    el.style.cursor = "grab";
+    el.style.touchAction = "none";
+    el.style.userSelect = "none";
+
+    el.addEventListener("pointerdown", function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+
+      const rect = el.getBoundingClientRect();
+
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      dragging = true;
+      moved = false;
+
+      el.style.cursor = "grabbing";
+
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch (err) {}
+    });
+
+    el.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+        moved = true;
+      }
+
+      let left = startLeft + dx;
+      let top = startTop + dy;
+
+      const rect = el.getBoundingClientRect();
+
+      const maxLeft = Math.max(5, window.innerWidth - rect.width - 5);
+      const maxTop = Math.max(5, window.innerHeight - rect.height - 5);
+
+      left = Math.min(Math.max(5, left), maxLeft);
+      top = Math.min(Math.max(5, top), maxTop);
+
+      el.style.left = left + "px";
+      el.style.top = top + "px";
+      el.style.right = "auto";
+      el.style.bottom = "auto";
+    });
+
+    el.addEventListener("pointerup", function (e) {
+      if (!dragging) return;
+
+      dragging = false;
+      el.style.cursor = "grab";
+
+      const rect = el.getBoundingClientRect();
+
+      try {
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({
+            left: rect.left,
+            top: rect.top
+          })
+        );
+      } catch (err) {}
+
+      // Prevent click after dragging
+      if (moved) {
+        el.dataset.wasDragged = "1";
+
+        setTimeout(() => {
+          el.dataset.wasDragged = "0";
+        }, 100);
+      }
+
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    });
+
+    el.addEventListener("click", function (e) {
+      if (el.dataset.wasDragged === "1") {
+        e.preventDefault();
+        e.stopPropagation();
+        el.dataset.wasDragged = "0";
+      }
+    }, true);
+
+    window.addEventListener("resize", keepInsideViewport);
+  }
+
+  function activateDraggers() {
+    // 🛒 Floating cart
+    const cart = document.getElementById("floating-cart");
+
+    if (cart && !cart.dataset.dragReady) {
+      cart.dataset.dragReady = "1";
+
+      makeDraggable(
+        cart,
+        "awani_floating_cart_position"
+      );
+    }
+
+    // 🚴 Shipping mascot / game
+    const mascot =
+      document.getElementById("awani-shipping-game");
+
+    if (mascot && !mascot.dataset.dragReady) {
+      mascot.dataset.dragReady = "1";
+
+      makeDraggable(
+        mascot,
+        "awani_shipping_mascot_position"
+      );
+    }
+  }
+
+  // First attempt
+  activateDraggers();
+
+  // The shipping game can be created later by app.js,
+  // so check again shortly afterwards.
+  const observer = new MutationObserver(function () {
+    activateDraggers();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  // Extra checks for Firebase/render timing
+  setTimeout(activateDraggers, 500);
+  setTimeout(activateDraggers, 1200);
+  setTimeout(activateDraggers, 2500);
+
+})();  startShippingGame();
+    
 
   }
 
