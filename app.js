@@ -4464,3 +4464,479 @@ if (typeof auth !== "undefined") {
   }
 
 })();
+/* =========================================================
+   🤖 مساعد أواني الأخوين - مجاني
+   يقرأ المنتجات مباشرة من Firebase
+   ========================================================= */
+
+(function () {
+
+  // إنشاء واجهة المساعد
+  const box = document.createElement("div");
+
+  box.id = "awani-ai";
+
+  box.innerHTML = `
+    <button id="ai-toggle" style="
+      position:fixed;
+      bottom:85px;
+      right:15px;
+      z-index:9999;
+      width:58px;
+      height:58px;
+      border:none;
+      border-radius:50%;
+      background:#075985;
+      color:white;
+      font-size:27px;
+      box-shadow:0 4px 15px rgba(0,0,0,.25);
+      cursor:pointer;
+    ">🤖</button>
+
+    <div id="ai-chat" style="
+      display:none;
+      position:fixed;
+      bottom:150px;
+      right:12px;
+      width:calc(100vw - 24px);
+      max-width:380px;
+      height:470px;
+      background:white;
+      border-radius:18px;
+      box-shadow:0 8px 30px rgba(0,0,0,.25);
+      z-index:10000;
+      overflow:hidden;
+      direction:rtl;
+      font-family:Arial,sans-serif;
+    ">
+
+      <div style="
+        background:#075985;
+        color:white;
+        padding:14px;
+        font-weight:bold;
+        font-size:17px;
+        display:flex;
+        justify-content:space-between;
+      ">
+        <span>🤖 مساعد أواني الأخوين</span>
+        <button id="ai-close" style="
+          background:none;
+          border:none;
+          color:white;
+          font-size:20px;
+        ">×</button>
+      </div>
+
+      <div id="ai-messages" style="
+        height:350px;
+        overflow-y:auto;
+        padding:12px;
+        background:#f8fafc;
+      "></div>
+
+      <div style="
+        display:flex;
+        gap:6px;
+        padding:8px;
+        border-top:1px solid #ddd;
+      ">
+        <input id="ai-input"
+          placeholder="مثلاً: بغيت طقم أقل من 300 درهم"
+          style="
+            flex:1;
+            border:1px solid #ddd;
+            border-radius:12px;
+            padding:10px;
+            outline:none;
+          ">
+
+        <button id="ai-send" style="
+          border:none;
+          border-radius:12px;
+          background:#0f766e;
+          color:white;
+          padding:0 15px;
+          font-size:18px;
+        ">➤</button>
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(box);
+
+
+  const toggle = document.getElementById("ai-toggle");
+  const chat = document.getElementById("ai-chat");
+  const close = document.getElementById("ai-close");
+  const input = document.getElementById("ai-input");
+  const send = document.getElementById("ai-send");
+  const messages = document.getElementById("ai-messages");
+
+
+  toggle.onclick = () => {
+    chat.style.display = "block";
+    input.focus();
+
+    if (!messages.children.length) {
+      addAIMessage(
+        "🤖",
+        "السلام عليكم 👋 أنا المساعد ديال أواني الأخوين. قول ليا شنو كتقلب عليه، مثلاً: «بغيت شي طقم أقل من 300 درهم»."
+      );
+    }
+  };
+
+
+  close.onclick = () => {
+    chat.style.display = "none";
+  };
+
+
+  function addAIMessage(icon, text) {
+
+    const div = document.createElement("div");
+
+    div.style.cssText = `
+      background:white;
+      padding:10px;
+      margin-bottom:8px;
+      border-radius:12px;
+      box-shadow:0 1px 4px rgba(0,0,0,.08);
+      line-height:1.6;
+    `;
+
+    div.innerHTML = `<b>${icon}</b> ${text}`;
+
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+
+  function normalize(text) {
+
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي")
+      .replace(/[^\p{L}\p{N}\s]/gu, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  }
+
+
+  async function askAI(question) {
+
+    const q = normalize(question);
+
+    addAIMessage("👤", question);
+
+    addAIMessage("🤖", "كنقلب ليك فمنتجات المتجر... ⏳");
+
+    try {
+
+      // Firebase الحقيقي
+      const snapshot = await db.collection("products").get();
+
+      const firebaseProducts = [];
+
+      snapshot.forEach(doc => {
+
+        const p = doc.data();
+
+        firebaseProducts.push({
+          id: doc.id,
+          name: p.name || "منتج",
+          price: Number(p.price || 0),
+          oldPrice: Number(p.oldPrice || 0),
+          category: p.category || p.cat || "",
+          desc: p.desc || p.description || "",
+          image: p.image || "",
+          emoji: p.emoji || "🛍️"
+        });
+
+      });
+
+
+      if (!firebaseProducts.length) {
+
+        messages.lastElementChild.remove();
+
+        addAIMessage(
+          "🤖",
+          "حالياً ما لقيتش منتجات فـ Firebase."
+        );
+
+        return;
+      }
+
+
+      // البحث عن الميزانية
+      let maxPrice = null;
+
+      const priceMatch = q.match(
+        /(?:اقل من|اقل|تحت|باقل من|ميزانيه|budget)\s*(\d+)/
+      );
+
+      if (priceMatch) {
+        maxPrice = Number(priceMatch[1]);
+      }
+
+
+      // واش الزبون باغي عروض؟
+      const wantsOffer =
+        q.includes("عرض") ||
+        q.includes("تخفيض") ||
+        q.includes("مخفض") ||
+        q.includes("promo");
+
+
+      // الكلمات المهمة
+      const words = q
+        .split(" ")
+        .filter(w => w.length >= 2);
+
+
+      let results = firebaseProducts.map(p => {
+
+        const text = normalize(
+          `${p.name} ${p.category} ${p.desc}`
+        );
+
+        let score = 0;
+
+
+        words.forEach(word => {
+
+          if (text.includes(word)) {
+            score += 3;
+          }
+
+        });
+
+
+        if (maxPrice !== null) {
+
+          if (p.price <= maxPrice) {
+            score += 10;
+          } else {
+            score -= 10;
+          }
+
+        }
+
+
+        const offer =
+          p.oldPrice > p.price;
+
+
+        if (wantsOffer) {
+
+          if (offer) {
+            score += 10;
+          } else {
+            score -= 5;
+          }
+
+        }
+
+
+        return {
+          ...p,
+          score
+        };
+
+      });
+
+
+      results.sort((a, b) => b.score - a.score);
+
+
+      if (maxPrice !== null) {
+
+        results = results.filter(
+          p => p.price <= maxPrice
+        );
+
+      }
+
+
+      if (wantsOffer) {
+
+        results = results.filter(
+          p => p.oldPrice > p.price
+        );
+
+      }
+
+
+      results = results.slice(0, 5);
+
+
+      // حذف رسالة "كنقلب..."
+      messages.lastElementChild.remove();
+
+
+      if (!results.length) {
+
+        addAIMessage(
+          "🤖",
+          "سمح ليا، ما لقيتش منتج مطابق لطلبك حالياً. جرب ميزانية أو فئة أخرى."
+        );
+
+        return;
+      }
+
+
+      let answer = "✨ لقيت ليك هاد المنتجات:";
+
+      if (maxPrice !== null) {
+        answer =
+          `✨ هادو المنتجات اللي ثمنهم ${maxPrice} درهم أو أقل:`;
+      }
+
+      if (wantsOffer) {
+        answer = "🔥 هادو العروض المتوفرة حالياً:";
+      }
+
+
+      let html = `<div>${answer}</div><br>`;
+
+
+      results.forEach(p => {
+
+        const offer =
+          p.oldPrice > p.price;
+
+        html += `
+          <div style="
+            border:1px solid #e5e7eb;
+            border-radius:12px;
+            padding:9px;
+            margin-bottom:8px;
+            background:#fff;
+          ">
+
+            ${
+              p.image
+                ? `<img src="${p.image}"
+                    style="
+                      width:70px;
+                      height:70px;
+                      object-fit:cover;
+                      border-radius:9px;
+                      float:right;
+                      margin-left:8px;
+                    ">`
+                : `<div style="
+                    width:70px;
+                    height:70px;
+                    float:right;
+                    margin-left:8px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:35px;
+                    background:#f1f5f9;
+                    border-radius:9px;
+                  ">${p.emoji}</div>`
+            }
+
+            <b>${p.name}</b><br>
+
+            ${
+              offer
+                ? `<del style="color:#888">${p.oldPrice} dh</del>
+                   <strong style="color:#dc2626">
+                     ${p.price} dh
+                   </strong>`
+                : `<strong>${p.price} dh</strong>`
+            }
+
+            <br>
+
+            <button
+              onclick="openProduct('${p.id}')"
+              style="
+                margin-top:5px;
+                border:none;
+                border-radius:8px;
+                padding:6px 10px;
+                background:#075985;
+                color:white;
+              ">
+              شوف المنتج
+            </button>
+
+          </div>
+        `;
+
+      });
+
+
+      const div = document.createElement("div");
+
+      div.style.cssText = `
+        background:white;
+        padding:10px;
+        margin-bottom:8px;
+        border-radius:12px;
+        line-height:1.6;
+      `;
+
+      div.innerHTML = html;
+
+      messages.appendChild(div);
+
+      messages.scrollTop = messages.scrollHeight;
+
+
+    } catch (error) {
+
+      console.error("AI Assistant Error:", error);
+
+      if (messages.lastElementChild) {
+        messages.lastElementChild.remove();
+      }
+
+      addAIMessage(
+        "❌",
+        "وقع مشكل فالاتصال بالمنتجات. حاول مرة أخرى."
+      );
+
+    }
+
+  }
+
+
+  function sendQuestion() {
+
+    const question = input.value.trim();
+
+    if (!question) return;
+
+    input.value = "";
+
+    askAI(question);
+
+  }
+
+
+  send.onclick = sendQuestion;
+
+
+  input.addEventListener("keydown", function (e) {
+
+    if (e.key === "Enter") {
+      sendQuestion();
+    }
+
+  });
+
+
+})();
+
