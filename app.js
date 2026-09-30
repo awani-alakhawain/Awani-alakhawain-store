@@ -5350,3 +5350,205 @@ setInterval(() => {
   setInterval(updateGame, 800);
 
 })();
+/* =========================================================
+   🎁 AWANI FREE DELIVERY WIN
+   ========================================================= */
+
+(function () {
+
+  window.awaniFreeDeliveryShown = false;
+
+  function getCount() {
+    if (typeof cart === "undefined") return 0;
+
+    return Object.values(cart).reduce(
+      (sum, q) => sum + Number(q || 0),
+      0
+    );
+  }
+
+  function showFreeDelivery() {
+
+    if (window.awaniFreeDeliveryShown) return;
+
+    window.awaniFreeDeliveryShown = true;
+
+    const popup = document.createElement("div");
+
+    popup.id = "awani-free-delivery-popup";
+
+    popup.innerHTML = `
+      <div class="awani-confetti">🎉 ✨ 🎊 ✨ 🎉</div>
+
+      <div class="awani-gift">🎁</div>
+
+      <div class="awani-win-title">
+        مبرووووك! 🔥
+      </div>
+
+      <div class="awani-win-text">
+        وصلتي لـ 3 منتجات
+      </div>
+
+      <div class="awani-free">
+        🚚 التوصيل مجاني
+      </div>
+
+      <button id="awani-win-close">
+        🔥 واااااااااو!
+      </button>
+    `;
+
+    document.body.appendChild(popup);
+
+    document
+      .getElementById("awani-win-close")
+      .onclick = function () {
+        popup.remove();
+      };
+
+    setTimeout(() => {
+      if (popup.parentNode) {
+        popup.remove();
+      }
+    }, 7000);
+  }
+
+  function checkWin() {
+
+    const count = getCount();
+
+    if (count >= 3) {
+      showFreeDelivery();
+    }
+
+    if (count < 3) {
+      window.awaniFreeDeliveryShown = false;
+    }
+  }
+
+  const style = document.createElement("style");
+
+  style.textContent = `
+    #awani-free-delivery-popup {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      direction: rtl;
+      background: rgba(0,0,0,.78);
+      backdrop-filter: blur(5px);
+      animation: awaniWinBg .3s ease;
+      padding: 20px;
+    }
+
+    .awani-confetti {
+      font-size: 28px;
+      margin-bottom: 10px;
+      animation: awaniConfetti 1s infinite;
+    }
+
+    .awani-gift {
+      font-size: 95px;
+      animation: awaniGift 1s infinite alternate;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.35));
+    }
+
+    .awani-win-title {
+      color: #fbbf24;
+      font-size: 36px;
+      font-weight: 900;
+      margin-top: 8px;
+      text-shadow: 0 3px 15px rgba(251,191,36,.45);
+    }
+
+    .awani-win-text {
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .awani-free {
+      color: #22c55e;
+      background: white;
+      border-radius: 999px;
+      padding: 10px 20px;
+      margin-top: 15px;
+      font-size: 20px;
+      font-weight: 900;
+      box-shadow: 0 8px 25px rgba(0,0,0,.3);
+    }
+
+    #awani-win-close {
+      border: none;
+      margin-top: 22px;
+      padding: 13px 28px;
+      border-radius: 999px;
+      background: #fbbf24;
+      color: #111827;
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,.3);
+    }
+
+    @keyframes awaniGift {
+      from {
+        transform: scale(1) rotate(-5deg);
+      }
+
+      to {
+        transform: scale(1.15) rotate(5deg);
+      }
+    }
+
+    @keyframes awaniConfetti {
+      0%,100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes awaniWinBg {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 500px) {
+
+      .awani-gift {
+        font-size: 80px;
+      }
+
+      .awani-win-title {
+        font-size: 30px;
+      }
+
+      .awani-win-text {
+        font-size: 18px;
+      }
+
+      .awani-free {
+        font-size: 18px;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  setInterval(checkWin, 800);
+
+})();
