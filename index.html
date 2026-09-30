@@ -445,7 +445,66 @@
   <!-- Admin products -->
 
   <div id="adminList"></div>
+<!-- ================= ADS MANAGEMENT ================= -->
 
+<hr>
+
+<h3>
+  📢 إدارة الإعلانات
+</h3>
+
+<form id="adForm">
+
+  <input
+    type="hidden"
+    id="editAdId"
+  >
+
+  <input
+    id="adTitle"
+    required
+    placeholder="عنوان الإعلان"
+  >
+
+  <input
+    id="adText"
+    placeholder="نص الإعلان"
+  >
+
+  <input
+    id="adImage"
+    type="url"
+    placeholder="رابط صورة الإعلان"
+  >
+
+  <input
+    id="adPrice"
+    type="number"
+    placeholder="الثمن (اختياري)"
+  >
+
+  <label
+    style="display:flex;align-items:center;gap:8px;margin:10px 0;"
+  >
+
+    <input
+      id="adOpening"
+      type="checkbox"
+      style="width:auto;"
+      checked
+    >
+
+    📢 عرض عند دخول الزبون
+
+  </label>
+
+  <button type="submit">
+    💾 حفظ الإعلان
+  </button>
+
+</form>
+
+<div id="adminAdsList"></div>
   <hr>
 
   <!-- Categories management -->
