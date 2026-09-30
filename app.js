@@ -4480,8 +4480,8 @@ if (typeof auth !== "undefined") {
     </div>
 
     <div id="ai-mascot">
-      🛍️
-      <span>😎</span>
+      
+🕴      <span>👦</span>
     </div>
 
     <div id="ai-chat">
