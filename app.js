@@ -4468,106 +4468,175 @@ if (typeof auth !== "undefined") {
    🤖 مساعد أواني الأخوين - مجاني
    يقرأ المنتجات مباشرة من Firebase
    ========================================================= */
-
 (function () {
 
-  // إنشاء واجهة المساعد
   const box = document.createElement("div");
 
-  box.id = "awani-ai";
+  box.id = "awani-ai-mascot";
 
   box.innerHTML = `
-    <button id="ai-toggle" style="
-      position:fixed;
-      bottom:85px;
-      right:15px;
-      z-index:9999;
-      width:58px;
-      height:58px;
-      border:none;
-      border-radius:50%;
-      background:#075985;
-      color:white;
-      font-size:27px;
-      box-shadow:0 4px 15px rgba(0,0,0,.25);
-      cursor:pointer;
-    ">🤖</button>
+    <div id="ai-bubble">
+      آش كتقلب آ خويا؟ 😎🔥
+    </div>
 
-    <div id="ai-chat" style="
-      display:none;
-      position:fixed;
-      bottom:150px;
-      right:12px;
-      width:calc(100vw - 24px);
-      max-width:380px;
-      height:470px;
-      background:white;
-      border-radius:18px;
-      box-shadow:0 8px 30px rgba(0,0,0,.25);
-      z-index:10000;
-      overflow:hidden;
-      direction:rtl;
-      font-family:Arial,sans-serif;
-    ">
+    <div id="ai-mascot">
+      🛍️
+      <span>😎</span>
+    </div>
 
-      <div style="
-        background:#075985;
-        color:white;
-        padding:14px;
-        font-weight:bold;
-        font-size:17px;
-        display:flex;
-        justify-content:space-between;
-      ">
-        <span>🤖 مساعد أواني الأخوين</span>
-        <button id="ai-close" style="
-          background:none;
-          border:none;
-          color:white;
-          font-size:20px;
-        ">×</button>
+    <div id="ai-chat">
+      <div id="ai-head">
+        <b>🛍️ مساعد أواني الأخوين</b>
+        <button id="ai-close">×</button>
       </div>
 
-      <div id="ai-messages" style="
-        height:350px;
-        overflow-y:auto;
-        padding:12px;
-        background:#f8fafc;
-      "></div>
+      <div id="ai-messages"></div>
 
-      <div style="
-        display:flex;
-        gap:6px;
-        padding:8px;
-        border-top:1px solid #ddd;
-      ">
-        <input id="ai-input"
-          placeholder="مثلاً: بغيت طقم أقل من 300 درهم"
-          style="
-            flex:1;
-            border:1px solid #ddd;
-            border-radius:12px;
-            padding:10px;
-            outline:none;
-          ">
-
-        <button id="ai-send" style="
-          border:none;
-          border-radius:12px;
-          background:#0f766e;
-          color:white;
-          padding:0 15px;
-          font-size:18px;
-        ">➤</button>
+      <div id="ai-input-box">
+        <input
+          id="ai-input"
+          placeholder="قول ليا شنو كتقلب عليه 😎"
+        >
+        <button id="ai-send">➤</button>
       </div>
-
     </div>
   `;
 
   document.body.appendChild(box);
 
 
-  const toggle = document.getElementById("ai-toggle");
+  const style = document.createElement("style");
+
+  style.textContent = `
+
+    #awani-ai-mascot {
+      position:fixed;
+      right:14px;
+      bottom:90px;
+      z-index:99999;
+      direction:rtl;
+      font-family:Arial,sans-serif;
+      user-select:none;
+    }
+
+    #ai-mascot {
+      width:64px;
+      height:64px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#075985,#0f766e);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:34px;
+      box-shadow:0 6px 20px rgba(0,0,0,.3);
+      cursor:grab;
+      position:relative;
+      animation:ai-bounce 2s infinite;
+      border:3px solid white;
+    }
+
+    #ai-mascot span {
+      position:absolute;
+      right:-3px;
+      top:-12px;
+      font-size:21px;
+    }
+
+    #ai-bubble {
+      position:absolute;
+      right:0;
+      bottom:72px;
+      background:white;
+      padding:8px 12px;
+      border-radius:15px 15px 3px 15px;
+      box-shadow:0 3px 15px rgba(0,0,0,.2);
+      font-size:13px;
+      font-weight:bold;
+      white-space:nowrap;
+      animation:ai-bubble 3s infinite;
+    }
+
+    #ai-chat {
+      display:none;
+      position:fixed;
+      right:12px;
+      bottom:160px;
+      width:calc(100vw - 24px);
+      max-width:380px;
+      height:470px;
+      background:#fff;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 10px 40px rgba(0,0,0,.3);
+    }
+
+    #ai-head {
+      background:linear-gradient(135deg,#075985,#0f766e);
+      color:white;
+      padding:15px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    #ai-close {
+      border:0;
+      background:transparent;
+      color:white;
+      font-size:25px;
+      cursor:pointer;
+    }
+
+    #ai-messages {
+      height:350px;
+      overflow-y:auto;
+      padding:12px;
+      background:#f8fafc;
+    }
+
+    #ai-input-box {
+      display:flex;
+      gap:6px;
+      padding:8px;
+      border-top:1px solid #ddd;
+    }
+
+    #ai-input {
+      flex:1;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:10px;
+      outline:none;
+      direction:rtl;
+    }
+
+    #ai-send {
+      border:0;
+      border-radius:12px;
+      background:#0f766e;
+      color:white;
+      padding:0 16px;
+      font-size:20px;
+      cursor:pointer;
+    }
+
+    @keyframes ai-bounce {
+      0%,100% { transform:translateY(0) rotate(0deg); }
+      50% { transform:translateY(-8px) rotate(-4deg); }
+    }
+
+    @keyframes ai-bubble {
+      0%,100% { transform:scale(1); }
+      50% { transform:scale(1.05); }
+    }
+
+  `;
+
+  document.head.appendChild(style);
+
+
+  const mascot = document.getElementById("ai-mascot");
+  const bubble = document.getElementById("ai-bubble");
   const chat = document.getElementById("ai-chat");
   const close = document.getElementById("ai-close");
   const input = document.getElementById("ai-input");
@@ -4575,16 +4644,73 @@ if (typeof auth !== "undefined") {
   const messages = document.getElementById("ai-messages");
 
 
-  toggle.onclick = () => {
+  /* ===============================
+     🖱️ تحريك الشخصية
+     =============================== */
+
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  mascot.addEventListener("pointerdown", e => {
+
+    dragging = true;
+
+    const rect = mascot.getBoundingClientRect();
+
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    mascot.setPointerCapture(e.pointerId);
+
+  });
+
+
+  mascot.addEventListener("pointermove", e => {
+
+    if (!dragging) return;
+
+    let x = e.clientX - offsetX;
+    let y = e.clientY - offsetY;
+
+    x = Math.max(5, Math.min(window.innerWidth - 70, x));
+    y = Math.max(5, Math.min(window.innerHeight - 70, y));
+
+    box.style.left = x + "px";
+    box.style.top = y + "px";
+    box.style.right = "auto";
+    box.style.bottom = "auto";
+
+  });
+
+
+  mascot.addEventListener("pointerup", () => {
+    dragging = false;
+  });
+
+
+  /* ===============================
+     💬 فتح المساعد
+     =============================== */
+
+  mascot.onclick = () => {
+
+    if (dragging) return;
+
     chat.style.display = "block";
-    input.focus();
+    bubble.style.display = "none";
 
     if (!messages.children.length) {
-      addAIMessage(
-        "🤖",
-        "السلام عليكم 👋 أنا المساعد ديال أواني الأخوين. قول ليا شنو كتقلب عليه، مثلاً: «بغيت شي طقم أقل من 300 درهم»."
+
+      addMessage(
+        "🛍️",
+        "آش كتقلب آ خويا؟ 😎🔥 قول ليا مثلاً: «بغيت طقم أواني أقل من 300 درهم»"
       );
+
     }
+
+    input.focus();
+
   };
 
 
@@ -4593,7 +4719,7 @@ if (typeof auth !== "undefined") {
   };
 
 
-  function addAIMessage(icon, text) {
+  function addMessage(icon, text) {
 
     const div = document.createElement("div");
 
@@ -4601,15 +4727,17 @@ if (typeof auth !== "undefined") {
       background:white;
       padding:10px;
       margin-bottom:8px;
-      border-radius:12px;
-      box-shadow:0 1px 4px rgba(0,0,0,.08);
+      border-radius:13px;
+      box-shadow:0 2px 6px rgba(0,0,0,.08);
       line-height:1.6;
     `;
 
     div.innerHTML = `<b>${icon}</b> ${text}`;
 
     messages.appendChild(div);
+
     messages.scrollTop = messages.scrollHeight;
+
   }
 
 
@@ -4618,68 +4746,69 @@ if (typeof auth !== "undefined") {
     return String(text || "")
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[أإآ]/g, "ا")
-      .replace(/ة/g, "ه")
-      .replace(/ى/g, "ي")
-      .replace(/[^\p{L}\p{N}\s]/gu, " ")
-      .replace(/\s+/g, " ")
+      .replace(/[\u0300-\u036f]/g,"")
+      .replace(/[أإآ]/g,"ا")
+      .replace(/ة/g,"ه")
+      .replace(/ى/g,"ي")
+      .replace(/[^\p{L}\p{N}\s]/gu," ")
+      .replace(/\s+/g," ")
       .trim();
 
   }
 
 
-  async function askAI(question) {
+  async function ask(question) {
 
-    const q = normalize(question);
+    addMessage("👤", question);
 
-    addAIMessage("👤", question);
-
-    addAIMessage("🤖", "كنقلب ليك فمنتجات المتجر... ⏳");
+    addMessage("🛍️","ثواني آ خويا... كنقلب فالمتجر 🔎🔥");
 
     try {
 
-      // Firebase الحقيقي
-      const snapshot = await db.collection("products").get();
+      const snapshot = await db
+        .collection("products")
+        .get();
 
-      const firebaseProducts = [];
+      const list = [];
 
       snapshot.forEach(doc => {
 
         const p = doc.data();
 
-        firebaseProducts.push({
-          id: doc.id,
-          name: p.name || "منتج",
-          price: Number(p.price || 0),
-          oldPrice: Number(p.oldPrice || 0),
-          category: p.category || p.cat || "",
-          desc: p.desc || p.description || "",
-          image: p.image || "",
-          emoji: p.emoji || "🛍️"
+        list.push({
+          id:doc.id,
+          name:p.name || "منتج",
+          price:Number(p.price || 0),
+          oldPrice:Number(p.oldPrice || 0),
+          category:p.category || p.cat || "",
+          desc:p.desc || p.description || "",
+          image:p.image || "",
+          emoji:p.emoji || "🛍️"
         });
 
       });
 
 
-      if (!firebaseProducts.length) {
+      messages.lastElementChild.remove();
 
-        messages.lastElementChild.remove();
 
-        addAIMessage(
-          "🤖",
-          "حالياً ما لقيتش منتجات فـ Firebase."
+      if (!list.length) {
+
+        addMessage(
+          "😅",
+          "واخا قلبت مزيان، ما لقيتش المنتجات دابا."
         );
 
         return;
       }
 
 
-      // البحث عن الميزانية
+      const q = normalize(question);
+
       let maxPrice = null;
 
       const priceMatch = q.match(
-        /(?:اقل من|اقل|تحت|باقل من|ميزانيه|budget)\s*(\d+)/
+        /(?:اقل من|اقل|تحت|باقل من|ميزانيه)\s*(\d+)/
       );
 
       if (priceMatch) {
@@ -4687,7 +4816,6 @@ if (typeof auth !== "undefined") {
       }
 
 
-      // واش الزبون باغي عروض؟
       const wantsOffer =
         q.includes("عرض") ||
         q.includes("تخفيض") ||
@@ -4695,20 +4823,18 @@ if (typeof auth !== "undefined") {
         q.includes("promo");
 
 
-      // الكلمات المهمة
       const words = q
         .split(" ")
         .filter(w => w.length >= 2);
 
 
-      let results = firebaseProducts.map(p => {
+      let results = list.map(p => {
 
         const text = normalize(
           `${p.name} ${p.category} ${p.desc}`
         );
 
         let score = 0;
-
 
         words.forEach(word => {
 
@@ -4721,26 +4847,16 @@ if (typeof auth !== "undefined") {
 
         if (maxPrice !== null) {
 
-          if (p.price <= maxPrice) {
-            score += 10;
-          } else {
-            score -= 10;
-          }
+          score +=
+            p.price <= maxPrice ? 10 : -10;
 
         }
 
 
-        const offer =
-          p.oldPrice > p.price;
-
-
         if (wantsOffer) {
 
-          if (offer) {
-            score += 10;
-          } else {
-            score -= 5;
-          }
+          score +=
+            p.oldPrice > p.price ? 10 : -5;
 
         }
 
@@ -4751,9 +4867,6 @@ if (typeof auth !== "undefined") {
         };
 
       });
-
-
-      results.sort((a, b) => b.score - a.score);
 
 
       if (maxPrice !== null) {
@@ -4774,37 +4887,45 @@ if (typeof auth !== "undefined") {
       }
 
 
-      results = results.slice(0, 5);
+      results.sort(
+        (a,b) => b.score - a.score
+      );
 
 
-      // حذف رسالة "كنقلب..."
-      messages.lastElementChild.remove();
+      results = results.slice(0,5);
 
 
       if (!results.length) {
 
-        addAIMessage(
-          "🤖",
-          "سمح ليا، ما لقيتش منتج مطابق لطلبك حالياً. جرب ميزانية أو فئة أخرى."
+        addMessage(
+          "😂",
+          "قلبناها من الفوق للتحت وما لقيتش شي حاجة مناسبة لهاد الطلب. جرب ميزانية أخرى."
         );
 
         return;
       }
 
 
-      let answer = "✨ لقيت ليك هاد المنتجات:";
+      let text =
+        "🔥 ها شنو لقيت ليك:";
 
       if (maxPrice !== null) {
-        answer =
-          `✨ هادو المنتجات اللي ثمنهم ${maxPrice} درهم أو أقل:`;
+
+        text =
+          `😎 لقيت ليك هادو بـ ${maxPrice} درهم أو أقل:`;
+
       }
 
       if (wantsOffer) {
-        answer = "🔥 هادو العروض المتوفرة حالياً:";
+
+        text =
+          "🔥 شوف العروض اللي لقيت ليك:";
+
       }
 
 
-      let html = `<div>${answer}</div><br>`;
+      let html =
+        `<div>${text}</div><br>`;
 
 
       results.forEach(p => {
@@ -4812,49 +4933,56 @@ if (typeof auth !== "undefined") {
         const offer =
           p.oldPrice > p.price;
 
+
         html += `
           <div style="
             border:1px solid #e5e7eb;
             border-radius:12px;
             padding:9px;
             margin-bottom:8px;
-            background:#fff;
+            min-height:75px;
           ">
 
             ${
               p.image
-                ? `<img src="${p.image}"
-                    style="
-                      width:70px;
-                      height:70px;
-                      object-fit:cover;
-                      border-radius:9px;
-                      float:right;
-                      margin-left:8px;
-                    ">`
-                : `<div style="
-                    width:70px;
-                    height:70px;
-                    float:right;
-                    margin-left:8px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    font-size:35px;
-                    background:#f1f5f9;
-                    border-radius:9px;
-                  ">${p.emoji}</div>`
+              ?
+              `<img src="${p.image}"
+                style="
+                  width:65px;
+                  height:65px;
+                  object-fit:cover;
+                  border-radius:9px;
+                  float:right;
+                  margin-left:8px;
+                ">`
+              :
+              `<div style="
+                width:65px;
+                height:65px;
+                float:right;
+                margin-left:8px;
+                background:#f1f5f9;
+                border-radius:9px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:30px;
+              ">
+                ${p.emoji}
+              </div>`
             }
 
             <b>${p.name}</b><br>
 
             ${
               offer
-                ? `<del style="color:#888">${p.oldPrice} dh</del>
-                   <strong style="color:#dc2626">
-                     ${p.price} dh
-                   </strong>`
-                : `<strong>${p.price} dh</strong>`
+              ?
+              `<del>${p.oldPrice} dh</del>
+               <strong style="color:#dc2626">
+                 ${p.price} dh
+               </strong>`
+              :
+              `<strong>${p.price} dh</strong>`
             }
 
             <br>
@@ -4862,14 +4990,14 @@ if (typeof auth !== "undefined") {
             <button
               onclick="openProduct('${p.id}')"
               style="
-                margin-top:5px;
-                border:none;
+                border:0;
                 border-radius:8px;
-                padding:6px 10px;
+                padding:5px 9px;
                 background:#075985;
                 color:white;
+                margin-top:4px;
               ">
-              شوف المنتج
+              شوف المنتج 👀
             </button>
 
           </div>
@@ -4878,13 +5006,14 @@ if (typeof auth !== "undefined") {
       });
 
 
-      const div = document.createElement("div");
+      const div =
+        document.createElement("div");
 
       div.style.cssText = `
         background:white;
         padding:10px;
         margin-bottom:8px;
-        border-radius:12px;
+        border-radius:13px;
         line-height:1.6;
       `;
 
@@ -4892,20 +5021,21 @@ if (typeof auth !== "undefined") {
 
       messages.appendChild(div);
 
-      messages.scrollTop = messages.scrollHeight;
+      messages.scrollTop =
+        messages.scrollHeight;
 
 
     } catch (error) {
 
-      console.error("AI Assistant Error:", error);
+      console.error(error);
 
       if (messages.lastElementChild) {
         messages.lastElementChild.remove();
       }
 
-      addAIMessage(
-        "❌",
-        "وقع مشكل فالاتصال بالمنتجات. حاول مرة أخرى."
+      addMessage(
+        "😅",
+        "أووووبس! وقع ليا مشكل صغير 😂 جرب مرة أخرى."
       );
 
     }
@@ -4913,30 +5043,31 @@ if (typeof auth !== "undefined") {
   }
 
 
-  function sendQuestion() {
+  send.onclick = () => {
 
-    const question = input.value.trim();
+    const q = input.value.trim();
 
-    if (!question) return;
+    if (!q) return;
 
     input.value = "";
 
-    askAI(question);
+    ask(q);
 
-  }
-
-
-  send.onclick = sendQuestion;
+  };
 
 
-  input.addEventListener("keydown", function (e) {
+  input.addEventListener(
+    "keydown",
+    e => {
 
-    if (e.key === "Enter") {
-      sendQuestion();
+      if (e.key === "Enter") {
+        send.click();
+      }
+
     }
-
-  });
+  );
 
 
 })();
+
 
