@@ -5070,4 +5070,71 @@ if (typeof auth !== "undefined") {
 
 })();
 
+/* =========================================================
+   🛒 تفاعل المساعد مع السلة
+   ========================================================= */
+
+(function () {
+
+  let lastCount = 0;
+
+  window.awaniMascotCartMessage = function () {
+
+    const mascot = document.getElementById("ai-mascot");
+
+    const bubble = document.getElementById("ai-bubble");
+
+    if (!mascot || !bubble) return;
+
+    let count = 0;
+
+    Object.keys(cart || {}).forEach(id => {
+      count += Number(cart[id] || 0);
+    });
+
+    if (count <= 0) return;
+
+    let message = "";
+
+    if (count === 1) {
+
+      message =
+        "🔥 ها هي البداية! زيد واحد آخر ونقصو ليك التوصيل 😎";
+
+    } else if (count === 2) {
+
+      message =
+        "😂 وااا قربنا! زيد واحد آخر والتوصيل يولي مجاني 🎁";
+
+    } else {
+
+      message =
+        "🎉🎉 مبرووووك! وصلتي لـ3 منتجات، التوصيل مجاااني 🔥";
+
+    }
+
+    bubble.textContent = message;
+
+    bubble.style.display = "block";
+
+    mascot.style.animation = "none";
+
+    setTimeout(() => {
+      mascot.style.animation = "ai-bounce 2s infinite";
+    }, 50);
+
+    clearTimeout(window.awaniBubbleTimer);
+
+    window.awaniBubbleTimer = setTimeout(() => {
+
+      bubble.style.display = "none";
+
+    }, 5000);
+
+    lastCount = count;
+
+  };
+
+})();
+
 
