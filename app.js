@@ -5552,3 +5552,272 @@ setInterval(() => {
   setInterval(checkWin, 800);
 
 })();
+/* =========================================================
+   📢 AWANI OPENING ADS
+   الإعلانات تظهر واحداً وراء الآخر عند دخول الزبون
+   ========================================================= */
+
+(function () {
+
+  let ads = [];
+  let currentAd = 0;
+  let popup = null;
+
+  function prepareAds() {
+
+    ads = Array.from(
+      document.querySelectorAll(".opening-ad")
+    );
+
+    if (!ads.length) return;
+
+    ads.forEach(ad => {
+      ad.dataset.originalDisplay =
+        ad.style.display || "";
+
+      ad.dataset.originalVisibility =
+        ad.style.visibility || "";
+
+      ad.style.visibility = "hidden";
+    });
+
+    showNextAd();
+  }
+
+  function showNextAd() {
+
+    if (currentAd >= ads.length) {
+      finishAds();
+      return;
+    }
+
+    const original = ads[currentAd];
+
+    if (!original) {
+      currentAd++;
+      showNextAd();
+      return;
+    }
+
+    popup = document.createElement("div");
+
+    popup.id = "awani-opening-ad";
+
+    popup.innerHTML = `
+      <div class="awani-opening-bg">
+
+        <div class="awani-opening-card">
+
+          <button
+            type="button"
+            class="awani-opening-close"
+            aria-label="إغلاق الإعلان"
+          >
+            ×
+          </button>
+
+          <div class="awani-opening-content"></div>
+
+          <div class="awani-opening-counter">
+            إعلان ${currentAd + 1} من ${ads.length}
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    const content =
+      popup.querySelector(".awani-opening-content");
+
+    /*
+      نسخ محتوى الإعلان فقط،
+      بدون نقل العنصر الأصلي.
+    */
+    content.innerHTML = original.innerHTML;
+
+    popup
+      .querySelector(".awani-opening-close")
+      .addEventListener("click", function () {
+
+        popup.remove();
+        popup = null;
+
+        currentAd++;
+
+        setTimeout(showNextAd, 120);
+
+      });
+  }
+
+  function finishAds() {
+
+    ads.forEach(ad => {
+
+      ad.style.visibility =
+        ad.dataset.originalVisibility || "";
+
+      ad.style.display =
+        ad.dataset.originalDisplay || "";
+
+    });
+
+    const oldPopup =
+      document.getElementById("awani-opening-ad");
+
+    if (oldPopup) oldPopup.remove();
+
+  }
+
+  const style = document.createElement("style");
+
+  style.textContent = `
+    #awani-opening-ad {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      direction: rtl;
+    }
+
+    .awani-opening-bg {
+      position: absolute;
+      inset: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 16px;
+
+      background: rgba(0,0,0,.78);
+
+      backdrop-filter: blur(6px);
+
+      animation: awaniAdBg .25s ease;
+    }
+
+    .awani-opening-card {
+      position: relative;
+
+      width: min(94vw, 520px);
+      max-height: 90vh;
+
+      overflow: auto;
+
+      background: white;
+
+      border-radius: 22px;
+
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.45);
+
+      animation: awaniAdCard .3s ease;
+    }
+
+    .awani-opening-content {
+      width: 100%;
+    }
+
+    .awani-opening-content img {
+      display: block;
+
+      width: 100%;
+      max-height: 72vh;
+
+      object-fit: contain;
+
+      border-radius: 22px;
+    }
+
+    .awani-opening-close {
+      position: absolute;
+
+      top: 8px;
+      left: 8px;
+
+      z-index: 10;
+
+      width: 38px;
+      height: 38px;
+
+      border: none;
+      border-radius: 50%;
+
+      background: rgba(0,0,0,.75);
+      color: white;
+
+      font-size: 28px;
+      line-height: 1;
+
+      cursor: pointer;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .awani-opening-counter {
+      text-align: center;
+
+      padding: 9px;
+
+      font-size: 12px;
+
+      color: #666;
+
+      background: #fff;
+    }
+
+    @keyframes awaniAdBg {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes awaniAdCard {
+      from {
+        opacity: 0;
+        transform: scale(.88);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      .awani-opening-bg {
+        padding: 10px;
+      }
+
+      .awani-opening-card {
+        width: 96vw;
+        max-height: 88vh;
+        border-radius: 18px;
+      }
+
+      .awani-opening-close {
+        width: 36px;
+        height: 36px;
+        font-size: 26px;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  /*
+    نعطيو شوية وقت للصفحة باش تحمل الإعلانات
+    ومن بعد نبدأو العرض.
+  */
+  setTimeout(prepareAds, 1000);
+
+})();
