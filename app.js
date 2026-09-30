@@ -5136,5 +5136,31 @@ if (typeof auth !== "undefined") {
   };
 
 })();
+setInterval(() => {
 
+  if (typeof cart === "undefined") return;
+
+  let count = 0;
+
+  Object.keys(cart).forEach(id => {
+    count += Number(cart[id] || 0);
+  });
+
+  if (
+    typeof lastAwaniCartCount === "undefined" ||
+    count !== lastAwaniCartCount
+  ) {
+
+    window.lastAwaniCartCount = count;
+
+    if (
+      count > 0 &&
+      typeof awaniMascotCartMessage === "function"
+    ) {
+      awaniMascotCartMessage();
+    }
+
+  }
+
+}, 800);
 
