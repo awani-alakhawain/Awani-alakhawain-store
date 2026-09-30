@@ -5164,3 +5164,189 @@ setInterval(() => {
 
 }, 800);
 
+/* =========================================================
+   🚴‍♂️ AWANI DELIVERY GAME
+   ========================================================= */
+
+(function () {
+
+  function getCartCount() {
+    if (typeof cart === "undefined") return 0;
+
+    return Object.values(cart).reduce(
+      (sum, q) => sum + Number(q || 0),
+      0
+    );
+  }
+
+  function createGame() {
+
+    if (document.getElementById("awani-delivery-game")) return;
+
+    const game = document.createElement("div");
+
+    game.id = "awani-delivery-game";
+
+    game.innerHTML = `
+      <div class="delivery-road">
+        <div class="delivery-stage stage1">
+          <div class="delivery-bike">🚴‍♂️</div>
+          <div class="delivery-text">
+            <strong>🚀 البداية!</strong>
+            <span>التوصيل بـ 30 درهم</span>
+          </div>
+        </div>
+
+        <div class="delivery-stage stage2">
+          <div class="delivery-bike">🚴‍♂️</div>
+          <div class="delivery-text">
+            <strong>🔥 قربنا!</strong>
+            <span>زيد منتوج آخر والتوصيل بـ 15 درهم فقط</span>
+          </div>
+        </div>
+
+        <div class="delivery-stage stage3">
+          <div class="delivery-bike">🚴‍♂️</div>
+          <div class="delivery-text">
+            <strong>🎁 مبروك!</strong>
+            <span>التوصيل مجاني</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const products = document.getElementById("products");
+
+    if (products) {
+      products.parentNode.insertBefore(game, products);
+    }
+
+    updateGame();
+  }
+
+  function updateGame() {
+
+    const game = document.getElementById("awani-delivery-game");
+
+    if (!game) return;
+
+    const count = getCartCount();
+
+    const stages = game.querySelectorAll(".delivery-stage");
+
+    stages.forEach(stage => {
+      stage.classList.remove("active");
+    });
+
+    if (count === 0) {
+      game.style.display = "none";
+      return;
+    }
+
+    game.style.display = "block";
+
+    if (count === 1) {
+      game.querySelector(".stage1").classList.add("active");
+    }
+
+    if (count === 2) {
+      game.querySelector(".stage2").classList.add("active");
+    }
+
+    if (count >= 3) {
+      game.querySelector(".stage3").classList.add("active");
+    }
+  }
+
+  const style = document.createElement("style");
+
+  style.textContent = `
+    #awani-delivery-game {
+      width: calc(100% - 20px);
+      margin: 12px auto;
+      display: none;
+      direction: rtl;
+    }
+
+    .delivery-road {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      background: linear-gradient(
+        135deg,
+        #111827,
+        #1f2937
+      );
+      padding: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,.18);
+    }
+
+    .delivery-stage {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      min-height: 65px;
+      color: white;
+      animation: deliveryAppear .35s ease;
+    }
+
+    .delivery-stage.active {
+      display: flex;
+    }
+
+    .delivery-bike {
+      font-size: 42px;
+      animation: bikeMove 1.2s infinite alternate ease-in-out;
+    }
+
+    .delivery-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .delivery-text strong {
+      font-size: 18px;
+    }
+
+    .delivery-text span {
+      font-size: 13px;
+      opacity: .9;
+    }
+
+    @keyframes bikeMove {
+      from {
+        transform: translateX(0) rotate(-2deg);
+      }
+
+      to {
+        transform: translateX(-12px) rotate(2deg);
+      }
+    }
+
+    @keyframes deliveryAppear {
+      from {
+        opacity: 0;
+        transform: translateY(-10px) scale(.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @media (min-width: 700px) {
+      #awani-delivery-game {
+        max-width: 700px;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  createGame();
+
+  setInterval(updateGame, 800);
+
+})();
