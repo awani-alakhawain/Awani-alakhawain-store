@@ -2297,17 +2297,4 @@ header {
     font-size: 14px;
   }
 }
-/* 🖤 Header أسود */
-header {
-  background: #000 !important;
-  color: #fff !important;
-}
 
-.header-content {
-  background: #000 !important;
-}
-
-header * {
-  color: #fff;
-}  
-  
