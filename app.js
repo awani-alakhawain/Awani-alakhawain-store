@@ -5554,126 +5554,43 @@ setInterval(() => {
 })();
 /* =========================================================
    📢 AWANI OPENING ADS
+   🔥 يعتمد مباشرة على منتجات Firebase التي عليها "عرض محدود"
    الإعلانات تظهر واحداً وراء الآخر عند دخول الزبون
    ========================================================= */
 
 (function () {
 
+  if (window.__awaniOpeningAdsLoaded) return;
+  window.__awaniOpeningAdsLoaded = true;
+
   let ads = [];
   let currentAd = 0;
   let popup = null;
+  let started = false;
 
-  function prepareAds() {
+  /* =====================================================
+     حماية النصوص من HTML
+     ===================================================== */
 
-    ads = Array.from(
-      document.querySelectorAll(".opening-ad")
-    );
+  function escapeHtml(value) {
 
-    if (!ads.length) return;
-
-    ads.forEach(ad => {
-      ad.dataset.originalDisplay =
-        ad.style.display || "";
-
-      ad.dataset.originalVisibility =
-        ad.style.visibility || "";
-
-      ad.style.visibility = "hidden";
-    });
-
-    showNextAd();
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
-  function showNextAd() {
 
-    if (currentAd >= ads.length) {
-      finishAds();
-      return;
-    }
-
-    const original = ads[currentAd];
-
-    if (!original) {
-      currentAd++;
-      showNextAd();
-      return;
-    }
-
-    popup = document.createElement("div");
-
-    popup.id = "awani-opening-ad";
-
-    popup.innerHTML = `
-      <div class="awani-opening-bg">
-
-        <div class="awani-opening-card">
-
-          <button
-            type="button"
-            class="awani-opening-close"
-            aria-label="إغلاق الإعلان"
-          >
-            ×
-          </button>
-
-          <div class="awani-opening-content"></div>
-
-          <div class="awani-opening-counter">
-            إعلان ${currentAd + 1} من ${ads.length}
-          </div>
-
-        </div>
-
-      </div>
-    `;
-
-    document.body.appendChild(popup);
-
-    const content =
-      popup.querySelector(".awani-opening-content");
-
-    /*
-      نسخ محتوى الإعلان فقط،
-      بدون نقل العنصر الأصلي.
-    */
-    content.innerHTML = original.innerHTML;
-
-    popup
-      .querySelector(".awani-opening-close")
-      .addEventListener("click", function () {
-
-        popup.remove();
-        popup = null;
-
-        currentAd++;
-
-        setTimeout(showNextAd, 120);
-
-      });
-  }
-
-  function finishAds() {
-
-    ads.forEach(ad => {
-
-      ad.style.visibility =
-        ad.dataset.originalVisibility || "";
-
-      ad.style.display =
-        ad.dataset.originalDisplay || "";
-
-    });
-
-    const oldPopup =
-      document.getElementById("awani-opening-ad");
-
-    if (oldPopup) oldPopup.remove();
-
-  }
+  /* =====================================================
+     CSS
+     ===================================================== */
 
   const style = document.createElement("style");
 
   style.textContent = `
+
     #awani-opening-ad {
       position: fixed;
       inset: 0;
@@ -5689,11 +5606,11 @@ setInterval(() => {
       align-items: center;
       justify-content: center;
 
-      padding: 16px;
+      padding: 10px;
 
-      background: rgba(0,0,0,.78);
+      background: rgba(0,0,0,.80);
 
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(7px);
 
       animation: awaniAdBg .25s ease;
     }
@@ -5701,7 +5618,7 @@ setInterval(() => {
     .awani-opening-card {
       position: relative;
 
-      width: min(94vw, 520px);
+      width: min(94vw, 500px);
       max-height: 90vh;
 
       overflow: auto;
@@ -5711,66 +5628,197 @@ setInterval(() => {
       border-radius: 22px;
 
       box-shadow:
-        0 20px 60px rgba(0,0,0,.45);
+        0 20px 70px rgba(0,0,0,.5);
 
-      animation: awaniAdCard .3s ease;
+      animation: awaniAdCard .35s ease;
+
+      text-align: center;
     }
 
-    .awani-opening-content {
+    .awani-opening-image-box {
       width: 100%;
+
+      background: #f8fafc;
+
+      overflow: hidden;
+
+      border-radius: 22px 22px 0 0;
     }
 
-    .awani-opening-content img {
+    .awani-opening-image {
       display: block;
 
       width: 100%;
-      max-height: 72vh;
+
+      max-height: 58vh;
 
       object-fit: contain;
 
-      border-radius: 22px;
+      margin: auto;
+    }
+
+    .awani-opening-emoji {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      width: 100%;
+
+      min-height: 220px;
+
+      font-size: 100px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #f8fafc,
+          #fff7ed
+        );
+    }
+
+    .awani-opening-info {
+      padding: 16px 15px 18px;
+    }
+
+    .awani-opening-badge {
+      display: inline-block;
+
+      background: #dc2626;
+
+      color: white;
+
+      padding: 6px 13px;
+
+      border-radius: 999px;
+
+      font-size: 14px;
+
+      font-weight: 900;
+
+      margin-bottom: 8px;
+
+      animation: awaniOfferPulse .8s infinite alternate;
+    }
+
+    .awani-opening-name {
+      font-size: 22px;
+
+      font-weight: 900;
+
+      color: #111827;
+
+      margin: 4px 0 8px;
+
+      line-height: 1.4;
+    }
+
+    .awani-opening-prices {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      gap: 10px;
+
+      flex-wrap: wrap;
+
+      margin-bottom: 12px;
+    }
+
+    .awani-opening-old {
+      color: #777;
+
+      font-size: 16px;
+
+      text-decoration: line-through;
+    }
+
+    .awani-opening-new {
+      color: #dc2626;
+
+      font-size: 25px;
+
+      font-weight: 1000;
+    }
+
+    .awani-opening-desc {
+      color: #555;
+
+      font-size: 14px;
+
+      line-height: 1.6;
+
+      margin-bottom: 12px;
+    }
+
+    .awani-opening-product-btn {
+      width: calc(100% - 20px);
+
+      margin: 0 10px 10px;
+
+      padding: 12px 15px;
+
+      border: 0;
+
+      border-radius: 13px;
+
+      background: #075985;
+
+      color: white;
+
+      font-size: 16px;
+
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    .awani-opening-product-btn:active {
+      transform: scale(.98);
     }
 
     .awani-opening-close {
       position: absolute;
 
-      top: 8px;
-      left: 8px;
+      top: 9px;
+      left: 9px;
 
-      z-index: 10;
+      z-index: 20;
 
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
 
       border: none;
+
       border-radius: 50%;
 
-      background: rgba(0,0,0,.75);
+      background: rgba(0,0,0,.78);
+
       color: white;
 
       font-size: 28px;
+
       line-height: 1;
 
       cursor: pointer;
 
       display: flex;
+
       align-items: center;
       justify-content: center;
     }
 
     .awani-opening-counter {
-      text-align: center;
-
-      padding: 9px;
-
-      font-size: 12px;
+      padding: 8px 10px 12px;
 
       color: #666;
 
-      background: #fff;
+      font-size: 12px;
     }
 
     @keyframes awaniAdBg {
+
       from {
         opacity: 0;
       }
@@ -5778,46 +5826,591 @@ setInterval(() => {
       to {
         opacity: 1;
       }
+
     }
 
     @keyframes awaniAdCard {
+
       from {
         opacity: 0;
-        transform: scale(.88);
+
+        transform:
+          scale(.86)
+          translateY(25px);
       }
 
       to {
         opacity: 1;
-        transform: scale(1);
+
+        transform:
+          scale(1)
+          translateY(0);
       }
+
     }
 
-    @media (max-width: 600px) {
+    @keyframes awaniOfferPulse {
+
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.05);
+      }
+
+    }
+
+    @media (max-width:600px) {
 
       .awani-opening-bg {
-        padding: 10px;
+        padding: 8px;
       }
 
       .awani-opening-card {
         width: 96vw;
-        max-height: 88vh;
+
+        max-height: 89vh;
+
         border-radius: 18px;
       }
 
-      .awani-opening-close {
-        width: 36px;
-        height: 36px;
-        font-size: 26px;
+      .awani-opening-image {
+        max-height: 52vh;
       }
+
+      .awani-opening-emoji {
+        min-height: 190px;
+
+        font-size: 82px;
+      }
+
+      .awani-opening-name {
+        font-size: 19px;
+      }
+
+      .awani-opening-new {
+        font-size: 23px;
+      }
+
+      .awani-opening-close {
+        width: 37px;
+        height: 37px;
+
+        font-size: 25px;
+      }
+
     }
+
   `;
 
   document.head.appendChild(style);
 
-  /*
-    نعطيو شوية وقت للصفحة باش تحمل الإعلانات
-    ومن بعد نبدأو العرض.
-  */
-  setTimeout(prepareAds, 1000);
+
+  /* =====================================================
+     إخفاء الإعلان العادي الموجود في index.html
+     ===================================================== */
+
+  function hideNormalOpeningAds() {
+
+    const normalAds =
+      document.querySelectorAll(".opening-ad");
+
+    normalAds.forEach(ad => {
+
+      if (!ad.dataset.awaniOriginalDisplaySaved) {
+
+        ad.dataset.awaniOriginalDisplay =
+          ad.style.display || "";
+
+        ad.dataset.awaniOriginalVisibility =
+          ad.style.visibility || "";
+
+        ad.dataset.awaniOriginalDisplaySaved = "true";
+      }
+
+      ad.style.visibility = "hidden";
+    });
+
+  }
+
+
+  /* =====================================================
+     إرجاع الإعلانات العادية
+     ===================================================== */
+
+  function restoreNormalOpeningAds() {
+
+    const normalAds =
+      document.querySelectorAll(".opening-ad");
+
+    normalAds.forEach(ad => {
+
+      ad.style.visibility =
+        ad.dataset.awaniOriginalVisibility || "";
+
+      ad.style.display =
+        ad.dataset.awaniOriginalDisplay || "";
+
+    });
+
+  }
+
+
+  /* =====================================================
+     إنهاء الإعلانات
+     ===================================================== */
+
+  function finishOpeningAds() {
+
+    restoreNormalOpeningAds();
+
+    const oldPopup =
+      document.getElementById(
+        "awani-opening-ad"
+      );
+
+    if (oldPopup) {
+      oldPopup.remove();
+    }
+
+    popup = null;
+  }
+
+
+  /* =====================================================
+     إنشاء الإعلان من منتج Firebase
+     ===================================================== */
+
+  function createAdPopup(product) {
+
+    const oldPopup =
+      document.getElementById(
+        "awani-opening-ad"
+      );
+
+    if (oldPopup) {
+      oldPopup.remove();
+    }
+
+    popup =
+      document.createElement("div");
+
+    popup.id = "awani-opening-ad";
+
+    const name =
+      escapeHtml(product.name);
+
+    const desc =
+      escapeHtml(product.desc);
+
+    const price =
+      Number(product.price || 0);
+
+    const oldPrice =
+      Number(product.oldPrice || 0);
+
+    const emoji =
+      escapeHtml(
+        product.emoji || "🛍️"
+      );
+
+    let imageHtml = "";
+
+    if (product.image) {
+
+      const imageUrl =
+        escapeHtml(product.image);
+
+      imageHtml = `
+        <div class="awani-opening-image-box">
+
+          <img
+            class="awani-opening-image"
+            src="${imageUrl}"
+            alt="${name}"
+            onerror="
+              this.style.display='none';
+              if(this.nextElementSibling){
+                this.nextElementSibling.style.display='flex';
+              }
+            "
+          >
+
+          <div
+            class="awani-opening-emoji"
+            style="display:none;"
+          >
+            ${emoji}
+          </div>
+
+        </div>
+      `;
+
+    } else {
+
+      imageHtml = `
+        <div class="awani-opening-emoji">
+          ${emoji}
+        </div>
+      `;
+
+    }
+
+
+    let pricesHtml = "";
+
+    if (
+      oldPrice > price &&
+      price >= 0
+    ) {
+
+      pricesHtml = `
+        <div class="awani-opening-prices">
+
+          <span class="awani-opening-old">
+            ${oldPrice} DH
+          </span>
+
+          <span class="awani-opening-new">
+            ${price} DH
+          </span>
+
+        </div>
+      `;
+
+    } else {
+
+      pricesHtml = `
+        <div class="awani-opening-prices">
+
+          <span class="awani-opening-new">
+            ${price} DH
+          </span>
+
+        </div>
+      `;
+
+    }
+
+
+    popup.innerHTML = `
+
+      <div class="awani-opening-bg">
+
+        <div class="awani-opening-card">
+
+          <button
+            type="button"
+            class="awani-opening-close"
+            aria-label="إغلاق الإعلان"
+          >
+            ×
+          </button>
+
+          ${imageHtml}
+
+          <div class="awani-opening-info">
+
+            <div class="awani-opening-badge">
+              🔥 عرض محدود
+            </div>
+
+            <div class="awani-opening-name">
+              ${name}
+            </div>
+
+            ${pricesHtml}
+
+            ${
+              desc
+              ?
+              `
+                <div class="awani-opening-desc">
+                  ${desc}
+                </div>
+              `
+              :
+              ""
+            }
+
+            <button
+              type="button"
+              class="awani-opening-product-btn"
+            >
+              👀 شوف المنتج
+            </button>
+
+          </div>
+
+          <div class="awani-opening-counter">
+            إعلان ${currentAd + 1} من ${ads.length}
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+
+    document.body.appendChild(popup);
+
+
+    /* =================================================
+       زر X
+       ================================================= */
+
+    const closeButton =
+      popup.querySelector(
+        ".awani-opening-close"
+      );
+
+    closeButton.addEventListener(
+      "click",
+      function () {
+
+        if (popup) {
+          popup.remove();
+        }
+
+        popup = null;
+
+        currentAd++;
+
+        setTimeout(
+          showNextAd,
+          120
+        );
+
+      }
+    );
+
+
+    /* =================================================
+       فتح تفاصيل المنتج
+       ================================================= */
+
+    const productButton =
+      popup.querySelector(
+        ".awani-opening-product-btn"
+      );
+
+    productButton.addEventListener(
+      "click",
+      function () {
+
+        /*
+          أولاً نرجعو الموقع للوضع الطبيعي
+        */
+
+        finishOpeningAds();
+
+        /*
+          من بعد نفتح تفاصيل المنتج
+        */
+
+        if (
+          typeof openProduct === "function"
+        ) {
+
+          openProduct(product.id);
+
+        }
+
+      }
+    );
+
+
+    /* =================================================
+       الضغط خارج الإعلان
+       ================================================= */
+
+    const background =
+      popup.querySelector(
+        ".awani-opening-bg"
+      );
+
+    background.addEventListener(
+      "click",
+      function (e) {
+
+        if (e.target !== background) {
+          return;
+        }
+
+        if (popup) {
+          popup.remove();
+        }
+
+        popup = null;
+
+        currentAd++;
+
+        setTimeout(
+          showNextAd,
+          120
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =====================================================
+     عرض الإعلان التالي
+     ===================================================== */
+
+  function showNextAd() {
+
+    if (
+      currentAd >= ads.length
+    ) {
+
+      finishOpeningAds();
+
+      return;
+    }
+
+    const product =
+      ads[currentAd];
+
+    if (!product) {
+
+      currentAd++;
+
+      showNextAd();
+
+      return;
+    }
+
+    createAdPopup(product);
+  }
+
+
+  /* =====================================================
+     البحث عن عروض Firebase
+     ===================================================== */
+
+  function prepareAds() {
+
+    /*
+      مهم:
+      products هي نفس المنتجات التي حملها app.js
+    */
+
+    if (
+      typeof products === "undefined" ||
+      !Array.isArray(products)
+    ) {
+      return false;
+    }
+
+    /*
+      🔥 أي منتج عليه offer=true
+      يصبح تلقائياً إعلان دخول
+    */
+
+    ads =
+      products.filter(
+        p => p && p.offer === true
+      );
+
+    /*
+      إذا ما كاين حتى عرض:
+      ما نخبيو حتى حاجة
+    */
+
+    if (!ads.length) {
+
+      restoreNormalOpeningAds();
+
+      return true;
+    }
+
+    /*
+      نخبيو الإعلان العادي مؤقتاً
+    */
+
+    hideNormalOpeningAds();
+
+    currentAd = 0;
+
+    showNextAd();
+
+    return true;
+  }
+
+
+  /* =====================================================
+     انتظار Firebase حتى تحمل المنتجات
+     ===================================================== */
+
+  function waitForProducts() {
+
+    if (started) return;
+
+    let attempts = 0;
+
+    const timer =
+      setInterval(() => {
+
+        attempts++;
+
+        if (
+          prepareAds()
+        ) {
+
+          started = true;
+
+          clearInterval(timer);
+
+          return;
+        }
+
+        /*
+          نحاولو حتى 20 ثانية
+        */
+
+        if (attempts >= 40) {
+
+          clearInterval(timer);
+
+          restoreNormalOpeningAds();
+
+        }
+
+      }, 500);
+
+  }
+
+
+  /* =====================================================
+     التشغيل
+     ===================================================== */
+
+  if (
+    document.readyState === "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      waitForProducts
+    );
+
+  } else {
+
+    waitForProducts();
+
+  }
 
 })();
+
+
+
+
+
+
+
+
+
