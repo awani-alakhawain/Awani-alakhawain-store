@@ -432,7 +432,7 @@ function renderFeaturedAd() {
 // تحميل المنتجات من Firebase
 // =====================================================
 
-async function loadProducts() {
+async function loadProducts() {window.__awaniProductsLoaded = false;
 
   try {
 
@@ -488,6 +488,8 @@ async function loadProducts() {
         loadCategories();
       }
     }
+    // ✅ Firebase سالا تحميل المنتجات
+window.__awaniProductsLoaded = true;
 
   } catch (error) {
 
@@ -6292,55 +6294,62 @@ setInterval(() => {
      البحث عن عروض Firebase
      ===================================================== */
 
-  function prepareAds() {
 
-    /*
-      مهم:
-      products هي نفس المنتجات التي حملها app.js
-    */
+function prepareAds() {
 
-    if (
-      typeof products === "undefined" ||
-      !Array.isArray(products)
-    ) {
-      return false;
-    }
+  /*
+    ⏳ ما نبداوش حتى Firebase يكمل تحميل المنتجات
+  */
 
-    /*
-      🔥 أي منتج عليه offer=true
-      يصبح تلقائياً إعلان دخول
-    */
+  if (window.__awaniProductsLoaded !== true) {
+    return false;
+  }
 
-    ads =
-      products.filter(
-        p => p && p.offer === true
-      );
+  /*
+    مهم:
+    products هي نفس المنتجات التي حملها app.js
+  */
 
-    /*
-      إذا ما كاين حتى عرض:
-      ما نخبيو حتى حاجة
-    */
+  if (
+    typeof products === "undefined" ||
+    !Array.isArray(products)
+  ) {
+    return false;
+  }
 
-    if (!ads.length) {
+  /*
+    🔥 أي منتج عليه offer=true
+    يصبح تلقائياً إعلان دخول
+  */
 
-      restoreNormalOpeningAds();
+  ads = products.filter(
+    p => p && p.offer === true
+  );
 
-      return true;
-    }
+  /*
+    إذا ما كاين حتى عرض:
+    ما نخبيو حتى حاجة
+  */
 
-    /*
-      نخبيو الإعلان العادي مؤقتاً
-    */
+  if (!ads.length) {
 
-    hideNormalOpeningAds();
-
-    currentAd = 0;
-
-    showNextAd();
+    restoreNormalOpeningAds();
 
     return true;
   }
 
+  /*
+    نخبيو الإعلان العادي مؤقتاً
+  */
+
+  hideNormalOpeningAds();
+
+  currentAd = 0;
+
+  showNextAd();
+
+  return true;
+}
 
   /* =====================================================
      انتظار Firebase حتى تحمل المنتجات
