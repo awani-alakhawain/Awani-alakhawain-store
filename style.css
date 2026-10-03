@@ -2297,4 +2297,26 @@ header {
     font-size: 14px;
   }
 }
+  /* =========================================================
+   🧹 إخفاء الكتابات اللي حدّ الشعار
+   بدون حذفها من HTML أو التأثير على الوظائف
+   ========================================================= */
+
+/* إخفاء النصوص بجانب الشعار */
+.logo-text {
+  display: none !important;
+}
+
+/* نخلي الشعار بوحدو */
+.logo-box {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* الشعار */
+.store-logo {
+  object-fit: contain !important;
+  display: block !important;
+}
 
