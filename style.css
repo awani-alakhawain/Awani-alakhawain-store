@@ -2319,4 +2319,45 @@ header {
   object-fit: contain !important;
   display: block !important;
 }
+/* =================================================
+   🧹 تنظيف منطقة الشعار
+   ================================================= */
 
+/* نخلي الشعار بوحدو */
+.logo-text,
+.logo-box small,
+header h1,
+header p {
+  display: none !important;
+}
+
+/* الشعار */
+.logo-box {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: auto !important;
+}
+
+.store-logo {
+  display: block !important;
+  width: 100px !important;
+  height: 70px !important;
+  max-width: 100px !important;
+  max-height: 70px !important;
+  object-fit: contain !important;
+}
+
+/* الهاتف */
+@media (max-width: 700px) {
+  .logo-box {
+    width: auto !important;
+  }
+
+  .store-logo {
+    width: 65px !important;
+    height: 55px !important;
+    max-width: 65px !important;
+    max-height: 55px !important;
+  }
+}
